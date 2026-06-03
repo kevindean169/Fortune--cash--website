@@ -39,7 +39,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Lotteries</h3>
             <ul className="space-y-2.5">
               {[
-                { id: 'cashpot' as PageId, label: 'Jamaica Cashpot', icon: '💎' },
+                { id: 'cashpot' as PageId, label: 'Cashpot', icon: '💎' },
                 { id: 'money-time' as PageId, label: 'Money Time', icon: '🎯' },
                 { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', icon: '✌️' },
                 { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', icon: '🔥' },
