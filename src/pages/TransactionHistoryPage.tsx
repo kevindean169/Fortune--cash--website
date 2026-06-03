@@ -16,7 +16,7 @@ const mockTransactions = [
   { id: 'TRX-99806', type: 'Purchase', amount: -1.00, method: 'Wallet Balance', date: 'May 24, 2026 01:10 PM', status: 'Completed', positive: false },
 ]
 
-export function TransactionHistoryPage({ navigate }: TransactionHistoryPageProps) {
+export function TransactionHistoryPage() {
   const [activeTab, setActiveTab] = useState('all')
 
   const filteredTransactions = mockTransactions.filter((trx) => {

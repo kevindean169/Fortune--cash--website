@@ -226,7 +226,6 @@ export function ContactPage({ navigate }: ContactPageProps) {
                     { label: 'Responsible Gaming Resources', page: 'responsible-gaming' as const },
                     { label: 'Check My Tickets', page: 'tickets' as const },
                     { label: 'Wallet & Withdrawals', page: 'wallet' as const },
-                    { label: 'Current Promotions', page: 'promotions' as const },
                   ].map(link => (
                     <button
                       key={link.page}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { User, Mail, Phone, Lock, Sparkles } from 'lucide-react'
+import { Mail, Phone, Lock, Sparkles } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
 interface RegisterPageProps {

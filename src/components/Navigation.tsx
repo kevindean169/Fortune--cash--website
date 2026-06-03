@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   Menu, X, Trophy, Ticket, Wallet, LayoutDashboard,
-  Gift, ShieldCheck, Phone, ChevronDown, Sparkles,
+  Gift, ShieldCheck, Phone, ChevronDown, Sparkles, User
 } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
@@ -22,7 +22,6 @@ const gamesMenu: { id: PageId; label: string; icon: string }[] = [
 
 const mainNav: { id: PageId; label: string; icon: React.ReactNode }[] = [
   { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
-  { id: 'promotions', label: 'Promotions', icon: <Gift className="size-4" /> },
   { id: 'my-lotteries', label: 'My Lotteries', icon: <Ticket className="size-4" /> },
 ]
 
@@ -105,6 +104,15 @@ export function Navigation({ currentPage, navigate }: NavProps) {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => handleNavigate('profile')}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              <User className="size-4" />
+              Profile
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => handleNavigate('dashboard')}
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
@@ -173,7 +181,7 @@ export function Navigation({ currentPage, navigate }: NavProps) {
 
                   {[
                     { id: 'results' as PageId, label: 'Results', icon: <Trophy className="size-4" /> },
-                    { id: 'promotions' as PageId, label: 'Promotions', icon: <Gift className="size-4" /> },
+                    { id: 'profile' as PageId, label: 'My Profile', icon: <User className="size-4" /> },
                     { id: 'dashboard' as PageId, label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
                     { id: 'tickets' as PageId, label: 'My Tickets', icon: <Ticket className="size-4" /> },
                     { id: 'wallet' as PageId, label: 'Wallet', icon: <Wallet className="size-4" /> },

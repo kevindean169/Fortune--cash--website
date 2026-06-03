@@ -372,10 +372,10 @@ export function HomePage({ navigate }: HomePageProps) {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => navigate('promotions')}
+                  onClick={() => navigate('tickets')}
                   className="border-primary/40 text-primary hover:bg-primary/10"
                 >
-                  View Promotions
+                  View My Tickets
                 </Button>
               </div>
             </div>

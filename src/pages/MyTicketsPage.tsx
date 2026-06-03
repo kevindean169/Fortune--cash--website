@@ -16,7 +16,7 @@ const mockTickets = [
   { orderNo: '10108', ticketNo: '22', game: 'CASHPOT', betOption: 'Monstaball', drawTime: '08:25 PM', price: 5.00, drawDate: 'May 28, 2026', status: 'Lost', payout: 0 },
 ]
 
-export function MyTicketsPage({ navigate }: MyTicketsPageProps) {
+export function MyTicketsPage() {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 

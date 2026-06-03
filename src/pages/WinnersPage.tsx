@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Trophy } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 

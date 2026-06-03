@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import type { PageId } from '@/lib/fortune-data'
 
 interface LotteriesPageProps {
@@ -106,7 +104,7 @@ export function LotteriesPage({ navigate }: LotteriesPageProps) {
 
         {/* Game Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {lotteries.map((game, i) => (
+          {lotteries.map((game) => (
             <GameCard key={game.id} game={game} navigate={navigate} />
           ))}
         </div>

@@ -9,7 +9,6 @@ export type PageId =
   | 'dashboard'
   | 'tickets'
   | 'wallet'
-  | 'promotions'
   | 'responsible-gaming'
   | 'contact'
   | 'profile'

@@ -67,7 +67,6 @@ export function Footer({ navigate }: FooterProps) {
                 { id: 'tickets' as PageId, label: 'My Tickets' },
                 { id: 'wallet' as PageId, label: 'Wallet' },
                 { id: 'transactions' as PageId, label: 'Transactions' },
-                { id: 'promotions' as PageId, label: 'Promotions' },
                 { id: 'results' as PageId, label: 'Results' },
               ].map(item => (
                 <li key={item.id}>
