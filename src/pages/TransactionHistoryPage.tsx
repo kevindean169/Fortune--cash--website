@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { PageId } from '@/lib/fortune-data'
 
-interface TransactionHistoryPageProps {
-  navigate: (page: PageId) => void
-}
+
 
 const mockTransactions = [
   { id: 'TRX-99812', type: 'Payout', amount: 26.00, method: 'Wallet Balance', date: 'May 30, 2026 06:15 PM', status: 'Completed', positive: true },
@@ -16,7 +14,11 @@ const mockTransactions = [
   { id: 'TRX-99806', type: 'Purchase', amount: -1.00, method: 'Wallet Balance', date: 'May 24, 2026 01:10 PM', status: 'Completed', positive: false },
 ]
 
+import { useNavigate } from 'react-router-dom'
+
 export function TransactionHistoryPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [activeTab, setActiveTab] = useState('all')
 
   const filteredTransactions = mockTransactions.filter((trx) => {
@@ -32,10 +34,7 @@ export function TransactionHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-        {/* Page Header */}
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-foreground">
@@ -110,7 +109,6 @@ export function TransactionHistoryPage() {
           </CardContent>
         </Card>
 
-      </div>
     </div>
   )
 }

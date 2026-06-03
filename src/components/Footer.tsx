@@ -2,11 +2,9 @@ import { Separator } from '@/components/ui/separator'
 import { Sparkles, ShieldCheck, Phone, HelpCircle, FileText, Lock } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
-interface FooterProps {
-  navigate: (page: PageId) => void
-}
+import { Link } from 'react-router-dom'
 
-export function Footer({ navigate }: FooterProps) {
+export function Footer() {
   return (
     <footer className="border-t border-border/50 bg-card mt-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -14,7 +12,7 @@ export function Footer({ navigate }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <button onClick={() => navigate('home')} className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="flex items-center justify-center size-8 rounded-full gold-gradient">
                 <Sparkles className="size-4 text-fortune-navy" />
               </div>
@@ -22,7 +20,7 @@ export function Footer({ navigate }: FooterProps) {
                 <span className="gold-text">Fortune</span>
                 <span className="text-foreground"> Lottery</span>
               </span>
-            </button>
+            </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Jamaica's trusted online lottery platform. Licensed, secure, and committed to responsible gaming.
             </p>
@@ -36,9 +34,9 @@ export function Footer({ navigate }: FooterProps) {
             </div>
           </div>
 
-          {/* Games */}
+          {/* Lotteries */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Games</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Lotteries</h3>
             <ul className="space-y-2.5">
               {[
                 { id: 'cashpot' as PageId, label: 'Jamaica Cashpot', icon: '💎' },
@@ -47,12 +45,11 @@ export function Footer({ navigate }: FooterProps) {
                 { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', icon: '🔥' },
               ].map(g => (
                 <li key={g.id}>
-                  <button
-                    onClick={() => navigate(g.id)}
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  <div
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
                   >
                     <span>{g.icon}</span> {g.label}
-                  </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -70,12 +67,12 @@ export function Footer({ navigate }: FooterProps) {
                 { id: 'results' as PageId, label: 'Results' },
               ].map(item => (
                 <li key={item.id}>
-                  <button
-                    onClick={() => navigate(item.id)}
+                  <Link
+                    to={`/${item.id}`}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -91,12 +88,12 @@ export function Footer({ navigate }: FooterProps) {
                 { id: 'responsible-gaming' as PageId, label: 'Responsible Gaming', icon: <ShieldCheck className="size-3" /> },
               ].map((item, i) => (
                 <li key={i}>
-                  <button
-                    onClick={() => navigate(item.id)}
+                  <Link
+                    to={`/${item.id}`}
                     className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {item.icon} {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
               <li>
@@ -122,12 +119,12 @@ export function Footer({ navigate }: FooterProps) {
             <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">
               🎰 Play Responsibly
             </div>
-            <button
-              onClick={() => navigate('responsible-gaming')}
+            <Link
+              to="/responsible-gaming"
               className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary transition-colors"
             >
               Problem Gambling? Get Help
-            </button>
+            </Link>
           </div>
         </div>
       </div>

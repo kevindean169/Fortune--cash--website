@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { PageId } from '@/lib/fortune-data'
 
-interface LotteriesPageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 function useCountdown(totalSeconds: number) {
   const [secs, setSecs] = useState(totalSeconds)
@@ -30,7 +28,9 @@ const lotteries: { id: PageId; name: string; sub: string; range: string; drawSec
   { id: 'pick-2-double', name: 'P2 Double Digit', sub: 'CAYMAN P2', range: '00–99', drawSecs: 0 * 86400 + 6 * 3600 + 40 * 60 + 19 },
 ]
 
-function GameCard({ game, navigate }: { game: typeof lotteries[0]; navigate: (p: PageId) => void }) {
+function GameCard({ game }: { game: typeof lotteries[0] }) {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(`/${path}`)
   const [d, h, m, s] = useCountdown(game.drawSecs)
   return (
     <div className="bg-fortune-card border border-border/60 rounded-xl flex overflow-hidden shadow-[0_0_10px_rgba(224,172,44,0.05)] hover:shadow-[0_0_20px_rgba(224,172,44,0.15)] hover:-translate-y-1 transition-all duration-300 group">
@@ -87,7 +87,7 @@ function GameCard({ game, navigate }: { game: typeof lotteries[0]; navigate: (p:
   )
 }
 
-export function LotteriesPage({ navigate }: LotteriesPageProps) {
+export function LotteriesPage() {
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -105,7 +105,7 @@ export function LotteriesPage({ navigate }: LotteriesPageProps) {
         {/* Game Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {lotteries.map((game) => (
-            <GameCard key={game.id} game={game} navigate={navigate} />
+            <GameCard key={game.id} game={game} />
           ))}
         </div>
 

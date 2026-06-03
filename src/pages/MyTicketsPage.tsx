@@ -3,9 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { PageId } from '@/lib/fortune-data'
 
-interface MyTicketsPageProps {
-  navigate: (page: PageId) => void
-}
+
 
 const mockTickets = [
   { orderNo: '10113', ticketNo: '02', game: 'CASHPOT', betOption: 'Cashpot', drawTime: '06:00 PM', price: 1.00, drawDate: 'May 30, 2026', status: 'Won', payout: 26.00 },
@@ -16,7 +14,11 @@ const mockTickets = [
   { orderNo: '10108', ticketNo: '22', game: 'CASHPOT', betOption: 'Monstaball', drawTime: '08:25 PM', price: 5.00, drawDate: 'May 28, 2026', status: 'Lost', payout: 0 },
 ]
 
+import { useNavigate } from 'react-router-dom'
+
 export function MyTicketsPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
@@ -33,10 +35,7 @@ export function MyTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-        {/* Page Header */}
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">        {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-foreground">
@@ -161,7 +160,6 @@ export function MyTicketsPage() {
           </div>
         )}
 
-      </div>
     </div>
   )
 }

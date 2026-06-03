@@ -2,9 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Trophy } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
-interface WinnersPageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 const recentWinners = [
   { name: 'James R.', amount: '$1,300', game: 'Cashpot', number: '14', date: '28 May' },
@@ -19,7 +17,9 @@ const recentWinners = [
   { name: 'Julie W.', amount: '$500', game: 'Pick 2 Single', number: '99', date: '08 May' },
 ]
 
-export function WinnersPage({ navigate }: WinnersPageProps) {
+export function WinnersPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

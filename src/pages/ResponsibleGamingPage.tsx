@@ -7,9 +7,7 @@ import {
 } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
-interface ResponsibleGamingPageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 const SELF_ASSESSMENT = [
   'Do you spend more than you can afford on lottery tickets?',
@@ -26,7 +24,9 @@ const RESOURCES = [
   { name: 'National Council on Problem Gambling', contact: 'www.ncpgambling.org', available: 'Online', icon: <Globe className="size-4" /> },
 ]
 
-export function ResponsibleGamingPage({ navigate }: ResponsibleGamingPageProps) {
+export function ResponsibleGamingPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

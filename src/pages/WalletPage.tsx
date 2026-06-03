@@ -11,9 +11,7 @@ import {
 import { MOCK_TRANSACTIONS } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 
-interface WalletPageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 const TX_ICONS = {
   prize: <Trophy className="size-4 text-emerald-400" />,
@@ -24,7 +22,9 @@ const TX_ICONS = {
 
 const QUICK_AMOUNTS = [10, 25, 50, 100, 200, 500]
 
-export function WalletPage(_: WalletPageProps) {
+export function WalletPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit')
   const [amount, setAmount] = useState('')
   const [payMethod, setPayMethod] = useState<'card' | 'bank'>('card')
@@ -42,9 +42,8 @@ export function WalletPage(_: WalletPageProps) {
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+      {/* Header */}
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold tracking-tight mb-2">
             <span className="gold-text">Wallet</span> & Transactions
@@ -255,7 +254,6 @@ export function WalletPage(_: WalletPageProps) {
             </Card>
           </div>
         </div>
-      </div>
     </div>
   )
 }

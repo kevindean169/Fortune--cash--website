@@ -1,170 +1,90 @@
-import { TrendingUp, Calendar, Award, BarChart3 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Trophy } from 'lucide-react'
 
-interface Winning {
-  id: string
-  game: string
-  winningNumbers: number[]
-  yourNumbers: number[]
-  winAmount: number
-  date: string
-  multiplier: number
-}
+const mockWinnings = [
+  { orderNo: '10113', ticketNo: '02', game: 'CASHPOT', betOption: 'Cashpot', drawTime: '06:00 PM', price: 1.00, drawDate: 'May 30, 2026', payout: 26.00 },
+  { orderNo: '10112', ticketNo: '14', game: 'CASHPOT', betOption: 'Megaball', drawTime: '06:00 PM', price: 2.00, drawDate: 'May 30, 2026', payout: 72.00 },
+  { orderNo: '10111', ticketNo: '28', game: 'Money Time', betOption: 'Cashpot Money Time', drawTime: '04:00 PM', price: 5.00, drawDate: 'May 30, 2026', payout: 130.00 },
+]
 
-export default function MyWinningsPage() {
-  const winnings: Winning[] = [
-    {
-      id: '1',
-      game: 'Pick 4',
-      winningNumbers: [1, 2, 3, 4],
-      yourNumbers: [1, 2, 3, 4],
-      winAmount: 500.00,
-      date: '2024-06-01',
-      multiplier: 250,
-    },
-    {
-      id: '2',
-      game: 'Pick 3',
-      winningNumbers: [2, 4, 6],
-      yourNumbers: [2, 4, 6],
-      winAmount: 150.00,
-      date: '2024-05-25',
-      multiplier: 100,
-    },
-  ]
-
-  const totalWinnings = winnings.reduce((sum, w) => sum + w.winAmount, 0)
-  const largestWin = Math.max(...winnings.map(w => w.winAmount))
-  const averageWin = (totalWinnings / winnings.length).toFixed(2)
+export function MyWinningsPage() {
+  const totalWinnings = mockWinnings.reduce((acc, t) => acc + t.payout, 0)
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3 mb-2">
-            <Award className="w-10 h-10 text-primary" />
-            My Winnings
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-foreground flex items-center gap-2">
+            My <span className="gold-text">Winnings</span>
+            <Trophy className="size-6 text-primary" />
           </h1>
-          <p className="text-muted-foreground">View your winning tickets and prize history</p>
+          <p className="text-muted-foreground text-sm mt-1">Review your successful bet slips and total payouts</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-border shadow-lg">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Total Winnings</p>
-                  <p className="text-3xl font-bold text-green-500">${totalWinnings.toFixed(2)}</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-green-500/50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border shadow-lg">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Largest Win</p>
-                  <p className="text-3xl font-bold text-primary">${largestWin.toFixed(2)}</p>
-                </div>
-                <Award className="w-8 h-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border shadow-lg">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Average Win</p>
-                  <p className="text-3xl font-bold text-primary">${averageWin}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border shadow-lg">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Total Wins</p>
-                  <p className="text-3xl font-bold text-primary">{winnings.length}</p>
-                </div>
-                <Calendar className="w-8 h-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
+          <span className="text-muted-foreground text-xs uppercase font-medium">Total Lifetime Winnings:</span>
+          <span className="text-primary font-extrabold text-lg">${totalWinnings.toFixed(2)}</span>
         </div>
+      </div>
 
-        <Card className="bg-card border-border shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
-              Winning Tickets
-            </CardTitle>
-            <CardDescription>Detailed breakdown of your winning combinations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {winnings.map(winning => (
-                <div
-                  key={winning.id}
-                  className="p-6 border border-border rounded-lg bg-gradient-to-r from-green-500/5 to-primary/5"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-bold text-foreground">{winning.game}</h3>
-                        <Badge className="bg-green-500/10 text-green-500 border-green-500/20 border">
-                          Won
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(winning.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-3xl font-bold text-green-500">${winning.winAmount.toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">Prize × {winning.multiplier}</p>
-                    </div>
+      {/* Winnings List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {mockWinnings.map((ticket) => (
+          <Card
+            key={ticket.orderNo}
+            className="bg-fortune-card border border-border/60 border-t-4 border-t-green-500 hover:-translate-y-1 transition-all"
+          >
+            <CardContent className="p-6 flex flex-col justify-between">
+              <div>
+                {/* Top row */}
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="font-bold text-lg text-foreground">{ticket.game}</p>
+                    <p className="text-[10px] text-muted-foreground">Order ID: #{ticket.orderNo}</p>
                   </div>
+                  <Badge className="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border-green-500/20">
+                    WON
+                  </Badge>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">Your Numbers</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {winning.yourNumbers.map(num => (
-                          <span
-                            key={num}
-                            className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm"
-                          >
-                            {num}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">Winning Numbers</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {winning.winningNumbers.map(num => (
-                          <span
-                            key={num}
-                            className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500/20 border border-green-500/50 text-green-500 font-bold text-sm"
-                          >
-                            {num}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                {/* Draw details */}
+                <div className="space-y-2 py-4 border-y border-border/50 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bet Option:</span>
+                    <span className="text-foreground font-medium">{ticket.betOption}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Draw Date:</span>
+                    <span className="text-foreground font-medium">{ticket.drawDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Draw Time:</span>
+                    <span className="text-foreground font-medium">{ticket.drawTime}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+                {/* Bet digits */}
+                <div className="flex justify-between items-center py-4">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase">Lucky Pick</p>
+                    <span className="font-extrabold text-2xl text-primary">#{ticket.ticketNo}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground uppercase">Bet Amount</p>
+                    <span className="font-semibold text-base text-foreground">${ticket.price.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Won payout */}
+              <div className="mt-4 p-3 bg-green-500/5 border border-green-500/20 rounded-xl flex justify-between items-center">
+                <span className="text-xs text-green-400 font-medium">Payout Received:</span>
+                <span className="font-extrabold text-green-400">+${ticket.payout.toFixed(2)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )

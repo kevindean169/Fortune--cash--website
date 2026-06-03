@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { PageId } from '@/lib/fortune-data'
 
-interface ResultsPageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 const tabs = [
   { id: 'cashpot', name: 'Cashpot' },
@@ -46,7 +44,9 @@ const pick2DoubleResults = [
   { draw_no: '1088', draw_time: '28 May, 2026 • 6:00 PM', cashpot_no: '22,44' },
 ]
 
-export function ResultsPage({ navigate }: ResultsPageProps) {
+export function ResultsPage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [activeTab, setActiveTab] = useState('cashpot')
 
   const getActiveResults = () => {

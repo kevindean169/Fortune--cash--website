@@ -3,10 +3,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, X } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
+import { useNavigate } from 'react-router-dom'
 
 interface SingleLotteryPageProps {
-  navigate: (page: PageId) => void
-  gameId?: PageId
+  gameId: 'cashpot' | 'money-time' | 'pick-2-single' | 'pick-2-double'
 }
 
 const lotteryConfigs: Record<string, {
@@ -69,7 +69,9 @@ interface BetItem {
   amount: number
 }
 
-export function SingleLotteryPage({ navigate, gameId }: SingleLotteryPageProps) {
+export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const id = gameId || 'cashpot'
   const config = lotteryConfigs[id] || lotteryConfigs.cashpot
 

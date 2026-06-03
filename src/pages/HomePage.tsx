@@ -8,11 +8,7 @@ import {
   ChevronRight, Star, TrendingUp, Play,
 } from 'lucide-react'
 import { GAMES, RECENT_RESULTS, WINNERS } from '@/lib/fortune-data'
-import type { PageId } from '@/lib/fortune-data'
-
-interface HomePageProps {
-  navigate: (page: PageId) => void
-}
+import { useNavigate } from 'react-router-dom'
 
 function JackpotCounter({ value }: { value: number }) {
   const [displayed, setDisplayed] = useState(0)
@@ -37,7 +33,9 @@ function JackpotCounter({ value }: { value: number }) {
   )
 }
 
-export function HomePage({ navigate }: HomePageProps) {
+export function HomePage() {
+  const routerNavigate = useNavigate()
+  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -138,7 +136,7 @@ export function HomePage({ navigate }: HomePageProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-extrabold tracking-tight">Available Games</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight">Available Lotteries</h2>
               <p className="text-muted-foreground mt-1">Pick your game and play today</p>
             </div>
             <Button variant="ghost" onClick={() => navigate('games')} className="text-primary gap-1">
@@ -238,7 +236,7 @@ export function HomePage({ navigate }: HomePageProps) {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
             <div className="relative">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold">Available Games</h3>
+                <h3 className="text-xl font-bold">Available Lotteries</h3>
                 <Button variant="ghost" onClick={() => navigate('games')} className="text-primary gap-1.5 h-auto py-1 px-2 text-xs font-bold">
                   Browse All <ArrowRight className="size-3.5" />
                 </Button>
