@@ -14,15 +14,16 @@ interface NavProps {
 }
 
 const gamesMenu: { id: PageId; label: string; icon: string }[] = [
-  { id: 'cash-pop', label: 'Cash Pop', icon: '💎' },
-  { id: 'pick-2', label: 'Pick 2', icon: '✌️' },
-  { id: 'pick-3', label: 'Pick 3', icon: '🎯' },
-  { id: 'pick-4', label: 'Pick 4', icon: '🔥' },
+  { id: 'cashpot', label: 'Jamaica Cashpot', icon: '💎' },
+  { id: 'money-time', label: 'Money Time', icon: '🎯' },
+  { id: 'pick-2-single', label: 'Pick 2 Single', icon: '✌️' },
+  { id: 'pick-2-double', label: 'Pick 2 Double', icon: '🔥' },
 ]
 
 const mainNav: { id: PageId; label: string; icon: React.ReactNode }[] = [
   { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
   { id: 'promotions', label: 'Promotions', icon: <Gift className="size-4" /> },
+  { id: 'my-lotteries', label: 'My Lotteries', icon: <Ticket className="size-4" /> },
 ]
 
 export function Navigation({ currentPage, navigate }: NavProps) {
@@ -61,7 +62,7 @@ export function Navigation({ currentPage, navigate }: NavProps) {
                 onMouseEnter={() => setGamesOpen(true)}
                 onClick={() => handleNavigate('games')}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  ['games','cash-pop','pick-2','pick-3','pick-4'].includes(currentPage)
+                  ['games','cashpot','money-time','pick-2-single','pick-2-double'].includes(currentPage)
                     ? 'text-primary'
                     : 'text-muted-foreground'
                 }`}
@@ -120,11 +121,19 @@ export function Navigation({ currentPage, navigate }: NavProps) {
               $5,249.50
             </Button>
             <Button
+              variant="ghost"
               size="sm"
-              onClick={() => handleNavigate('games')}
+              onClick={() => handleNavigate('login')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Log In
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleNavigate('register')}
               className="gold-gradient text-fortune-navy font-bold hover:opacity-90 gold-glow"
             >
-              Play Now
+              Sign Up
             </Button>
           </div>
 

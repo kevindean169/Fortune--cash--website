@@ -1,10 +1,10 @@
 export type PageId =
   | 'home'
   | 'games'
-  | 'cash-pop'
-  | 'pick-2'
-  | 'pick-3'
-  | 'pick-4'
+  | 'cashpot'
+  | 'money-time'
+  | 'pick-2-single'
+  | 'pick-2-double'
   | 'results'
   | 'dashboard'
   | 'tickets'
@@ -17,6 +17,10 @@ export type PageId =
   | 'my-winnings'
   | 'mobile-app'
   | 'support'
+  | 'login'
+  | 'register'
+  | 'transactions'
+  | 'winners'
 
 export interface Game {
   id: PageId
@@ -64,74 +68,74 @@ export interface Transaction {
 
 export const GAMES: Game[] = [
   {
-    id: 'cash-pop',
-    name: 'Cash Pop',
-    tagline: 'Pop for instant prizes',
-    jackpot: '$2,500',
-    nextDraw: 'Every 4 min',
-    drawTime: 'Continuous',
-    price: '$1',
+    id: 'cashpot',
+    name: 'Jamaica Cashpot',
+    tagline: 'Pick 01–36 for big wins',
+    jackpot: '$850,000',
+    nextDraw: 'Daily',
+    drawTime: 'Multiple times daily',
+    price: '$100',
     color: 'from-amber-500 to-orange-500',
     bgClass: 'bg-amber-500',
     icon: '💎',
     maxPick: 1,
-    poolSize: 15,
-    description: 'Pick one number from 1–15. Match it to win up to $2,500!',
+    poolSize: 36,
+    description: 'Pick 01–36. Win up to 26× your bet. Add Mega & Monsta balls for bigger prizes.',
   },
   {
-    id: 'pick-2',
-    name: 'Pick 2',
-    tagline: 'Two numbers, big wins',
-    jackpot: '$50',
-    nextDraw: 'Tonight 7:29 PM',
-    drawTime: '7:29 PM daily',
-    price: '$0.50',
+    id: 'money-time',
+    name: 'Money Time',
+    tagline: 'Special fixed daily slots',
+    jackpot: '$240,000',
+    nextDraw: 'Daily',
+    drawTime: 'Fixed daily slots',
+    price: '$100',
+    color: 'from-emerald-500 to-teal-600',
+    bgClass: 'bg-emerald-500',
+    icon: '🎯',
+    maxPick: 1,
+    poolSize: 36,
+    description: 'Special Cashpot draws at fixed daily time slots. Same rules, extra chances.',
+  },
+  {
+    id: 'pick-2-single',
+    name: 'Pick 2 Single',
+    tagline: 'One two-digit number',
+    jackpot: '$120,000',
+    nextDraw: 'Daily',
+    drawTime: 'Daily',
+    price: '$100',
     color: 'from-sky-500 to-blue-600',
     bgClass: 'bg-sky-500',
     icon: '✌️',
     maxPick: 2,
     poolSize: 10,
-    description: 'Choose 2 digits (0–9). Match in exact or any order to win.',
+    description: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.',
   },
   {
-    id: 'pick-3',
-    name: 'Pick 3',
-    tagline: 'Classic daily lottery',
-    jackpot: '$500',
-    nextDraw: 'Tonight 7:29 PM',
-    drawTime: '7:29 PM daily',
-    price: '$0.50',
-    color: 'from-emerald-500 to-teal-600',
-    bgClass: 'bg-emerald-500',
-    icon: '🎯',
-    maxPick: 3,
-    poolSize: 10,
-    description: 'Select 3 digits (0–9). Win up to $500 with exact or any order match.',
-  },
-  {
-    id: 'pick-4',
-    name: 'Pick 4',
-    tagline: 'Four numbers, max reward',
-    jackpot: '$5,000',
-    nextDraw: 'Tonight 7:29 PM',
-    drawTime: '7:29 PM daily',
-    price: '$0.50',
+    id: 'pick-2-double',
+    name: 'Pick 2 Double',
+    tagline: 'Bet on two numbers',
+    jackpot: '$120,000',
+    nextDraw: 'Daily',
+    drawTime: 'Daily',
+    price: '$100',
     color: 'from-rose-500 to-red-600',
     bgClass: 'bg-rose-500',
     icon: '🔥',
-    maxPick: 4,
+    maxPick: 2,
     poolSize: 10,
-    description: 'Pick 4 digits (0–9). Match exactly to win the top prize of $5,000!',
+    description: 'Bet on two numbers. Win straight, box, or single-match combinations.',
   },
 ]
 
 export const RECENT_RESULTS: DrawResult[] = [
-  { date: 'Today, 7:29 PM', game: 'Pick 4', numbers: [3, 7, 1, 9], jackpot: '$5,000', winners: 4 },
-  { date: 'Today, 7:29 PM', game: 'Pick 3', numbers: [4, 2, 8], jackpot: '$500', winners: 12 },
-  { date: 'Today, 7:29 PM', game: 'Pick 2', numbers: [6, 1], jackpot: '$50', winners: 87 },
-  { date: 'Today, 4:00 PM', game: 'Cash Pop', numbers: [11], jackpot: '$2,500', winners: 2 },
-  { date: 'Yesterday, 7:29 PM', game: 'Pick 4', numbers: [0, 5, 8, 3], jackpot: '$5,000', winners: 1 },
-  { date: 'Yesterday, 7:29 PM', game: 'Pick 3', numbers: [7, 7, 2], jackpot: '$500', winners: 8 },
+  { date: 'Today, 7:29 PM', game: 'Cashpot', numbers: [24], jackpot: '$850,000', winners: 4 },
+  { date: 'Today, 7:29 PM', game: 'Money Time', numbers: [15], jackpot: '$240,000', winners: 12 },
+  { date: 'Today, 7:29 PM', game: 'Pick 2 Single', numbers: [8, 9], jackpot: '$120,000', winners: 87 },
+  { date: 'Today, 4:00 PM', game: 'Pick 2 Double', numbers: [1, 2], jackpot: '$120,000', winners: 2 },
+  { date: 'Yesterday, 7:29 PM', game: 'Cashpot', numbers: [3], jackpot: '$850,000', winners: 1 },
+  { date: 'Yesterday, 7:29 PM', game: 'Money Time', numbers: [27], jackpot: '$240,000', winners: 8 },
 ]
 
 export const MOCK_TICKETS: Ticket[] = [
@@ -233,8 +237,8 @@ export const PROMOTIONS = [
 ]
 
 export const WINNERS = [
-  { initials: 'J.K.', location: 'Miami, FL', prize: '$5,000', game: 'Pick 4', date: 'Jun 02' },
-  { initials: 'M.R.', location: 'Tampa, FL', prize: '$2,500', game: 'Cash Pop', date: 'Jun 01' },
-  { initials: 'A.T.', location: 'Orlando, FL', prize: '$500', game: 'Pick 3', date: 'Jun 01' },
-  { initials: 'D.S.', location: 'Jacksonville, FL', prize: '$5,000', game: 'Pick 4', date: 'May 31' },
+  { initials: 'J.K.', location: 'Kingston', prize: '$850,000', game: 'Cashpot', date: 'Jun 02' },
+  { initials: 'M.R.', location: 'Montego Bay', prize: '$240,000', game: 'Money Time', date: 'Jun 01' },
+  { initials: 'A.T.', location: 'Ocho Rios', prize: '$120,000', game: 'Pick 2 Single', date: 'Jun 01' },
+  { initials: 'D.S.', location: 'Negril', prize: '$850,000', game: 'Cashpot', date: 'May 31' },
 ]

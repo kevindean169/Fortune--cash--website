@@ -50,7 +50,7 @@ export function HomePage({ navigate }: HomePageProps) {
             {/* Left */}
             <div className="space-y-8">
               <Badge className="bg-fortune-blue/20 text-primary border-primary/30 px-3 py-1">
-                <Zap className="size-3 mr-1" /> Florida's #1 Online Lottery
+                <Zap className="size-3 mr-1" /> Jamaica's #1 Online Lottery
               </Badge>
               <div>
                 <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-4">
@@ -59,7 +59,7 @@ export function HomePage({ navigate }: HomePageProps) {
                   Awaits
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-                  Play Cash Pop, Pick 2, Pick 3, and Pick 4. Draws happen daily. Winners happen constantly.
+                  Play Cashpot, Money Time, and Pick 2. Draws happen daily. Winners happen constantly.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -103,21 +103,21 @@ export function HomePage({ navigate }: HomePageProps) {
                       Tonight's Top Prize
                     </p>
                     <div className="text-6xl font-extrabold gold-text my-4">
-                      <JackpotCounter value={5000} />
+                      <JackpotCounter value={850000} />
                     </div>
-                    <p className="text-muted-foreground text-sm mb-6">Pick 4 · Draw at 7:29 PM</p>
+                    <p className="text-muted-foreground text-sm mb-6">Cashpot · Next Draw Soon</p>
                     <Button
                       className="w-full gold-gradient text-fortune-navy font-bold"
-                      onClick={() => navigate('pick-4')}
+                      onClick={() => navigate('cashpot')}
                     >
-                      Play Pick 4 <ChevronRight className="size-4" />
+                      Play Cashpot <ChevronRight className="size-4" />
                     </Button>
                     <Separator className="my-4 opacity-30" />
                     <div className="grid grid-cols-3 gap-3 text-center">
                       {[
-                        { label: 'Cash Pop', value: '$2,500' },
-                        { label: 'Pick 3', value: '$500' },
-                        { label: 'Pick 2', value: '$50' },
+                        { label: 'Money Time', value: '$240,000' },
+                        { label: 'Pick 2 Single', value: '$120,000' },
+                        { label: 'Pick 2 Double', value: '$120,000' },
                       ].map((j, i) => (
                         <div key={i}>
                           <p className="text-sm font-bold text-primary">{j.value}</p>
@@ -138,7 +138,7 @@ export function HomePage({ navigate }: HomePageProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-extrabold tracking-tight">Our Games</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight">Available Games</h2>
               <p className="text-muted-foreground mt-1">Pick your game and play today</p>
             </div>
             <Button variant="ghost" onClick={() => navigate('games')} className="text-primary gap-1">
@@ -187,32 +187,38 @@ export function HomePage({ navigate }: HomePageProps) {
       <section className="py-16 bg-fortune-card/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold tracking-tight mb-2">How It Works</h2>
-            <p className="text-muted-foreground">Three simple steps to your fortune</p>
+            <h2 className="text-3xl font-extrabold tracking-tight mb-2">How to Play</h2>
+            <p className="text-muted-foreground">Four simple steps to place your bet and start winning</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {[
               {
                 step: '01',
                 icon: <Play className="size-6 text-primary" />,
-                title: 'Choose a Game',
-                desc: 'Browse Cash Pop, Pick 2, Pick 3, or Pick 4. Each game has its own prizes and draw times.',
+                title: 'Choose Your Game',
+                desc: 'Select from Jamaica Cashpot, Money Time, Pick 2 Single, or Pick 2 Double.',
               },
               {
                 step: '02',
                 icon: <Star className="size-6 text-primary" />,
-                title: 'Pick Your Numbers',
-                desc: 'Select your lucky numbers or use Quick Pick for a random selection. Choose your play amount.',
+                title: 'Pick Your Number',
+                desc: 'Choose from 01–36 for Cashpot, or 00–99 for Pick 2. Add Mega & Monsta options.',
               },
               {
                 step: '03',
+                icon: <Zap className="size-6 text-primary" />,
+                title: 'Set Your Bet Amount',
+                desc: 'Bet from just $1.00. Use quick presets ($5, $10, $25) or enter a custom amount.',
+              },
+              {
+                step: '04',
                 icon: <Trophy className="size-6 text-primary" />,
-                title: 'Collect Your Winnings',
-                desc: 'Watch the live draw. Prizes are credited to your wallet instantly. Withdraw any time.',
+                title: 'Watch the Results',
+                desc: 'Draws happen daily. Check results instantly after the draw — winnings are credited automatically.',
               },
             ].map((step, i) => (
               <div key={i} className="relative text-center">
-                {i < 2 && (
+                {i < 3 && (
                   <div className="hidden md:block absolute top-8 left-[calc(50%+3rem)] w-[calc(100%-3rem)] h-px border-t border-dashed border-border/60" />
                 )}
                 <div className="relative inline-flex items-center justify-center size-16 rounded-2xl bg-fortune-card border border-border mb-4">
@@ -225,6 +231,46 @@ export function HomePage({ navigate }: HomePageProps) {
                 <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </div>
             ))}
+          </div>
+
+          {/* Available Games list (compact) */}
+          <div className="mt-16 bg-fortune-card border border-border rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Available Games</h3>
+                <Button variant="ghost" onClick={() => navigate('games')} className="text-primary gap-1.5 h-auto py-1 px-2 text-xs font-bold">
+                  Browse All <ArrowRight className="size-3.5" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { name: 'Cashpot', desc: 'Pick 01–36. Win up to 26× your bet. Add Mega & Monsta balls for bigger prizes.', path: 'cashpot' },
+                  { name: 'Money Time', desc: 'Special Cashpot draws at fixed daily time slots. Same rules, extra chances.', path: 'money-time' },
+                  { name: 'Pick 2 Single', desc: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.', path: 'pick-2-single' },
+                  { name: 'Pick 2 Double', desc: 'Bet on two numbers. Win straight, box, or single-match combinations.', path: 'pick-2-double' },
+                ].map((game, i) => (
+                  <div
+                    key={game.name}
+                    className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
+                    onClick={() => navigate(game.path as PageId)}
+                  >
+                    <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                      <span className="font-extrabold text-sm text-primary">{String(i + 1).padStart(2, '0')}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1 group-hover:text-primary transition-colors">{game.name}</h4>
+                      <p className="text-muted-foreground text-xs leading-relaxed">{game.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <Button onClick={() => navigate('games')} className="gold-gradient text-fortune-navy font-bold text-sm px-8 gold-glow">
+                  Start Playing Now <ArrowRight className="size-4 ml-1" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -313,7 +359,7 @@ export function HomePage({ navigate }: HomePageProps) {
                 Ready to Try Your <span className="gold-text">Luck?</span>
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Tickets start from just $0.50. New player? Get 10 free Cash Pop plays with your first $5 deposit.
+                Bets start from just $100. New player? Get 5 free Cashpot plays with your first deposit.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button

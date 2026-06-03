@@ -1,171 +1,169 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Calendar, Trophy, ChevronRight } from 'lucide-react'
-import { RECENT_RESULTS } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 
 interface ResultsPageProps {
   navigate: (page: PageId) => void
 }
 
-const ALL_RESULTS = [
-  ...RECENT_RESULTS,
-  { date: 'Jun 01, 7:29 PM', game: 'Pick 4', numbers: [0, 5, 8, 3], jackpot: '$5,000', winners: 1 },
-  { date: 'Jun 01, 7:29 PM', game: 'Pick 3', numbers: [7, 7, 2], jackpot: '$500', winners: 8 },
-  { date: 'Jun 01, 7:29 PM', game: 'Pick 2', numbers: [9, 4], jackpot: '$50', winners: 63 },
-  { date: 'Jun 01, 4:00 PM', game: 'Cash Pop', numbers: [3], jackpot: '$2,500', winners: 5 },
-  { date: 'May 31, 7:29 PM', game: 'Pick 4', numbers: [2, 2, 9, 1], jackpot: '$5,000', winners: 3 },
-  { date: 'May 31, 7:29 PM', game: 'Pick 3', numbers: [5, 0, 6], jackpot: '$500', winners: 19 },
-  { date: 'May 31, 7:29 PM', game: 'Pick 2', numbers: [3, 8], jackpot: '$50', winners: 91 },
+const tabs = [
+  { id: 'cashpot', name: 'Cashpot' },
+  { id: 'moneytime', name: 'Money Time' },
+  { id: 'pick2single', name: 'Pick 2 Single' },
+  { id: 'pick2double', name: 'Pick 2 Double' },
 ]
 
-const GAME_COLORS: Record<string, string> = {
-  'Cash Pop': 'bg-amber-500/20 text-amber-400',
-  'Pick 2': 'bg-sky-500/20 text-sky-400',
-  'Pick 3': 'bg-emerald-500/20 text-emerald-400',
-  'Pick 4': 'bg-rose-500/20 text-rose-400',
-}
+const cashpotResults = [
+  { draw_no: '4521', draw_time: '30 May, 2026 • 6:00 PM', cashpot_no: '14', megaball: 'yellow', monstaball: 'red' },
+  { draw_no: '4520', draw_time: '30 May, 2026 • 2:00 PM', cashpot_no: '07', megaball: 'white', monstaball: 'red' },
+  { draw_no: '4519', draw_time: '29 May, 2026 • 6:00 PM', cashpot_no: '28', megaball: 'yellow', monstaball: 'white' },
+  { draw_no: '4518', draw_time: '29 May, 2026 • 2:00 PM', cashpot_no: '03', megaball: 'white', monstaball: 'white' },
+  { draw_no: '4517', draw_time: '28 May, 2026 • 6:00 PM', cashpot_no: '19', megaball: 'yellow', monstaball: 'red' },
+  { draw_no: '4516', draw_time: '28 May, 2026 • 2:00 PM', cashpot_no: '35', megaball: 'white', monstaball: 'white' },
+]
+
+const moneytimeResults = [
+  { draw_no: '2804', draw_time: '30 May, 2026 • 7:00 PM', cashpot_no: '33', megaball: 'white', monstaball: 'white' },
+  { draw_no: '2803', draw_time: '30 May, 2026 • 3:00 PM', cashpot_no: '05', megaball: 'yellow', monstaball: 'red' },
+  { draw_no: '2802', draw_time: '29 May, 2026 • 7:00 PM', cashpot_no: '19', megaball: 'white', monstaball: 'red' },
+  { draw_no: '2801', draw_time: '29 May, 2026 • 3:00 PM', cashpot_no: '11', megaball: 'yellow', monstaball: 'white' },
+  { draw_no: '2800', draw_time: '28 May, 2026 • 7:00 PM', cashpot_no: '27', megaball: 'white', monstaball: 'red' },
+]
+
+const pick2SingleResults = [
+  { draw_no: '892', draw_time: '30 May, 2026 • 6:00 PM', cashpot_no: '25' },
+  { draw_no: '891', draw_time: '30 May, 2026 • 2:00 PM', cashpot_no: '09' },
+  { draw_no: '890', draw_time: '29 May, 2026 • 6:00 PM', cashpot_no: '14' },
+  { draw_no: '889', draw_time: '29 May, 2026 • 2:00 PM', cashpot_no: '73' },
+  { draw_no: '888', draw_time: '28 May, 2026 • 6:00 PM', cashpot_no: '51' },
+]
+
+const pick2DoubleResults = [
+  { draw_no: '1092', draw_time: '30 May, 2026 • 6:00 PM', cashpot_no: '12,18' },
+  { draw_no: '1091', draw_time: '30 May, 2026 • 2:00 PM', cashpot_no: '04,22' },
+  { draw_no: '1090', draw_time: '29 May, 2026 • 6:00 PM', cashpot_no: '09,15' },
+  { draw_no: '1089', draw_time: '29 May, 2026 • 2:00 PM', cashpot_no: '31,07' },
+  { draw_no: '1088', draw_time: '28 May, 2026 • 6:00 PM', cashpot_no: '22,44' },
+]
 
 export function ResultsPage({ navigate }: ResultsPageProps) {
-  const [gameFilter, setGameFilter] = useState('all')
-  const [searchDate, setSearchDate] = useState('')
+  const [activeTab, setActiveTab] = useState('cashpot')
 
-  const filtered = ALL_RESULTS.filter(r => {
-    const matchGame = gameFilter === 'all' || r.game === gameFilter
-    const matchDate = !searchDate || r.date.toLowerCase().includes(searchDate.toLowerCase())
-    return matchGame && matchDate
-  })
+  const getActiveResults = () => {
+    switch (activeTab) {
+      case 'moneytime': return moneytimeResults
+      case 'pick2single': return pick2SingleResults
+      case 'pick2double': return pick2DoubleResults
+      default: return cashpotResults
+    }
+  }
+
+  const hasMegaMonsta = activeTab === 'cashpot' || activeTab === 'moneytime'
+  const isDouble = activeTab === 'pick2double'
 
   return (
     <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
-        <div className="mb-10">
-          <Badge className="bg-primary/15 text-primary border-primary/25 mb-4">
-            <Trophy className="size-3 mr-1" /> Winning Numbers
-          </Badge>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2">
-            Latest <span className="gold-text">Results</span>
+        <div className="mb-8">
+          <button onClick={() => navigate('home')} className="text-primary hover:underline text-sm font-bold mb-4 inline-block">
+            ← Back to Home
+          </button>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">
+            Official Draw <span className="gold-text">Results</span>
           </h1>
-          <p className="text-muted-foreground">Check winning numbers from all Fortune Lottery games</p>
+          <p className="text-muted-foreground mt-2">Comprehensive history of all past winning numbers.</p>
         </div>
 
-        {/* Next Draws Banner */}
-        <div className="grid sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { game: 'Cash Pop', time: '~2 min', icon: '💎', color: 'border-amber-500/30 bg-amber-500/5' },
-            { game: 'Pick 2', time: '7:29 PM', icon: '✌️', color: 'border-sky-500/30 bg-sky-500/5' },
-            { game: 'Pick 3', time: '7:29 PM', icon: '🎯', color: 'border-emerald-500/30 bg-emerald-500/5' },
-            { game: 'Pick 4', time: '7:29 PM', icon: '🔥', color: 'border-rose-500/30 bg-rose-500/5' },
-          ].map(d => (
-            <Card key={d.game} className={`bg-fortune-card border ${d.color}`}>
-              <CardContent className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span>{d.icon}</span>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-5 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border ${
+                activeTab === tab.id
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
+                  : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+              }`}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Results Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
+          {getActiveResults().map((result, i) => (
+            <Card
+              key={result.draw_no}
+              className="bg-fortune-card border border-border/60 hover:-translate-y-1 hover:border-primary/30 transition-all"
+              style={{ animationDelay: `${i * 0.05}s` }}
+            >
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <p className="text-xs font-semibold">{d.game}</p>
-                    <p className="text-xs text-muted-foreground">Next: {d.time}</p>
+                    <span className="font-extrabold text-lg text-foreground">#{result.draw_no}</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">{result.draw_time}</p>
+                  </div>
+                  <div className="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                    {isDouble ? 'Double' : 'Single'}
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-primary text-xs h-7 px-2"
-                  onClick={() => navigate(d.game.toLowerCase().replace(' ', '-') as PageId)}
-                >
-                  Play <ChevronRight className="size-3" />
-                </Button>
+
+                <div className="flex items-center justify-between mt-2 pt-4 border-t border-border/50">
+                  <div className="flex items-center gap-2">
+                    {isDouble ? (
+                      (result.cashpot_no as string).split(',').map((num, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary/30 bg-primary/10 font-extrabold text-base text-primary"
+                        >
+                          {num.trim()}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 bg-primary/10 font-extrabold text-lg text-primary">
+                        {result.cashpot_no}
+                      </span>
+                    )}
+                  </div>
+
+                  {hasMegaMonsta && 'megaball' in result && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-center">
+                        <span
+                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${
+                            (result as any).megaball === 'yellow'
+                              ? 'bg-primary/20 border-primary text-primary'
+                              : 'bg-muted border-border text-muted-foreground'
+                          }`}
+                        >
+                          M
+                        </span>
+                        <span className="text-[9px] text-muted-foreground font-bold uppercase">Mega</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span
+                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${
+                            (result as any).monstaball === 'red'
+                              ? 'bg-red-500/15 border-red-500 text-red-400'
+                              : 'bg-muted border-border text-muted-foreground'
+                          }`}
+                        >
+                          X
+                        </span>
+                        <span className="text-[9px] text-muted-foreground font-bold uppercase">Monsta</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by date..."
-              value={searchDate}
-              onChange={e => setSearchDate(e.target.value)}
-              className="pl-9 bg-fortune-card border-border"
-            />
-          </div>
-          <Select value={gameFilter} onValueChange={setGameFilter}>
-            <SelectTrigger className="w-40 bg-fortune-card border-border">
-              <SelectValue placeholder="All Games" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Games</SelectItem>
-              <SelectItem value="Cash Pop">Cash Pop</SelectItem>
-              <SelectItem value="Pick 2">Pick 2</SelectItem>
-              <SelectItem value="Pick 3">Pick 3</SelectItem>
-              <SelectItem value="Pick 4">Pick 4</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Results Table */}
-        <Card className="bg-fortune-card border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/20">
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Date & Time</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Game</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Winning Numbers</th>
-                  <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Prize</th>
-                  <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Winners</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((result, i) => (
-                  <tr key={i} className="border-b border-border/40 last:border-0 hover:bg-muted/10 transition-colors">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="size-3.5 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{result.date}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Badge className={`text-xs font-semibold border-0 ${GAME_COLORS[result.game] ?? ''}`}>
-                        {result.game}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex gap-2">
-                        {result.numbers.map((n, ni) => (
-                          <div key={ni} className="number-ball number-ball-result text-xs" style={{ width: '2rem', height: '2rem' }}>
-                            {n}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-right font-bold text-primary">{result.jackpot}</td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="font-semibold">{result.winners}</span>
-                      <span className="text-xs text-muted-foreground ml-1">winner{result.winners !== 1 ? 's' : ''}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              <Trophy className="size-10 mx-auto mb-3 opacity-30" />
-              <p>No results found for your search.</p>
-            </div>
-          )}
-        </Card>
-
-        <p className="text-xs text-muted-foreground text-center mt-6">
-          Results updated in real-time after each draw. For official results, visit the Florida Lottery website.
-        </p>
       </div>
     </div>
   )

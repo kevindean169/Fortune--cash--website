@@ -7,27 +7,27 @@ import { Slider } from '@/components/ui/slider'
 import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
-interface CashPopPageProps {
+interface CashpotPageProps {
   navigate: (page: PageId) => void
 }
 
-const CASH_POP_PRIZES: Record<number, string[]> = {
-  1: ['$2,500', '$250', '$50', '$25', '$10', '$5', '$2', '$1'],
-  2: ['$5,000', '$500', '$100', '$50', '$20', '$10', '$4', '$2'],
+const CASHPOT_PRIZES: Record<number, string[]> = {
+  100: ['$2,600', '$1,000', '$100', '$50', '$20', '$10', '$5', '$2'],
+  200: ['$5,200', '$2,000', '$200', '$100', '$40', '$20', '$10', '$4'],
 }
 
-const MULTIPLIERS = [1, 2]
+const MULTIPLIERS = [100, 200]
 
-export function CashPopPage({ navigate }: CashPopPageProps) {
+export function CashpotPage({ navigate }: CashpotPageProps) {
   const [selected, setSelected] = useState<number | null>(null)
-  const [multiplier, setMultiplier] = useState(1)
+  const [multiplier, setMultiplier] = useState(100)
   const [quantity, setQuantity] = useState(1)
   const [purchased, setPurchased] = useState(false)
 
-  const numbers = Array.from({ length: 15 }, (_, i) => i + 1)
+  const numbers = Array.from({ length: 36 }, (_, i) => i + 1)
 
   const quickPick = () => {
-    setSelected(Math.floor(Math.random() * 15) + 1)
+    setSelected(Math.floor(Math.random() * 36) + 1)
   }
 
   const totalCost = multiplier * quantity
@@ -38,7 +38,7 @@ export function CashPopPage({ navigate }: CashPopPageProps) {
     setTimeout(() => setPurchased(false), 3000)
   }
 
-  const prizes = CASH_POP_PRIZES[multiplier] ?? CASH_POP_PRIZES[1]
+  const prizes = CASHPOT_PRIZES[multiplier] ?? CASHPOT_PRIZES[100]
 
   return (
     <div className="min-h-screen py-12">
@@ -53,17 +53,17 @@ export function CashPopPage({ navigate }: CashPopPageProps) {
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-4xl">💎</span>
                 <div>
-                  <h1 className="text-4xl font-extrabold">Cash Pop</h1>
-                  <p className="text-muted-foreground">Pick 1 number from 1–15. Pop for prizes.</p>
+                  <h1 className="text-4xl font-extrabold">Jamaica Cashpot</h1>
+                  <p className="text-muted-foreground">Pick 1 number from 01–36.</p>
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline" className="border-border/60 text-muted-foreground">
-                <Clock className="size-3 mr-1" /> Draws every 4 minutes
+                <Clock className="size-3 mr-1" /> Multiple daily draws
               </Badge>
               <Badge className="bg-primary/15 text-primary border-primary/25">
-                <Trophy className="size-3 mr-1" /> Top Prize: $2,500
+                <Trophy className="size-3 mr-1" /> Top Prize: $850,000
               </Badge>
             </div>
           </div>
@@ -102,7 +102,7 @@ export function CashPopPage({ navigate }: CashPopPageProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-5">Select 1 number from the grid below</p>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-6 gap-3">
                   {numbers.map(n => (
                     <button
                       key={n}
@@ -146,7 +146,7 @@ export function CashPopPage({ navigate }: CashPopPageProps) {
                               : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
                           }`}
                         >
-                          {m === 1 ? '$1 Play' : '$2 Play (2x Prizes)'}
+                          {m === 100 ? '$100 Play' : '$200 Play (2x Prizes)'}
                         </button>
                       ))}
                     </div>
@@ -208,7 +208,7 @@ export function CashPopPage({ navigate }: CashPopPageProps) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">💎</span>
-                      <span className="font-bold">Cash Pop</span>
+                      <span className="font-bold">Cashpot</span>
                     </div>
                     <Badge variant="outline" className="text-xs border-border/60 text-muted-foreground">
                       ${multiplier} Play

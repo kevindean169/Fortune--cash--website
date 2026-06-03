@@ -3,7 +3,7 @@ import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { HomePage } from '@/pages/HomePage'
 import { GamesPage } from '@/pages/GamesPage'
-import { CashPopPage } from '@/pages/CashPopPage'
+import { CashpotPage } from '@/pages/CashpotPage'
 import { PickGamePage } from '@/pages/PickGamePage'
 import { ResultsPage } from '@/pages/ResultsPage'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -17,6 +17,13 @@ import MyLotteriesPage from '@/pages/MyLotteriesPage'
 import MyWinningsPage from '@/pages/MyWinningsPage'
 import MobileAppPage from '@/pages/MobileAppPage'
 import SupportPage from '@/pages/SupportPage'
+import { LoginPage } from '@/pages/LoginPage'
+import { RegisterPage } from '@/pages/RegisterPage'
+import { TransactionsPage } from '@/pages/TransactionsPage'
+import { WinnersPage } from '@/pages/WinnersPage'
+import { LotteriesPage } from '@/pages/LotteriesPage'
+import { TransactionHistoryPage } from '@/pages/TransactionHistoryPage'
+import { SingleLotteryPage } from '@/pages/SingleLotteryPage'
 import type { PageId } from '@/lib/fortune-data'
 
 export function App() {
@@ -30,12 +37,13 @@ export function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home': return <HomePage navigate={navigate} />
-      case 'games': return <GamesPage navigate={navigate} />
-      case 'cash-pop': return <CashPopPage navigate={navigate} />
-      case 'pick-2': return <PickGamePage gameId="pick-2" navigate={navigate} />
-      case 'pick-3': return <PickGamePage gameId="pick-3" navigate={navigate} />
-      case 'pick-4': return <PickGamePage gameId="pick-4" navigate={navigate} />
+      case 'games': return <LotteriesPage navigate={navigate} />
+      case 'cashpot': return <SingleLotteryPage gameId="cashpot" navigate={navigate} />
+      case 'money-time': return <SingleLotteryPage gameId="money-time" navigate={navigate} />
+      case 'pick-2-single': return <SingleLotteryPage gameId="pick-2-single" navigate={navigate} />
+      case 'pick-2-double': return <SingleLotteryPage gameId="pick-2-double" navigate={navigate} />
       case 'results': return <ResultsPage navigate={navigate} />
+      case 'winners': return <WinnersPage navigate={navigate} />
       case 'dashboard': return <DashboardPage navigate={navigate} />
       case 'tickets': return <MyTicketsPage navigate={navigate} />
       case 'wallet': return <WalletPage navigate={navigate} />
@@ -43,10 +51,13 @@ export function App() {
       case 'responsible-gaming': return <ResponsibleGamingPage navigate={navigate} />
       case 'contact': return <ContactPage navigate={navigate} />
       case 'profile': return <ProfilePage />
-      case 'my-lotteries': return <MyLotteriesPage />
+      case 'my-lotteries': return <LotteriesPage navigate={navigate} />
       case 'my-winnings': return <MyWinningsPage />
       case 'mobile-app': return <MobileAppPage />
       case 'support': return <SupportPage />
+      case 'login': return <LoginPage navigate={navigate} />
+      case 'register': return <RegisterPage navigate={navigate} />
+      case 'transactions': return <TransactionHistoryPage navigate={navigate} />
       default: return <HomePage navigate={navigate} />
     }
   }

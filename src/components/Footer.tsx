@@ -24,7 +24,7 @@ export function Footer({ navigate }: FooterProps) {
               </span>
             </button>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Florida's premier online lottery platform. Licensed, secure, and committed to responsible gaming.
+              Jamaica's trusted online lottery platform. Licensed, secure, and committed to responsible gaming.
             </p>
             <div className="flex items-center gap-2 mt-4">
               <div className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-xs text-muted-foreground">
@@ -41,10 +41,10 @@ export function Footer({ navigate }: FooterProps) {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Games</h3>
             <ul className="space-y-2.5">
               {[
-                { id: 'cash-pop' as PageId, label: 'Cash Pop', icon: '💎' },
-                { id: 'pick-2' as PageId, label: 'Pick 2', icon: '✌️' },
-                { id: 'pick-3' as PageId, label: 'Pick 3', icon: '🎯' },
-                { id: 'pick-4' as PageId, label: 'Pick 4', icon: '🔥' },
+                { id: 'cashpot' as PageId, label: 'Jamaica Cashpot', icon: '💎' },
+                { id: 'money-time' as PageId, label: 'Money Time', icon: '🎯' },
+                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', icon: '✌️' },
+                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', icon: '🔥' },
               ].map(g => (
                 <li key={g.id}>
                   <button
@@ -66,6 +66,7 @@ export function Footer({ navigate }: FooterProps) {
                 { id: 'dashboard' as PageId, label: 'Dashboard' },
                 { id: 'tickets' as PageId, label: 'My Tickets' },
                 { id: 'wallet' as PageId, label: 'Wallet' },
+                { id: 'transactions' as PageId, label: 'Transactions' },
                 { id: 'promotions' as PageId, label: 'Promotions' },
                 { id: 'results' as PageId, label: 'Results' },
               ].map(item => (
@@ -113,7 +114,7 @@ export function Footer({ navigate }: FooterProps) {
         {/* Bottom Row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground text-center md:text-left">
-            © 2026 Fortune Lottery. All rights reserved. Florida Lottery License #FL-2024-001. Must be 18+ to play.
+            © 2026 Fortune Lottery. All rights reserved. Must be 18+ to play. Play Responsibly.
           </p>
           <div className="flex items-center gap-2">
             <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">

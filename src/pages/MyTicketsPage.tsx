@@ -1,187 +1,166 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Ticket, Search, Trophy, Clock, XCircle, AlertCircle } from 'lucide-react'
-import { MOCK_TICKETS } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 
 interface MyTicketsPageProps {
   navigate: (page: PageId) => void
 }
 
-const STATUS_CONFIG = {
-  won: { label: 'Won', icon: <Trophy className="size-3" />, className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  lost: { label: 'No Win', icon: <XCircle className="size-3" />, className: 'bg-muted text-muted-foreground border-border/50' },
-  active: { label: 'Active', icon: <Clock className="size-3" />, className: 'bg-sky-500/20 text-sky-400 border-sky-500/30' },
-  pending: { label: 'Pending', icon: <AlertCircle className="size-3" />, className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-}
+const mockTickets = [
+  { orderNo: '10113', ticketNo: '02', game: 'CASHPOT', betOption: 'Cashpot', drawTime: '06:00 PM', price: 1.00, drawDate: 'May 30, 2026', status: 'Won', payout: 26.00 },
+  { orderNo: '10112', ticketNo: '14', game: 'CASHPOT', betOption: 'Megaball', drawTime: '06:00 PM', price: 2.00, drawDate: 'May 30, 2026', status: 'Won', payout: 72.00 },
+  { orderNo: '10111', ticketNo: '28', game: 'Money Time', betOption: 'Cashpot Money Time', drawTime: '04:00 PM', price: 5.00, drawDate: 'May 30, 2026', status: 'Won', payout: 130.00 },
+  { orderNo: '10110', ticketNo: '07', game: 'Pick 2 Single', betOption: 'Pick 2 Single', drawTime: '07:00 PM', price: 1.00, drawDate: 'May 29, 2026', status: 'Lost', payout: 0 },
+  { orderNo: '10109', ticketNo: '44', game: 'P2 Double Digit', betOption: 'Pick 2 Double', drawTime: '08:00 PM', price: 2.00, drawDate: 'May 29, 2026', status: 'Pending', payout: 0 },
+  { orderNo: '10108', ticketNo: '22', game: 'CASHPOT', betOption: 'Monstaball', drawTime: '08:25 PM', price: 5.00, drawDate: 'May 28, 2026', status: 'Lost', payout: 0 },
+]
 
 export function MyTicketsPage({ navigate }: MyTicketsPageProps) {
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [gameFilter, setGameFilter] = useState('all')
+  const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
-  const filtered = MOCK_TICKETS.filter(t => {
-    const matchStatus = statusFilter === 'all' || t.status === statusFilter
-    const matchGame = gameFilter === 'all' || t.game === gameFilter
-    const matchSearch = !search || t.id.toLowerCase().includes(search.toLowerCase()) || t.game.toLowerCase().includes(search.toLowerCase())
-    return matchStatus && matchGame && matchSearch
+  const filteredTickets = mockTickets.filter((t) => {
+    const matchesStatus = filter === 'all' || t.status.toLowerCase() === filter
+    const matchesSearch = t.orderNo.includes(search) || t.ticketNo.includes(search) || t.game.toLowerCase().includes(search.toLowerCase())
+    return matchesStatus && matchesSearch
   })
 
-  const stats = {
-    total: MOCK_TICKETS.length,
-    won: MOCK_TICKETS.filter(t => t.status === 'won').length,
-    active: MOCK_TICKETS.filter(t => t.status === 'active' || t.status === 'pending').length,
-    totalWon: MOCK_TICKETS.filter(t => t.prize).reduce((sum, t) => sum + parseFloat((t.prize ?? '$0').replace('$', '').replace(',', '')), 0),
+  const statusColor = (status: string) => {
+    if (status === 'Won') return 'border-t-green-500'
+    if (status === 'Lost') return 'border-t-red-500'
+    return 'border-t-primary'
   }
 
   return (
     <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2">
-            My <span className="gold-text">Tickets</span>
-          </h1>
-          <p className="text-muted-foreground">Your complete lottery ticket history</p>
-        </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: 'Total Tickets', value: stats.total, color: 'text-foreground' },
-            { label: 'Winning Tickets', value: stats.won, color: 'text-emerald-400' },
-            { label: 'Active / Pending', value: stats.active, color: 'text-sky-400' },
-            { label: 'Total Won', value: `$${stats.totalWon.toLocaleString()}`, color: 'text-primary' },
-          ].map((s, i) => (
-            <Card key={i} className="bg-fortune-card border-border">
-              <CardContent className="p-4 text-center">
-                <p className={`text-2xl font-extrabold ${s.color}`}>{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-5">
-          <div className="relative flex-1 min-w-[180px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search tickets..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 bg-fortune-card border-border"
-            />
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold text-foreground">
+              My <span className="gold-text">Tickets</span>
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">View, search, and verify all your bet slip transactions</p>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36 bg-fortune-card border-border">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="won">Won</SelectItem>
-              <SelectItem value="lost">No Win</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={gameFilter} onValueChange={setGameFilter}>
-            <SelectTrigger className="w-36 bg-fortune-card border-border">
-              <SelectValue placeholder="All Games" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Games</SelectItem>
-              <SelectItem value="Cash Pop">Cash Pop</SelectItem>
-              <SelectItem value="Pick 2">Pick 2</SelectItem>
-              <SelectItem value="Pick 3">Pick 3</SelectItem>
-              <SelectItem value="Pick 4">Pick 4</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
+            <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
+            <span className="text-green-400 font-extrabold text-lg">$9,898.98</span>
+          </div>
         </div>
+
+        {/* Filter Toolbar */}
+        <Card className="bg-fortune-card border border-border/60 mb-6">
+          <CardContent className="p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+            {/* Status Tabs */}
+            <div className="flex gap-2 w-full md:w-auto overflow-x-auto scrollbar-hide">
+              {['all', 'won', 'lost', 'pending'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all ${
+                    filter === status
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'bg-background border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="relative w-full md:w-80">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-base">🔍</span>
+              <input
+                type="text"
+                placeholder="Search by Order ID or Number..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Tickets List */}
-        <div className="space-y-3">
-          {filtered.map(ticket => {
-            const statusConf = STATUS_CONFIG[ticket.status]
-            return (
-              <Card key={ticket.id} className={`bg-fortune-card border-border ${
-                ticket.status === 'won' ? 'border-emerald-500/20' : ''
-              }`}>
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      {/* Numbers */}
-                      <div className="flex gap-1.5">
-                        {ticket.numbers.map((n, i) => (
-                          <div
-                            key={i}
-                            className={`number-ball text-xs ${
-                              ticket.status === 'won' ? 'number-ball-selected' :
-                              ticket.status === 'active' || ticket.status === 'pending' ? 'number-ball-idle' :
-                              'number-ball-idle opacity-60'
-                            }`}
-                            style={{ width: '2rem', height: '2rem' }}
-                          >
-                            {n}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Info */}
+        {filteredTickets.length === 0 ? (
+          <Card className="bg-fortune-card border border-border/60">
+            <CardContent className="p-12 text-center">
+              <p className="text-muted-foreground text-base">No tickets found matching criteria.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTickets.map((ticket) => (
+              <Card
+                key={ticket.orderNo}
+                className={`bg-fortune-card border border-border/60 border-t-4 hover:-translate-y-1 transition-all ${statusColor(ticket.status)}`}
+              >
+                <CardContent className="p-6 flex flex-col justify-between">
+                  <div>
+                    {/* Top row */}
+                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <p className="font-semibold text-sm">{ticket.game}</p>
-                          <Badge className={`text-xs gap-1 ${statusConf.className}`}>
-                            {statusConf.icon} {statusConf.label}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {ticket.id} · Draw: {ticket.drawDate}
-                        </p>
+                        <p className="font-bold text-lg text-foreground">{ticket.game}</p>
+                        <p className="text-[10px] text-muted-foreground">Order ID: #{ticket.orderNo}</p>
+                      </div>
+                      <Badge
+                        className={`text-[10px] font-bold uppercase tracking-wider ${
+                          ticket.status === 'Won'
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : ticket.status === 'Lost'
+                            ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                            : 'bg-primary/10 text-primary border-primary/20'
+                        }`}
+                      >
+                        {ticket.status}
+                      </Badge>
+                    </div>
+
+                    {/* Draw details */}
+                    <div className="space-y-2 py-4 border-y border-border/50 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Bet Option:</span>
+                        <span className="text-foreground font-medium">{ticket.betOption}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Draw Date:</span>
+                        <span className="text-foreground font-medium">{ticket.drawDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Draw Time:</span>
+                        <span className="text-foreground font-medium">{ticket.drawTime}</span>
                       </div>
                     </div>
 
-                    {/* Prize / Action */}
-                    <div className="flex items-center gap-4">
-                      {ticket.prize && (
-                        <div className="text-right">
-                          <p className="font-extrabold text-lg text-emerald-400">{ticket.prize}</p>
-                          <p className="text-xs text-muted-foreground">Prize Won 🎉</p>
-                        </div>
-                      )}
-                      {(ticket.status === 'active' || ticket.status === 'pending') && (
-                        <div className="text-right">
-                          <div className="flex items-center gap-1 text-sky-400">
-                            <Clock className="size-3.5" />
-                            <p className="text-sm font-medium">Awaiting draw</p>
-                          </div>
-                        </div>
-                      )}
-                      {ticket.status === 'lost' && (
-                        <p className="text-sm text-muted-foreground">Better luck next time!</p>
-                      )}
+                    {/* Bet digits */}
+                    <div className="flex justify-between items-center py-4">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase">Lucky Pick</p>
+                        <span className="font-extrabold text-2xl text-primary">#{ticket.ticketNo}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-muted-foreground uppercase">Bet Amount</p>
+                        <span className="font-semibold text-base text-foreground">${ticket.price.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Won payout */}
+                  {ticket.status === 'Won' && (
+                    <div className="mt-4 p-3 bg-green-500/5 border border-green-500/20 rounded-xl flex justify-between items-center">
+                      <span className="text-xs text-green-400 font-medium">Payout Received:</span>
+                      <span className="font-extrabold text-green-400">+${ticket.payout.toFixed(2)}</span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            )
-          })}
+            ))}
+          </div>
+        )}
 
-          {filtered.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground">
-              <Ticket className="size-12 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium mb-1">No tickets found</p>
-              <p className="text-sm mb-4">Try adjusting your filters or play a game!</p>
-              <Button className="gold-gradient text-fortune-navy font-bold" onClick={() => navigate('games')}>
-                Play Now
-              </Button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )
