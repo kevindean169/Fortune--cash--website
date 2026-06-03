@@ -47,9 +47,6 @@ export function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
             <div className="space-y-8">
-              <Badge className="bg-fortune-blue/20 text-primary border-primary/30 px-3 py-1">
-                <Zap className="size-3 mr-1" /> Jamaica's #1 Online Lottery
-              </Badge>
               <div>
                 <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-4">
                   Your Next<br />
@@ -331,8 +328,8 @@ export function HomePage() {
             {WINNERS.map((w, i) => (
               <Card key={i} className="bg-fortune-card border-border text-center">
                 <CardContent className="p-5">
-                  <div className="size-12 rounded-full gold-gradient flex items-center justify-center mx-auto mb-3">
-                    <span className="text-sm font-bold text-fortune-navy">{w.initials}</span>
+                  <div className="size-12 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+                    <span className="text-sm font-bold text-[#c5a059] tracking-wider">{w.initials}</span>
                   </div>
                   <p className="font-bold text-lg text-primary">{w.prize}</p>
                   <p className="text-sm font-semibold">{w.game}</p>

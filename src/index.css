@@ -254,9 +254,10 @@
   }
 
   .number-ball-result {
-    background: linear-gradient(135deg, oklch(0.55 0.18 262), oklch(0.48 0.16 262));
-    color: white;
-    box-shadow: 0 0 12px oklch(0.55 0.18 262 / 0.4);
+    background: linear-gradient(135deg, #c5a059, #8c713b);
+    color: #050505;
+    box-shadow: 0 0 14px rgba(197, 160, 89, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .scrollbar-hide {
