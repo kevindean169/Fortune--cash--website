@@ -1,0 +1,270 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* Fortune Lottery Brand */
+  --color-fortune-gold: var(--fortune-gold);
+  --color-fortune-gold-dim: var(--fortune-gold-dim);
+  --color-fortune-gold-muted: var(--fortune-gold-muted);
+  --color-fortune-navy: var(--fortune-navy);
+  --color-fortune-card: var(--fortune-card);
+  --color-fortune-card-hover: var(--fortune-card-hover);
+  --color-fortune-blue: var(--fortune-blue);
+  --color-fortune-blue-muted: var(--fortune-blue-muted);
+}
+
+/* Fortune Lottery — Modern Light Theme */
+:root {
+  --radius: 0.5rem;
+
+  /* Fortune Brand Tokens */
+  --fortune-gold: oklch(0.83 0.17 84);
+  --fortune-gold-dim: oklch(0.92 0.12 84);
+  --fortune-gold-muted: oklch(0.95 0.07 84);
+  --fortune-navy: oklch(0.20 0.04 252);
+  --fortune-card: oklch(1 0 0);
+  --fortune-card-hover: oklch(0.98 0.008 219);
+  --fortune-blue: oklch(0.55 0.18 262);
+  --fortune-blue-muted: oklch(0.90 0.08 262);
+
+  /* Shadcn Token Overrides - Light Theme */
+  --background: oklch(0.99 0.005 219);
+  --foreground: oklch(0.20 0.04 252);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.04 252);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.04 252);
+  --primary: oklch(0.83 0.17 84);
+  --primary-foreground: oklch(0.20 0.04 252);
+  --secondary: oklch(0.55 0.18 262);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.93 0.008 219);
+  --muted-foreground: oklch(0.56 0.04 252);
+  --accent: oklch(0.55 0.18 262);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.60 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.90 0.01 219);
+  --input: oklch(0.97 0.008 219);
+  --ring: oklch(0.83 0.17 84);
+  --chart-1: oklch(0.83 0.17 84);
+  --chart-2: oklch(0.55 0.21 262);
+  --chart-3: oklch(0.65 0.17 150);
+  --chart-4: oklch(0.70 0.18 45);
+  --chart-5: oklch(0.65 0.19 10);
+  --sidebar: oklch(0.98 0.008 219);
+  --sidebar-foreground: oklch(0.20 0.04 252);
+  --sidebar-primary: oklch(0.83 0.17 84);
+  --sidebar-primary-foreground: oklch(0.20 0.04 252);
+  --sidebar-accent: oklch(0.55 0.18 262);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.90 0.01 219);
+  --sidebar-ring: oklch(0.83 0.17 84);
+}
+
+/* Fortune Lottery — Dark Theme */
+.dark {
+  --radius: 0.5rem;
+
+  /* Fortune Brand Tokens - Dark */
+  --fortune-gold: oklch(0.83 0.17 84);
+  --fortune-gold-dim: oklch(0.75 0.14 84);
+  --fortune-gold-muted: oklch(0.70 0.10 84);
+  --fortune-navy: oklch(0.95 0.01 252);
+  --fortune-card: oklch(0.18 0.01 252);
+  --fortune-card-hover: oklch(0.22 0.02 252);
+  --fortune-blue: oklch(0.65 0.20 262);
+  --fortune-blue-muted: oklch(0.30 0.08 262);
+
+  /* Shadcn Token Overrides - Dark Theme */
+  --background: oklch(0.12 0.01 252);
+  --foreground: oklch(0.95 0.01 252);
+  --card: oklch(0.18 0.01 252);
+  --card-foreground: oklch(0.95 0.01 252);
+  --popover: oklch(0.18 0.01 252);
+  --popover-foreground: oklch(0.95 0.01 252);
+  --primary: oklch(0.83 0.17 84);
+  --primary-foreground: oklch(0.12 0.01 252);
+  --secondary: oklch(0.65 0.20 262);
+  --secondary-foreground: oklch(0.12 0.01 252);
+  --muted: oklch(0.25 0.02 252);
+  --muted-foreground: oklch(0.70 0.02 252);
+  --accent: oklch(0.65 0.20 262);
+  --accent-foreground: oklch(0.12 0.01 252);
+  --destructive: oklch(0.65 0.22 27);
+  --destructive-foreground: oklch(0.12 0.01 252);
+  --border: oklch(0.25 0.02 252);
+  --input: oklch(0.20 0.01 252);
+  --ring: oklch(0.83 0.17 84);
+  --chart-1: oklch(0.83 0.17 84);
+  --chart-2: oklch(0.65 0.21 262);
+  --chart-3: oklch(0.65 0.17 150);
+  --chart-4: oklch(0.70 0.18 45);
+  --chart-5: oklch(0.65 0.19 10);
+  --sidebar: oklch(0.18 0.01 252);
+  --sidebar-foreground: oklch(0.95 0.01 252);
+  --sidebar-primary: oklch(0.83 0.17 84);
+  --sidebar-primary-foreground: oklch(0.12 0.01 252);
+  --sidebar-accent: oklch(0.65 0.20 262);
+  --sidebar-accent-foreground: oklch(0.12 0.01 252);
+  --sidebar-border: oklch(0.25 0.02 252);
+  --sidebar-ring: oklch(0.83 0.17 84);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gold-text {
+    background: linear-gradient(135deg, oklch(0.92 0.16 84), oklch(0.76 0.14 84), oklch(0.92 0.16 84));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, oklch(0.92 0.16 84) 0%, oklch(0.75 0.14 84) 50%, oklch(0.88 0.16 84) 100%);
+  }
+
+  .gold-border {
+    border-color: oklch(0.83 0.17 84 / 0.4);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 24px oklch(0.83 0.17 84 / 0.25), 0 0 48px oklch(0.83 0.17 84 / 0.1);
+  }
+
+  .blue-glow {
+    box-shadow: 0 0 24px oklch(0.47 0.22 262 / 0.3), 0 0 48px oklch(0.47 0.22 262 / 0.1);
+  }
+
+  .card-hover {
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-hover:hover {
+    background-color: var(--fortune-card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px oklch(0.83 0.17 84 / 0.15);
+  }
+
+  .fortune-hero-bg {
+    background:
+      radial-gradient(ellipse at 15% 50%, oklch(0.55 0.18 262 / 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, oklch(0.83 0.17 84 / 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, oklch(0.90 0.08 262 / 0.10) 0%, transparent 55%),
+      oklch(0.99 0.005 219);
+  }
+
+  .dark .fortune-hero-bg {
+    background:
+      radial-gradient(ellipse at 15% 50%, oklch(0.55 0.18 262 / 0.15) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, oklch(0.83 0.17 84 / 0.10) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, oklch(0.30 0.08 262 / 0.12) 0%, transparent 55%),
+      oklch(0.12 0.01 252);
+  }
+
+  .number-ball {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .number-ball-idle {
+    background: oklch(0.93 0.008 219);
+    color: oklch(0.20 0.04 252);
+    border: 1.5px solid oklch(0.80 0.02 262);
+  }
+
+  .number-ball-idle:hover {
+    background: oklch(0.90 0.08 262);
+    color: oklch(1 0 0);
+    border-color: oklch(0.55 0.18 262 / 0.8);
+  }
+
+  .dark .number-ball-idle {
+    background: oklch(0.25 0.02 252);
+    color: oklch(0.95 0.01 252);
+    border: 1.5px solid oklch(0.35 0.04 262);
+  }
+
+  .dark .number-ball-idle:hover {
+    background: oklch(0.35 0.08 262);
+    color: oklch(1 0 0);
+    border-color: oklch(0.65 0.20 262 / 0.8);
+  }
+
+  .number-ball-selected {
+    background: linear-gradient(135deg, oklch(0.83 0.17 84), oklch(0.77 0.15 84));
+    color: oklch(1 0 0);
+    box-shadow: 0 0 14px oklch(0.83 0.17 84 / 0.4);
+    border: 1px solid oklch(0.83 0.17 84 / 0.6);
+  }
+
+  .number-ball-result {
+    background: linear-gradient(135deg, oklch(0.55 0.18 262), oklch(0.48 0.16 262));
+    color: white;
+    box-shadow: 0 0 12px oklch(0.55 0.18 262 / 0.4);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

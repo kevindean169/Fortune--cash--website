@@ -1,0 +1,136 @@
+import { Separator } from '@/components/ui/separator'
+import { Sparkles, ShieldCheck, Phone, HelpCircle, FileText, Lock } from 'lucide-react'
+import type { PageId } from '@/lib/fortune-data'
+
+interface FooterProps {
+  navigate: (page: PageId) => void
+}
+
+export function Footer({ navigate }: FooterProps) {
+  return (
+    <footer className="border-t border-border/50 bg-card mt-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        {/* Top Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <button onClick={() => navigate('home')} className="flex items-center gap-2 mb-4">
+              <div className="flex items-center justify-center size-8 rounded-full gold-gradient">
+                <Sparkles className="size-4 text-fortune-navy" />
+              </div>
+              <span className="text-lg font-extrabold">
+                <span className="gold-text">Fortune</span>
+                <span className="text-foreground"> Lottery</span>
+              </span>
+            </button>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Florida's premier online lottery platform. Licensed, secure, and committed to responsible gaming.
+            </p>
+            <div className="flex items-center gap-2 mt-4">
+              <div className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-xs text-muted-foreground">
+                <Lock className="size-3 text-primary" /> SSL Secured
+              </div>
+              <div className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-xs text-muted-foreground">
+                <ShieldCheck className="size-3 text-emerald-500" /> Licensed
+              </div>
+            </div>
+          </div>
+
+          {/* Games */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Games</h3>
+            <ul className="space-y-2.5">
+              {[
+                { id: 'cash-pop' as PageId, label: 'Cash Pop', icon: '💎' },
+                { id: 'pick-2' as PageId, label: 'Pick 2', icon: '✌️' },
+                { id: 'pick-3' as PageId, label: 'Pick 3', icon: '🎯' },
+                { id: 'pick-4' as PageId, label: 'Pick 4', icon: '🔥' },
+              ].map(g => (
+                <li key={g.id}>
+                  <button
+                    onClick={() => navigate(g.id)}
+                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <span>{g.icon}</span> {g.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Account */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Account</h3>
+            <ul className="space-y-2.5">
+              {[
+                { id: 'dashboard' as PageId, label: 'Dashboard' },
+                { id: 'tickets' as PageId, label: 'My Tickets' },
+                { id: 'wallet' as PageId, label: 'Wallet' },
+                { id: 'promotions' as PageId, label: 'Promotions' },
+                { id: 'results' as PageId, label: 'Results' },
+              ].map(item => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => navigate(item.id)}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Support</h3>
+            <ul className="space-y-2.5">
+              {[
+                { id: 'contact' as PageId, label: 'Contact Us', icon: <Phone className="size-3" /> },
+                { id: 'contact' as PageId, label: 'Help Center', icon: <HelpCircle className="size-3" /> },
+                { id: 'responsible-gaming' as PageId, label: 'Responsible Gaming', icon: <ShieldCheck className="size-3" /> },
+              ].map((item, i) => (
+                <li key={i}>
+                  <button
+                    onClick={() => navigate(item.id)}
+                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.icon} {item.label}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <FileText className="size-3" /> Terms & Conditions
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <Separator className="mb-6" />
+
+        {/* Bottom Row */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground text-center md:text-left">
+            © 2026 Fortune Lottery. All rights reserved. Florida Lottery License #FL-2024-001. Must be 18+ to play.
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">
+              🔞 18+
+            </div>
+            <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">
+              🎰 Play Responsibly
+            </div>
+            <button
+              onClick={() => navigate('responsible-gaming')}
+              className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              Problem Gambling? Get Help
+            </button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}

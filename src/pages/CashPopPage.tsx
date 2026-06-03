@@ -1,0 +1,275 @@
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Slider } from '@/components/ui/slider'
+import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info } from 'lucide-react'
+import type { PageId } from '@/lib/fortune-data'
+
+interface CashPopPageProps {
+  navigate: (page: PageId) => void
+}
+
+const CASH_POP_PRIZES: Record<number, string[]> = {
+  1: ['$2,500', '$250', '$50', '$25', '$10', '$5', '$2', '$1'],
+  2: ['$5,000', '$500', '$100', '$50', '$20', '$10', '$4', '$2'],
+}
+
+const MULTIPLIERS = [1, 2]
+
+export function CashPopPage({ navigate }: CashPopPageProps) {
+  const [selected, setSelected] = useState<number | null>(null)
+  const [multiplier, setMultiplier] = useState(1)
+  const [quantity, setQuantity] = useState(1)
+  const [purchased, setPurchased] = useState(false)
+
+  const numbers = Array.from({ length: 15 }, (_, i) => i + 1)
+
+  const quickPick = () => {
+    setSelected(Math.floor(Math.random() * 15) + 1)
+  }
+
+  const totalCost = multiplier * quantity
+
+  const handlePurchase = () => {
+    if (!selected) return
+    setPurchased(true)
+    setTimeout(() => setPurchased(false), 3000)
+  }
+
+  const prizes = CASH_POP_PRIZES[multiplier] ?? CASH_POP_PRIZES[1]
+
+  return (
+    <div className="min-h-screen py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-10">
+          <button onClick={() => navigate('games')} className="text-sm text-muted-foreground hover:text-primary transition-colors mb-4 flex items-center gap-1">
+            ← All Games
+          </button>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-4xl">💎</span>
+                <div>
+                  <h1 className="text-4xl font-extrabold">Cash Pop</h1>
+                  <p className="text-muted-foreground">Pick 1 number from 1–15. Pop for prizes.</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Badge variant="outline" className="border-border/60 text-muted-foreground">
+                <Clock className="size-3 mr-1" /> Draws every 4 minutes
+              </Badge>
+              <Badge className="bg-primary/15 text-primary border-primary/25">
+                <Trophy className="size-3 mr-1" /> Top Prize: $2,500
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-[1fr_360px] gap-6">
+          {/* Left Panel: Number Picker */}
+          <div className="space-y-6">
+            {/* Number Grid */}
+            <Card className="bg-fortune-card border-border">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Step 1</p>
+                    <h2 className="text-lg font-bold">Pick Your Number</h2>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={quickPick}
+                      className="gap-1.5 border-border/60"
+                    >
+                      <Zap className="size-3.5" /> Quick Pick
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelected(null)}
+                      className="gap-1.5"
+                    >
+                      <RotateCcw className="size-3.5" /> Clear
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-5">Select 1 number from the grid below</p>
+                <div className="grid grid-cols-5 gap-3">
+                  {numbers.map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setSelected(selected === n ? null : n)}
+                      className={`number-ball mx-auto text-base ${selected === n ? 'number-ball-selected' : 'number-ball-idle'}`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                {selected && (
+                  <div className="mt-5 flex items-center gap-3 rounded-xl bg-primary/10 border border-primary/20 p-3">
+                    <div className="number-ball number-ball-selected">{selected}</div>
+                    <p className="text-sm">
+                      <span className="font-bold text-primary">Number {selected}</span> selected.
+                      Good luck!
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Play Options */}
+            <Card className="bg-fortune-card border-border">
+              <CardContent className="p-5 space-y-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Step 2</p>
+                  <h2 className="text-lg font-bold mb-4">Play Options</h2>
+
+                  {/* Multiplier */}
+                  <div className="mb-4">
+                    <p className="text-sm font-medium mb-2">Play Multiplier</p>
+                    <div className="flex gap-2">
+                      {MULTIPLIERS.map(m => (
+                        <button
+                          key={m}
+                          onClick={() => setMultiplier(m)}
+                          className={`flex-1 rounded-lg py-2.5 text-sm font-bold border transition-all ${
+                            multiplier === m
+                              ? 'gold-gradient text-fortune-navy border-primary/50 gold-glow'
+                              : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
+                          }`}
+                        >
+                          {m === 1 ? '$1 Play' : '$2 Play (2x Prizes)'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quantity */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium">Number of Tickets</p>
+                      <span className="text-sm font-bold text-primary">{quantity}</span>
+                    </div>
+                    <Slider
+                      value={[quantity]}
+                      onValueChange={([v]) => setQuantity(v)}
+                      min={1}
+                      max={10}
+                      step={1}
+                      className="mb-1"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>1</span><span>10</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Prize Table */}
+            <Card className="bg-fortune-card border-border">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Info className="size-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Prize Table (${multiplier} Play)</h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider pb-2 border-b border-border/50">
+                    <span>Position</span>
+                    <span>Prize</span>
+                  </div>
+                  {prizes.map((p, i) => (
+                    <div key={i} className={`flex justify-between text-sm py-1 ${i === 0 ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                      <span>{i === 0 ? '🏆 1st Prize' : `${i + 1}nd–${i + 2}th`}</span>
+                      <span>{p}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Panel: Ticket Summary */}
+          <div className="space-y-4">
+            <Card className="bg-fortune-card border-border sticky top-24">
+              <CardContent className="p-5">
+                <h2 className="text-lg font-bold mb-4">Your Ticket</h2>
+
+                {/* Ticket Preview */}
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">💎</span>
+                      <span className="font-bold">Cash Pop</span>
+                    </div>
+                    <Badge variant="outline" className="text-xs border-border/60 text-muted-foreground">
+                      ${multiplier} Play
+                    </Badge>
+                  </div>
+
+                  <div className="flex gap-2 mb-3">
+                    {selected ? (
+                      <div className="number-ball number-ball-selected text-base">{selected}</div>
+                    ) : (
+                      <div className="number-ball number-ball-idle text-base opacity-40">?</div>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    {selected ? `Number ${selected} · Next draw in ~2 min` : 'Pick a number to continue'}
+                  </p>
+                </div>
+
+                <Separator className="mb-4" />
+
+                <div className="space-y-2 mb-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tickets</span>
+                    <span>{quantity}x</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Price per ticket</span>
+                    <span>${multiplier}.00</span>
+                  </div>
+                  <Separator className="opacity-50" />
+                  <div className="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span className="text-primary">${totalCost.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {purchased ? (
+                  <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-4 text-center">
+                    <p className="text-emerald-400 font-bold">🎉 Tickets Purchased!</p>
+                    <p className="text-sm text-muted-foreground mt-1">Good luck! Check results soon.</p>
+                  </div>
+                ) : (
+                  <Button
+                    className="w-full gold-gradient text-fortune-navy font-bold gold-glow"
+                    disabled={!selected}
+                    onClick={handlePurchase}
+                  >
+                    {selected ? `Buy ${quantity > 1 ? `${quantity} Tickets` : 'Ticket'} · $${totalCost.toFixed(2)}` : 'Select a Number'}
+                    <ArrowRight className="size-4 ml-1" />
+                  </Button>
+                )}
+
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  Funds deducted from wallet · Must be 18+
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
