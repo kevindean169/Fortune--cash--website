@@ -80,7 +80,6 @@ export function HomePage() {
               {/* Trust Badges */}
               <div className="flex flex-wrap gap-4 pt-2">
                 {[
-                  { icon: <Shield className="size-4 text-emerald-400" />, label: 'Licensed & Regulated' },
                   { icon: <Zap className="size-4 text-primary" />, label: 'Instant Payouts' },
                   { icon: <Clock className="size-4 text-sky-400" />, label: 'Daily Draws' },
                 ].map((b, i) => (
@@ -101,7 +100,7 @@ export function HomePage() {
                       Tonight's Top Prize
                     </p>
                     <div className="text-6xl font-extrabold gold-text my-4">
-                      <JackpotCounter value={850000} />
+                      <JackpotCounter value={85000} />
                     </div>
                     <p className="text-muted-foreground text-sm mb-6">Cashpot · Next Draw Soon</p>
                     <Button
