@@ -1,6 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { 
   User, Lock, Wallet, Trophy, Ticket, LogOut, 
   ChevronRight, LayoutDashboard, FileText

@@ -9,9 +9,8 @@ import {
   CreditCard, Building2, DollarSign, ArrowRight,
 } from 'lucide-react'
 import { MOCK_TRANSACTIONS } from '@/lib/fortune-data'
-import type { PageId } from '@/lib/fortune-data'
 
-import { useNavigate } from 'react-router-dom'
+
 
 const TX_ICONS = {
   prize: <Trophy className="size-4 text-emerald-400" />,
@@ -22,10 +21,7 @@ const TX_ICONS = {
 
 const QUICK_AMOUNTS = [10, 25, 50, 100, 200, 500]
 
-export function WalletPage() {
-  const routerNavigate = useNavigate()
-  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit')
+export function WalletPage() {    const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit')
   const [amount, setAmount] = useState('')
   const [payMethod, setPayMethod] = useState<'card' | 'bank'>('card')
   const [txFilter, setTxFilter] = useState('all')

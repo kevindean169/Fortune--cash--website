@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import type { PageId } from '@/lib/fortune-data'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -47,7 +46,7 @@ const pick2DoubleResults = [
 export function ResultsPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [activeTab, setActiveTab] = useState('cashpot')
+    const [activeTab, setActiveTab] = useState('cashpot')
 
   const getActiveResults = () => {
     switch (activeTab) {

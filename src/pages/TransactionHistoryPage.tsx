@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import type { PageId } from '@/lib/fortune-data'
 
 
 
@@ -14,12 +13,9 @@ const mockTransactions = [
   { id: 'TRX-99806', type: 'Purchase', amount: -1.00, method: 'Wallet Balance', date: 'May 24, 2026 01:10 PM', status: 'Completed', positive: false },
 ]
 
-import { useNavigate } from 'react-router-dom'
 
-export function TransactionHistoryPage() {
-  const routerNavigate = useNavigate()
-  const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [activeTab, setActiveTab] = useState('all')
+
+export function TransactionHistoryPage() {    const [activeTab, setActiveTab] = useState('all')
 
   const filteredTransactions = mockTransactions.filter((trx) => {
     if (activeTab === 'all') return true

@@ -5,7 +5,6 @@ import {
   ShieldCheck, Phone, Globe, Heart, AlertTriangle,
   Clock, DollarSign, HelpCircle, ChevronRight, CheckCircle,
 } from 'lucide-react'
-import type { PageId } from '@/lib/fortune-data'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -27,7 +26,7 @@ const RESOURCES = [
 export function ResponsibleGamingPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  return (
+    return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {/* Header */}

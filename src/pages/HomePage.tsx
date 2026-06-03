@@ -4,10 +4,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {
-  ArrowRight, Trophy, Zap, Shield, Clock,
+  ArrowRight, Trophy, Zap, Clock,
   ChevronRight, Star, TrendingUp, Play,
 } from 'lucide-react'
 import { GAMES, RECENT_RESULTS, WINNERS } from '@/lib/fortune-data'
+import type { PageId } from '@/lib/fortune-data'
 import { useNavigate } from 'react-router-dom'
 
 function JackpotCounter({ value }: { value: number }) {

@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Eye, EyeOff, User, Lock, Sparkles } from 'lucide-react'
-import type { PageId } from '@/lib/fortune-data'
 
 import { useNavigate } from 'react-router-dom'
 
 export function LoginPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [username, setUsername] = useState('')
+    const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 

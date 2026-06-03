@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Mail, Phone, Lock, Sparkles } from 'lucide-react'
-import type { PageId } from '@/lib/fortune-data'
 
 import { useNavigate } from 'react-router-dom'
 
 export function RegisterPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',

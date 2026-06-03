@@ -9,7 +9,7 @@ import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 
 interface PickGamePageProps {
-  gameId: 'pick-2' | 'pick-3' | 'pick-4'
+  gameId: string
   navigate: (page: PageId) => void
 }
 

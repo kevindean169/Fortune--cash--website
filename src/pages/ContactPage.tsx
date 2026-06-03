@@ -10,7 +10,6 @@ import {
   Phone, Mail, Clock, MessageSquare, HelpCircle,
   ChevronDown, CheckCircle, Send, Globe,
 } from 'lucide-react'
-import type { PageId } from '@/lib/fortune-data'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -44,7 +43,7 @@ const FAQ_ITEMS = [
 export function ContactPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
+    const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
 
