@@ -89,12 +89,12 @@ export function ResultsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex flex-wrap gap-2 mb-8 pb-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border flex items-center gap-2.5 ${activeTab === tab.id
+              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${activeTab === tab.id
                   ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
                   : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                 }`}

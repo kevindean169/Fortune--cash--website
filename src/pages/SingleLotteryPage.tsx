@@ -231,10 +231,10 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                       })}
                     </div>
                   ) : (
-                    <div className="flex gap-4 items-center">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
                       <input
                         type="number"
-                        placeholder="Enter a 2-digit number (00-99)"
+                        placeholder="Enter number (00-99)"
                         value={selectedNumber}
                         onChange={(e) => {
                           const val = e.target.value
@@ -242,11 +242,11 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                             setSelectedNumber(val)
                           }
                         }}
-                        className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-foreground text-lg font-bold focus:outline-none focus:border-primary"
+                        className="flex-1 w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-base sm:text-lg font-bold focus:outline-none focus:border-primary"
                       />
                       <button
                         onClick={() => setSelectedNumber(String(Math.floor(Math.random() * 100)).padStart(2, '0'))}
-                        className="px-5 py-3 bg-background border border-border text-foreground text-sm font-semibold rounded-xl hover:border-primary/40 hover:text-primary transition-colors"
+                        className="px-5 py-3 bg-background border border-border text-foreground text-sm font-semibold rounded-xl hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
                       >
                         Quick Pick
                       </button>

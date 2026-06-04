@@ -150,7 +150,9 @@ export function MyWinningsPage() {
             No winnings found.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/15 border-b border-primary/20">
                 <TableRow className="hover:bg-transparent">
@@ -219,8 +221,45 @@ export function MyWinningsPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </div>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden flex flex-col divide-y divide-border/20">
+              {mockWinnings.map((winning) => (
+                <div key={winning.order_no} className="p-4 space-y-3 hover:bg-muted/5 active:bg-muted/10 transition-colors cursor-pointer" onClick={() => setSelectedWinning(winning)}>
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <span className="font-bold text-sm text-primary">#{winning.order_no}</span>
+                      <div className="font-bold text-zinc-100 mt-1">{winning.lottery_name}</div>
+                      <div className="text-[10px] text-zinc-400">Lucky Pick: #{winning.bet_no}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge className="bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20 uppercase text-[10px] tracking-wider font-bold">
+                        {winning.status}
+                      </Badge>
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] text-zinc-400">Won</span>
+                        <span className="font-black text-green-400 text-sm">${winning.total_won.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-zinc-400 bg-background/50 p-2 rounded-lg border border-border/10">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="size-3 text-primary/80" /> {winning.draw_date}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="size-3 text-zinc-500" /> {winning.draw_slot_time}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-zinc-500 pt-1">
+                    <span>Bet: ${winning.total_bet.toFixed(2)}</span>
+                    <span>Win Date: {winning.created_at}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </Card>
 

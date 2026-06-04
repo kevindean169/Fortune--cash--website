@@ -265,7 +265,9 @@ export function MyTicketsPage() {
             No tickets found matching criteria.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/15 border-b border-primary/20">
                 <TableRow className="hover:bg-transparent">
@@ -328,8 +330,39 @@ export function MyTicketsPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </div>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden flex flex-col divide-y divide-border/20">
+              {filteredTickets.map((ticket) => (
+                <div key={ticket.order_no} className="p-4 space-y-3 hover:bg-muted/5 active:bg-muted/10 transition-colors cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <span className="font-bold text-sm text-primary">#{ticket.order_no}</span>
+                      <div className="font-bold text-zinc-100 mt-1">{ticket.lottery_name}</div>
+                      <div className="text-[10px] text-zinc-400">{ticket.lottery_type}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      {getStatusBadge(ticket.status)}
+                      <span className="font-bold text-zinc-200">${getOrderTotalBet(ticket).toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-zinc-400 bg-background/50 p-2 rounded-lg border border-border/10">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="size-3 text-primary/80" /> {ticket.draw_date}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="size-3 text-zinc-500" /> {ticket.draw_time}
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500 pt-1">
+                    Created: {ticket.created_at}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </Card>
 

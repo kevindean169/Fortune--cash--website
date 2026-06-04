@@ -131,7 +131,7 @@ export function Navigation() {
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0">
+            <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0" showCloseButton={false}>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <span className="text-lg font-extrabold">
@@ -150,8 +150,10 @@ export function Navigation() {
                     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
                     { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
                     { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
+                    { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
                     { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
                     { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
+                    { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
                   ].map(item => (
                     <Link
                       key={item.id}
@@ -163,6 +165,29 @@ export function Navigation() {
                       {item.icon} {item.label}
                     </Link>
                   ))}
+                  
+                  <div className="pt-2 mt-2 border-t border-border/50">
+                    {[
+                      { id: 'login', label: 'Log In', icon: <User className="size-4" /> },
+                      { id: 'register', label: 'Sign Up', icon: <ShieldCheck className="size-4" /> },
+                    ].map(item => (
+                      <Link
+                        key={item.id}
+                        to={`/${item.id}`}
+                        onClick={handleNavigate}
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
+                          }`}
+                      >
+                        {item.icon} {item.label}
+                      </Link>
+                    ))}
+                    <button
+                      onClick={handleNavigate}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="size-4" /> Log Out
+                    </button>
+                  </div>
                 </nav>
 
                 <div className="p-4 border-t border-border space-y-2">

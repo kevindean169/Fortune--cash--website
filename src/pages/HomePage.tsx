@@ -139,7 +139,7 @@ export function HomePage() {
               <p className="text-muted-foreground mt-1">Pick your game and play today</p>
             </div>
             <Button variant="ghost" onClick={() => navigate('lotteries')} className="text-primary gap-1">
-              All Games <ArrowRight className="size-4" />
+              All Lotteries <ArrowRight className="size-4" />
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -316,28 +316,28 @@ export function HomePage() {
             {RECENT_RESULTS.slice(0, 4).map((result, i) => (
               <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
                 <CardContent className="p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center min-w-[100px]">
-                        <p className="font-bold text-lg">{result.game}</p>
-                        <p className="text-sm text-muted-foreground">{result.date}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-4">
+                    <div className="flex items-center justify-between sm:justify-start gap-4">
+                      <div className="text-left min-w-[100px]">
+                        <p className="font-bold text-base sm:text-lg leading-tight">{result.game}</p>
+                        <p className="text-[11px] sm:text-sm text-muted-foreground mt-0.5">{result.date}</p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5 sm:gap-2">
                         {result.numbers.map((n, ni) => (
-                          <div key={ni} className="number-ball number-ball-result text-sm">
+                          <div key={ni} className="number-ball number-ball-result size-8 sm:size-10 text-xs sm:text-sm">
                             {n}
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="font-extrabold text-lg text-primary">{result.jackpot}</p>
-                        <p className="text-sm text-muted-foreground">Top Prize</p>
+                    <div className="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t border-border/50 sm:border-0 mt-1 sm:mt-0">
+                      <div className="text-left sm:text-right">
+                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase sm:capitalize tracking-wider sm:tracking-normal mb-0.5 sm:mb-0">Top Prize</p>
+                        <p className="font-extrabold text-base sm:text-lg text-primary">{result.jackpot}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-extrabold text-lg text-foreground">{result.winners}</p>
-                        <p className="text-sm text-muted-foreground">Winners</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase sm:capitalize tracking-wider sm:tracking-normal mb-0.5 sm:mb-0">Winners</p>
+                        <p className="font-extrabold text-base sm:text-lg text-foreground">{result.winners}</p>
                       </div>
                     </div>
                   </div>
