@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Eye, EyeOff, User, Lock, Sparkles } from 'lucide-react'
+import { Eye, EyeOff, User, Lock } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
 
 export function LoginPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-    const [username, setUsername] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -29,9 +29,7 @@ export function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <button onClick={() => navigate('home')} className="inline-flex items-center gap-2 mb-6">
-            <div className="flex items-center justify-center size-10 rounded-full gold-gradient shadow-md">
-              <Sparkles className="size-5 text-fortune-navy" />
-            </div>
+            <img src="/favicon.png" alt="Fortune Logo" className="w-10 h-10 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)]" />
             <span className="text-2xl font-extrabold">
               <span className="gold-text">Fortune</span>
               <span> Lottery</span>
@@ -45,7 +43,6 @@ export function LoginPage() {
             <div className="mb-8">
               <h1 className="text-3xl font-extrabold leading-tight mb-2">
                 Welcome Back,<br />
-                <span className="gold-text">High Roller!</span>
               </h1>
               <p className="text-muted-foreground text-sm">
                 Log in to continue your winning journey with Fortune Lottery.

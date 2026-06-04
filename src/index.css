@@ -112,7 +112,7 @@
   --fortune-card: #111111;
   --fortune-card-hover: #1a1a1a;
   --fortune-blue: #e0ac2c;
-  --fortune-blue-muted: rgba(224,172,44,0.15);
+  --fortune-blue-muted: rgba(224, 172, 44, 0.15);
 
   /* Shadcn Token Overrides - Dark Theme (Pure Black) */
   --background: #050505;
@@ -156,6 +156,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  button,
+  [type="button"],
+  [type="submit"] {
+    cursor: pointer !important;
+  }
 }
 
 @layer utilities {
@@ -167,7 +172,26 @@
   }
 
   .gold-gradient {
-    background: linear-gradient(135deg, #f3ca20 0%, #e0ac2c 50%, #f0c020 100%);
+    background: linear-gradient(to bottom, #4caf50, #2e7d32) !important;
+    border: 1.5px solid #e0ac2c !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15) !important;
+    transition: all 0.2s ease;
+  }
+
+  .gold-gradient:hover {
+    background: linear-gradient(to bottom, #5cb860, #338d38) !important;
+    border-color: #f3ca20 !important;
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.25) !important;
+    transform: translateY(-1px);
+  }
+
+  .gold-gradient:active {
+    background: linear-gradient(to bottom, #3e8e41, #246527) !important;
+    border-color: #c99820 !important;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.15) !important;
+    transform: translateY(1px);
   }
 
   .gold-border {
@@ -194,17 +218,17 @@
 
   .fortune-hero-bg {
     background:
-      radial-gradient(ellipse at 15% 50%, rgba(224,172,44,0.08) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 20%, rgba(224,172,44,0.06) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 110%, rgba(76,175,80,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 15% 50%, rgba(224, 172, 44, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, rgba(224, 172, 44, 0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, rgba(76, 175, 80, 0.06) 0%, transparent 55%),
       #050505;
   }
 
   .dark .fortune-hero-bg {
     background:
-      radial-gradient(ellipse at 15% 50%, rgba(224,172,44,0.08) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 20%, rgba(224,172,44,0.06) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 110%, rgba(76,175,80,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 15% 50%, rgba(224, 172, 44, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, rgba(224, 172, 44, 0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, rgba(76, 175, 80, 0.06) 0%, transparent 55%),
       #050505;
   }
 

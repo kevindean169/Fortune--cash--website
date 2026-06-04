@@ -3,12 +3,6 @@ import { Button } from '@/components/ui/button'
 import { ShieldCheck } from 'lucide-react'
 
 export function SecurityPage() {
-  const goldBtn = {
-    background: 'linear-gradient(to bottom, #5c9e42, #36791d)',
-    color: 'white',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 0 15px rgba(92,158,66,0.3)',
-  }
-
   return (
     <Card className="bg-fortune-card border border-border/60 animate-in fade-in slide-in-from-bottom-2">
       <CardContent className="p-6 sm:p-8">
@@ -32,7 +26,7 @@ export function SecurityPage() {
             </div>
           </div>
           <div className="pt-4">
-            <Button style={goldBtn} className="font-bold w-full py-6 rounded-xl text-sm hover:opacity-90 transition-opacity">
+            <Button className="w-full gold-gradient font-bold py-6 rounded-xl text-sm hover:opacity-90 transition-opacity">
               Update Password
             </Button>
           </div>

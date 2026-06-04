@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
-import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info, X } from 'lucide-react'
+import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info, X, CheckCircle } from 'lucide-react'
 import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 
@@ -88,14 +88,18 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
         {/* Header */}
         <div className="mb-10">
           <button
-            onClick={() => navigate('games')}
+            onClick={() => navigate('lotteries')}
             className="text-sm text-muted-foreground hover:text-primary transition-colors mb-4 flex items-center gap-1"
           >
             ← All Games
           </button>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{game.icon}</span>
+              {game.id === 'pick-2-single' || game.id === 'pick-2-double' ? (
+                <img src="/pick2_logo.png" alt={game.name} className="w-12 h-12 object-contain" />
+              ) : (
+                <span className="text-4xl">{game.icon}</span>
+              )}
               <div>
                 <h1 className="text-4xl font-extrabold">{game.name}</h1>
                 <p className="text-muted-foreground">{game.description}</p>
@@ -288,7 +292,11 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                 <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{game.icon}</span>
+                      {game.id === 'pick-2-single' || game.id === 'pick-2-double' ? (
+                        <img src="/pick2_logo.png" alt={game.name} className="w-6 h-6 object-contain" />
+                      ) : (
+                        <span className="text-xl">{game.icon}</span>
+                      )}
                       <span className="font-bold">{game.name}</span>
                     </div>
                     <Badge variant="outline" className="text-xs border-border/60 text-muted-foreground">
@@ -342,7 +350,10 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
 
                 {purchased ? (
                   <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-4 text-center">
-                    <p className="text-emerald-400 font-bold">🎉 Tickets Purchased!</p>
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <CheckCircle className="size-5 text-emerald-400" />
+                      <p className="text-emerald-400 font-bold">Tickets Purchased!</p>
+                    </div>
                     <p className="text-sm text-muted-foreground mt-1">Draw at {game.drawTime}. Good luck!</p>
                     <Button
                       variant="outline"

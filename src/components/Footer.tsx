@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator'
-import { Sparkles, ShieldCheck, Phone, HelpCircle, FileText, Lock } from 'lucide-react'
+import { ShieldCheck, Phone, HelpCircle, FileText, Lock } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
 import { Link } from 'react-router-dom'
@@ -13,9 +13,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center size-8 rounded-full gold-gradient">
-                <Sparkles className="size-4 text-fortune-navy" />
-              </div>
+              <img src="/favicon.png" alt="Fortune Logo" className="w-8 h-8 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)]" />
               <span className="text-lg font-extrabold">
                 <span className="gold-text">Fortune</span>
                 <span className="text-foreground"> Lottery</span>
@@ -39,16 +37,15 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Lotteries</h3>
             <ul className="space-y-2.5">
               {[
-                { id: 'cashpot' as PageId, label: 'Cashpot', icon: '💎' },
-                { id: 'money-time' as PageId, label: 'Money Time', icon: '🎯' },
-                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', icon: '✌️' },
-                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', icon: '🔥' },
+                { id: 'cashpot' as PageId, label: 'Cashpot', logo: '/cashpot_logo.png' },
+                { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png' },
+                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_logo.png' },
+                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_logo.png' },
               ].map(g => (
                 <li key={g.id}>
-                  <div
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <span>{g.icon}</span> {g.label}
+                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground select-none">
+                    <img src={g.logo} alt={g.label} className="w-6 h-6 object-contain" />
+                    <span>{g.label}</span>
                   </div>
                 </li>
               ))}
@@ -97,9 +94,12 @@ export function Footer() {
                 </li>
               ))}
               <li>
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Link
+                  to="/terms"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
                   <FileText className="size-3" /> Terms & Conditions
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -112,12 +112,12 @@ export function Footer() {
           <p className="text-xs text-muted-foreground text-center md:text-left">
             © 2026 Fortune Lottery. All rights reserved. Must be 18+ to play. Play Responsibly.
           </p>
-          <div className="flex items-center gap-2">
-            <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">
-              🔞 18+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded border border-border/50 font-bold select-none">
+              <span className="text-red-500 font-extrabold text-[10px] bg-red-500/10 border border-red-500/20 px-1 rounded-sm">18+</span> Age Limit
             </div>
-            <div className="text-xs text-muted-foreground px-2 py-1 rounded border border-border/50">
-              🎰 Play Responsibly
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded border border-border/50 font-bold select-none">
+              <ShieldCheck className="size-3.5 text-emerald-500" /> Play Responsibly
             </div>
             <Link
               to="/responsible-gaming"

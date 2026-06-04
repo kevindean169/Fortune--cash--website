@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, X, Ticket, Clock, Hash } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface SingleLotteryPageProps {
@@ -132,11 +132,6 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
     }, 3000)
   }
 
-  const goldBtn = {
-    background: 'linear-gradient(to bottom, #5c9e42, #36791d)',
-    color: 'white',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 0 15px rgba(92,158,66,0.3)',
-  }
 
   return (
     <div className="min-h-screen py-10">
@@ -162,14 +157,14 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
           <CardContent className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('games')}
+                onClick={() => navigate('lotteries')}
                 className="size-12 bg-background border border-border rounded-xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all"
               >
                 <ArrowLeft className="size-5" />
               </button>
               <div>
                 <h1 className="text-3xl font-extrabold text-foreground">{config.name}</h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Type: <span className="text-primary font-semibold">{config.type}</span>&nbsp;•&nbsp;
                   Pick: {config.range === 36 ? '01–36' : '00–99'}
                 </p>
@@ -214,7 +209,7 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
               {/* Pick Number */}
               <Card className="bg-fortune-card border border-border/60">
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg text-foreground mb-4">1. Pick your Bet Number</h3>
+                  <h3 className="font-extrabold text-xl text-foreground mb-4">1. Pick your Bet Number</h3>
                   {config.isGrid ? (
                     <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
                       {Array.from({ length: config.range }, (_, i) => i + 1).map((n) => {
@@ -263,7 +258,7 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
               {/* Draw Times */}
               <Card className="bg-fortune-card border border-border/60">
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg text-foreground mb-4">2. Select Draw Times</h3>
+                  <h3 className="font-extrabold text-xl text-foreground mb-4">2. Select Draw Times</h3>
                   <div className="flex flex-wrap gap-2">
                     {config.drawTimes.map((time) => {
                       const isSelected = selectedDrawTimes.includes(time)
@@ -271,7 +266,7 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                         <button
                           key={time}
                           onClick={() => toggleDrawTime(time)}
-                          className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all ${
+                          className={`px-5 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
                             isSelected
                               ? 'border-primary bg-primary/15 text-primary'
                               : 'border-border bg-background text-muted-foreground hover:border-primary/30 hover:text-foreground'
@@ -288,7 +283,7 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
               {/* Options & Bet Amount */}
               <Card className="bg-fortune-card border border-border/60">
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg text-foreground mb-4">3. Select Options & Bet Amount</h3>
+                  <h3 className="font-extrabold text-xl text-foreground mb-4">3. Select Options & Bet Amount</h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                     {config.betOptions.map((opt) => {
@@ -303,8 +298,8 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                               : 'border-border bg-background hover:bg-primary/5 hover:border-primary/30'
                           }`}
                         >
-                          <p className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-foreground'}`}>{opt.name}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{opt.rate}</p>
+                          <p className={`font-semibold text-base ${isSelected ? 'text-primary' : 'text-foreground'}`}>{opt.name}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{opt.rate}</p>
                         </button>
                       )
                     })}
@@ -342,8 +337,8 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                   <div className="mt-8 border-t border-border/50 pt-6 text-right">
                     <Button
                       onClick={handleAddBet}
-                      style={goldBtn}
-                      className="px-8 py-6 font-bold rounded-xl hover:opacity-90"
+                      size="lg"
+                      className="gold-gradient text-fortune-navy font-bold text-base px-8 gold-glow hover:opacity-90"
                     >
                       Add Bet Card
                     </Button>
@@ -357,15 +352,15 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
               <Card className="bg-fortune-card border border-border/60 sticky top-24">
                 <CardContent className="p-6 flex flex-col justify-between min-h-[450px]">
                   <div>
-                    <h3 className="font-bold text-lg text-foreground border-b border-border pb-3 mb-4">
+                    <h3 className="font-extrabold text-xl text-foreground border-b border-border pb-3 mb-4">
                       Total Bets View ({cart.length})
                     </h3>
 
                     {cart.length === 0 ? (
-                      <div className="text-center py-12">
-                        <div className="text-4xl mb-3">🎟️</div>
-                        <p className="text-muted-foreground text-sm">No bets added to card yet.</p>
-                        <p className="text-[11px] text-muted-foreground/60 mt-1">Configure options on the left and click "Add Bet Card".</p>
+                      <div className="text-center py-12 flex flex-col items-center justify-center">
+                        <Ticket className="size-12 text-primary/60 mb-3" />
+                        <p className="text-muted-foreground text-base">No bets added to card yet.</p>
+                        <p className="text-sm text-muted-foreground/60 mt-1">Configure options on the left and click "Add Bet Card".</p>
                       </div>
                     ) : (
                       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
@@ -373,12 +368,12 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
                           <div key={item.id} className="p-3 bg-background border border-border rounded-xl flex items-center justify-between">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-primary text-sm">#{item.number}</span>
-                                <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 bg-muted border border-border rounded-full">
+                                <span className="font-bold text-primary text-base">#{item.number}</span>
+                                <span className="text-sm text-muted-foreground px-1.5 py-0.5 bg-muted border border-border rounded-full">
                                   {item.gameName}
                                 </span>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mt-1">Draw: {item.drawTime}</p>
+                              <p className="text-sm text-muted-foreground mt-1">Draw: {item.drawTime}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               <span className="font-semibold text-sm text-foreground">${item.amount.toFixed(2)}</span>
@@ -397,21 +392,21 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
 
                   <div className="border-t border-border pt-4 mt-6">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-muted-foreground text-sm">Grand Total:</span>
+                      <span className="text-muted-foreground text-base">Grand Total:</span>
                       <span className="font-extrabold text-xl text-green-400">${cartTotal.toFixed(2)}</span>
                     </div>
-                    <button
+                    <Button
                       disabled={cart.length === 0}
                       onClick={handleCheckout}
-                      style={cart.length > 0 ? goldBtn : undefined}
-                      className={`w-full py-4 rounded-xl font-bold transition-all ${
+                      size="lg"
+                      className={`w-full font-bold text-base transition-all ${
                         cart.length === 0
                           ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
-                          : 'cursor-pointer hover:opacity-90'
+                          : 'gold-gradient text-fortune-navy gold-glow hover:opacity-90'
                       }`}
                     >
                       Place Bets & Checkout
-                    </button>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -424,7 +419,7 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
         {activeTab === 'prize' && (
           <Card className="bg-fortune-card border border-border/60">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Prize Payout Structure</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">Prize Payout Structure</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
@@ -461,19 +456,19 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
         {activeTab === 'how' && (
           <Card className="bg-fortune-card border border-border/60">
             <CardContent className="p-8 space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">How to Play {config.name}</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground">How to Play {config.name}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 {[
-                  { step: '01', title: 'Choose Numbers', desc: `Select a single number from ${config.range === 36 ? '01 to 36' : '00 to 99'}. Use Quick Pick to generate a random selection.`, icon: '#' },
-                  { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play. You can select one, multiple, or all draws for the day.', icon: '⏱' },
-                  { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type (e.g. Cashpot, Megaball) and enter your bet amount. Add the bet card and check out!', icon: '🎟️' },
+                  { step: '01', title: 'Choose Numbers', desc: `Select a single number from ${config.range === 36 ? '01 to 36' : '00 to 99'}. Use Quick Pick to generate a random selection.`, icon: <Hash className="size-4 text-primary" /> },
+                  { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play. You can select one, multiple, or all draws for the day.', icon: <Clock className="size-4 text-primary" /> },
+                  { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type (e.g. Cashpot, Megaball) and enter your bet amount. Add the bet card and check out!', icon: <Ticket className="size-4 text-primary" /> },
                 ].map((s) => (
                   <div key={s.step} className="p-5 border border-border rounded-xl bg-white/[0.02]">
                     <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-3">
-                      <span className="font-extrabold text-sm text-primary">{s.step}</span>
+                      {s.icon}
                     </div>
-                    <h4 className="font-bold text-foreground mb-2">{s.title}</h4>
-                    <p className="text-muted-foreground text-xs leading-relaxed">{s.desc}</p>
+                    <h4 className="font-extrabold text-lg text-foreground mb-2">{s.title}</h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
                   </div>
                 ))}
               </div>
@@ -485,8 +480,8 @@ export function SingleLotteryPage({ gameId }: SingleLotteryPageProps) {
         {activeTab === 'soldout' && (
           <Card className="bg-fortune-card border border-border/60">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Sold Out Numbers</h2>
-              <p className="text-muted-foreground text-sm mb-6">
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
+              <p className="text-muted-foreground text-base mb-6">
                 The following numbers have reached their draw bet limit for today and cannot accept any more bets.
               </p>
               <div className="flex flex-wrap gap-3">

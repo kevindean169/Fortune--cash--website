@@ -3,13 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   Menu, X, Trophy, Ticket, Wallet, LayoutDashboard,
-  ShieldCheck, Phone, ChevronDown, Sparkles, User, LogOut
+  ShieldCheck, Phone, ChevronDown, User, LogOut,
+  FileText
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 const mainNav = [
-  { id: 'games', label: 'Lotteries', icon: <Ticket className="size-4" /> },
+  { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
   { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
+  { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
+  { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
 ]
 
 export function Navigation() {
@@ -33,9 +36,7 @@ export function Navigation() {
             onClick={handleNavigate}
             className="flex items-center gap-2 group"
           >
-            <div className="relative flex items-center justify-center size-8 rounded-full gold-gradient shadow-md">
-              <Sparkles className="size-4 text-fortune-navy" />
-            </div>
+            <img src="/favicon.png" alt="Fortune Logo" className="w-8 h-8 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)] group-hover:scale-105 transition-transform" />
             <span className="text-xl font-extrabold tracking-tight">
               <span className="gold-text">Fortune</span>
               <span className="text-foreground"> Lottery</span>
@@ -50,11 +51,10 @@ export function Navigation() {
                 key={item.id}
                 to={`/${item.id}`}
                 onClick={handleNavigate}
-                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  currentPath === item.id
+                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${currentPath === item.id
                     ? 'text-primary'
                     : 'text-muted-foreground'
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>
@@ -67,11 +67,10 @@ export function Navigation() {
             <div className="relative" onMouseLeave={() => setProfileOpen(false)}>
               <button
                 onMouseEnter={() => setProfileOpen(true)}
-                className={`flex items-center gap-2 rounded-full border bg-[#050505] p-1 pr-3 transition-colors ${
-                  ['profile', 'dashboard'].includes(currentPath) 
-                    ? 'border-[#c5a059] shadow-[0_0_10px_rgba(197,160,89,0.2)]' 
+                className={`flex items-center gap-2 rounded-full border bg-[#050505] p-1 pr-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
+                    ? 'border-[#c5a059] shadow-[0_0_10px_rgba(197,160,89,0.2)]'
                     : 'border-[#c5a059]/30 hover:border-[#c5a059]/60'
-                }`}
+                  }`}
               >
                 <div className={`size-7 rounded-full border bg-[#1a150c] flex items-center justify-center ${['profile', 'dashboard'].includes(currentPath) ? 'border-[#c5a059]' : 'border-[#c5a059]/50'}`}>
                   <User className="size-4 text-[#c5a059]" />
@@ -79,7 +78,7 @@ export function Navigation() {
                 <span className={`text-sm font-bold ${['profile', 'dashboard'].includes(currentPath) ? 'text-[#c5a059]' : 'text-white'}`}>Profile</span>
                 <ChevronDown className={`size-3.5 text-[#c5a059] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
               </button>
-              
+
               {profileOpen && (
                 <div className="absolute top-full right-0 pt-2 z-50">
                   <div className="w-56 rounded-2xl border border-[#c5a059]/30 bg-[#0a0a0a] shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden">
@@ -88,14 +87,12 @@ export function Navigation() {
                       <p className="text-xs text-muted-foreground mt-0.5">sachin@example.com</p>
                     </div>
                     <div className="p-2 space-y-1">
-                      <Link to="/dashboard" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${
-                        currentPath === 'dashboard' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
-                      }`}>
+                      <Link to="/dashboard" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'dashboard' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
+                        }`}>
                         <LayoutDashboard className={`size-4 ${currentPath === 'dashboard' ? 'text-[#c5a059]' : ''}`} /> Dashboard
                       </Link>
-                      <Link to="/profile" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${
-                        currentPath === 'profile' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
-                      }`}>
+                      <Link to="/profile" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'profile' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
+                        }`}>
                         <User className={`size-4 ${currentPath === 'profile' ? 'text-[#c5a059]' : ''}`} /> Personal Details
                       </Link>
                     </div>
@@ -147,7 +144,7 @@ export function Navigation() {
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-1">
                   {[
-                    { id: 'games', label: 'Lotteries', icon: <Ticket className="size-4" /> },
+                    { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
                     { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
                     { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
                     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
@@ -160,9 +157,8 @@ export function Navigation() {
                       key={item.id}
                       to={`/${item.id}`}
                       onClick={handleNavigate}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                        currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
-                      }`}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
+                        }`}
                     >
                       {item.icon} {item.label}
                     </Link>
@@ -174,7 +170,7 @@ export function Navigation() {
                     <span className="text-muted-foreground">Wallet Balance</span>
                     <span className="font-bold text-primary">$5,249.50</span>
                   </div>
-                  <Link to="/games" onClick={handleNavigate} className="w-full">
+                  <Link to="/lotteries" onClick={handleNavigate} className="w-full">
                     <Button className="w-full gold-gradient text-fortune-navy font-bold">
                       Play Now
                     </Button>

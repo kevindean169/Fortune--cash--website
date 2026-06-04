@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, RefreshCw, ShieldCheck, Wallet } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
 interface TransactionsPageProps {
@@ -47,11 +47,10 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-lg capitalize transition-all ${
-                activeTab === tab
-                  ? 'gold-gradient text-fortune-navy shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg capitalize transition-all ${activeTab === tab
+                ? 'gold-gradient text-fortune-navy shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+                }`}
             >
               {tab}
             </button>
@@ -60,8 +59,8 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
 
         {/* Balance Card */}
         <Card className="bg-fortune-card border border-primary/20 mb-6 relative overflow-hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-32 flex items-center justify-center opacity-80 pointer-events-none">
-            <div className="text-5xl">🏺</div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 flex items-center justify-center opacity-20 pointer-events-none">
+            <Wallet className="size-20 text-primary" />
           </div>
           <CardContent className="p-5 relative">
             <div className="space-y-3">
@@ -121,13 +120,7 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
 
         {/* Proceed Button */}
         <Button
-          className="w-full py-7 font-bold uppercase tracking-widest text-base"
-          style={{
-            background: 'linear-gradient(to bottom, #5c9e42, #36791d)',
-            border: '1px solid oklch(0.83 0.17 84 / 0.5)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 0 20px rgba(92,158,66,0.3)',
-            color: 'white',
-          }}
+          className="w-full py-7 font-bold uppercase tracking-widest text-base gold-gradient text-fortune-navy gold-glow hover:opacity-90"
           disabled={amount === 0}
         >
           PROCEED

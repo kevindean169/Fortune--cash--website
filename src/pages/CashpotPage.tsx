@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
-import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info } from 'lucide-react'
+import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info, CheckCircle } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
 
 interface CashpotPageProps {
@@ -45,13 +45,13 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-10">
-          <button onClick={() => navigate('games')} className="text-sm text-muted-foreground hover:text-primary transition-colors mb-4 flex items-center gap-1">
+          <button onClick={() => navigate('lotteries')} className="text-sm text-muted-foreground hover:text-primary transition-colors mb-4 flex items-center gap-1">
             ← All Games
           </button>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-4xl">💎</span>
+                <img src="/cashpot_logo.png" alt="Jamaica Cashpot" className="w-12 h-12 object-contain" />
                 <div>
                   <h1 className="text-4xl font-extrabold">Jamaica Cashpot</h1>
                   <p className="text-muted-foreground">Pick 1 number from 01–36.</p>
@@ -140,11 +140,10 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
                         <button
                           key={m}
                           onClick={() => setMultiplier(m)}
-                          className={`flex-1 rounded-lg py-2.5 text-sm font-bold border transition-all ${
-                            multiplier === m
+                          className={`flex-1 rounded-lg py-2.5 text-sm font-bold border transition-all ${multiplier === m
                               ? 'gold-gradient text-fortune-navy border-primary/50 gold-glow'
                               : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
-                          }`}
+                            }`}
                         >
                           {m === 100 ? '$100 Play' : '$200 Play (2x Prizes)'}
                         </button>
@@ -187,8 +186,8 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
                     <span>Prize</span>
                   </div>
                   {prizes.map((p, i) => (
-                    <div key={i} className={`flex justify-between text-sm py-1 ${i === 0 ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
-                      <span>{i === 0 ? '🏆 1st Prize' : `${i + 1}nd–${i + 2}th`}</span>
+                    <div key={i} className={`flex justify-between items-center text-base py-1 ${i === 0 ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                      <span className="flex items-center gap-1.5">{i === 0 ? <Trophy className="size-4 text-primary" /> : null} {i === 0 ? '1st Prize' : `${i + 1}nd–${i + 2}th`}</span>
                       <span>{p}</span>
                     </div>
                   ))}
@@ -207,7 +206,7 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
                 <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">💎</span>
+                      <img src="/cashpot_logo.png" alt="Cashpot" className="w-6 h-6 object-contain" />
                       <span className="font-bold">Cashpot</span>
                     </div>
                     <Badge variant="outline" className="text-xs border-border/60 text-muted-foreground">
@@ -248,7 +247,10 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
 
                 {purchased ? (
                   <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-4 text-center">
-                    <p className="text-emerald-400 font-bold">🎉 Tickets Purchased!</p>
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <CheckCircle className="size-5 text-emerald-400" />
+                      <p className="text-emerald-400 font-bold">Tickets Purchased!</p>
+                    </div>
                     <p className="text-sm text-muted-foreground mt-1">Good luck! Check results soon.</p>
                   </div>
                 ) : (

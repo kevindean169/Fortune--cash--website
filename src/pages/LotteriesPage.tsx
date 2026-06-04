@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { PageId } from '@/lib/fortune-data'
-
 import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
 function useCountdown(totalSeconds: number) {
   const [secs, setSecs] = useState(totalSeconds)
@@ -28,6 +28,19 @@ const lotteries: { id: PageId; name: string; sub: string; range: string; drawSec
   { id: 'pick-2-double', name: 'P2 Double Digit', sub: 'CAYMAN P2', range: '00–99', drawSecs: 0 * 86400 + 6 * 3600 + 40 * 60 + 19 },
 ]
 
+const getGamePhoto = (id: string) => {
+  switch (id) {
+    case 'money-time':
+      return '/roulette_wheel.jpg'
+    case 'pick-2-single':
+      return '/pick2_single.jpg'
+    case 'pick-2-double':
+      return '/pick2_double.jpg'
+    default:
+      return '/lottery_machine.jpg'
+  }
+}
+
 function GameCard({ game }: { game: typeof lotteries[0] }) {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(`/${path}`)
@@ -36,9 +49,11 @@ function GameCard({ game }: { game: typeof lotteries[0] }) {
     <div className="bg-fortune-card border border-border/60 rounded-xl flex overflow-hidden shadow-[0_0_10px_rgba(224,172,44,0.05)] hover:shadow-[0_0_20px_rgba(224,172,44,0.15)] hover:-translate-y-1 transition-all duration-300 group">
       {/* Left: Image */}
       <div className="w-[38%] sm:w-[32%] relative shrink-0 bg-background overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-background flex items-center justify-center">
-          <span className="text-5xl opacity-60">🎰</span>
-        </div>
+        <img
+          src={getGamePhoto(game.id)}
+          alt={game.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
         {/* slant overlay */}
         <div
           className="absolute top-0 bottom-0 right-0 w-8 bg-fortune-card z-20"
@@ -71,17 +86,13 @@ function GameCard({ game }: { game: typeof lotteries[0] }) {
         </div>
 
         {/* Bet Button */}
-        <button
+        <Button
+          size="sm"
           onClick={() => navigate(game.id)}
-          className="w-full py-2.5 font-bold text-xs rounded-lg text-center transition-all"
-          style={{
-            background: 'linear-gradient(to bottom, #5c9e42, #36791d)',
-            color: 'white',
-            boxShadow: '0 0 10px rgba(92,158,66,0.2)',
-          }}
+          className="w-[80%] self-end gold-gradient text-white font-bold rounded-lg h-8 hover:opacity-90 transition-all text-xs"
         >
           Bet Now
-        </button>
+        </Button>
       </div>
     </div>
   )

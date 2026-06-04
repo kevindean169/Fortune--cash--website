@@ -87,6 +87,20 @@ export function GamesPage({ navigate }: GamesPageProps) {
         <div className="grid md:grid-cols-2 gap-6 mb-16">
           {GAMES.map(game => {
             const details = gameDetails[game.id as keyof typeof gameDetails]
+            const getGameLogoSrc = (id: string) => {
+              switch (id) {
+                case 'cashpot':
+                  return '/cashpot_logo.png'
+                case 'money-time':
+                  return '/moneytime_logo.png'
+                case 'pick-2-single':
+                case 'pick-2-double':
+                  return '/pick2_logo.png'
+                default:
+                  return null
+              }
+            }
+            const logoSrc = getGameLogoSrc(game.id)
             return (
               <Card
                 key={game.id}
@@ -98,7 +112,11 @@ export function GamesPage({ navigate }: GamesPageProps) {
                   <div className="relative p-6 pb-0">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="text-4xl">{game.icon}</div>
+                        {logoSrc ? (
+                          <img src={logoSrc} alt={game.name} className="w-12 h-12 object-contain" />
+                        ) : (
+                          <div className="text-4xl">{game.icon}</div>
+                        )}
                         <div>
                           <h2 className="text-2xl font-extrabold">{game.name}</h2>
                           <p className="text-muted-foreground text-sm">{game.tagline}</p>
@@ -177,7 +195,7 @@ export function GamesPage({ navigate }: GamesPageProps) {
 
         {/* Quick Compare */}
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-center">Quick Comparison</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight mb-6 text-center">Quick Comparison</h2>
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
               <thead>

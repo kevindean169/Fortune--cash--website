@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Mail, Phone, Lock, Sparkles } from 'lucide-react'
+import { Mail, Phone, Lock } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
 
 export function RegisterPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -38,9 +38,7 @@ export function RegisterPage() {
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <button onClick={() => navigate('home')} className="inline-flex items-center gap-2 mb-4">
-            <div className="flex items-center justify-center size-10 rounded-full gold-gradient shadow-md">
-              <Sparkles className="size-5 text-fortune-navy" />
-            </div>
+            <img src="/favicon.png" alt="Fortune Logo" className="w-10 h-10 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)]" />
             <span className="text-2xl font-extrabold">
               <span className="gold-text">Fortune</span>
               <span> Lottery</span>
@@ -52,7 +50,7 @@ export function RegisterPage() {
           <CardContent className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-extrabold mb-1">
-                Create an <span className="gold-text">Agent Account</span>
+                Create <span className="gold-text"> Account</span>
               </h1>
               <p className="text-muted-foreground text-sm">
                 Join Fortune Lottery and start placing your bets

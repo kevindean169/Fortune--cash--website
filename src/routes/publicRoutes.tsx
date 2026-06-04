@@ -8,10 +8,11 @@ import { ResponsibleGamingPage } from '@/pages/ResponsibleGamingPage'
 import { ContactPage } from '@/pages/ContactPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { TermsPage } from '@/pages/TermsPage'
 
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
-  { path: 'games', element: <LotteriesPage /> },
+  { path: 'lotteries', element: <LotteriesPage /> },
   { path: 'cashpot', element: <SingleLotteryPage gameId="cashpot" /> },
   { path: 'money-time', element: <SingleLotteryPage gameId="money-time" /> },
   { path: 'pick-2-single', element: <SingleLotteryPage gameId="pick-2-single" /> },
@@ -22,4 +23,5 @@ export const publicRoutes: RouteObject[] = [
   { path: 'contact', element: <ContactPage /> },
   { path: 'login', element: <LoginPage /> },
   { path: 'register', element: <RegisterPage /> },
+  { path: 'terms', element: <TermsPage /> },
 ]

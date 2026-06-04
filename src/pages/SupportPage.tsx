@@ -127,7 +127,7 @@ export default function SupportPage() {
                 />
               </div>
 
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+              <Button className="w-full gold-gradient text-fortune-navy font-bold">
                 Send Message
               </Button>
             </form>

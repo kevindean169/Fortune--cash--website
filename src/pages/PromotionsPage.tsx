@@ -85,7 +85,7 @@ export function PromotionsPage({ navigate }: PromotionsPageProps) {
                   <Button
                     size="sm"
                     className="gold-gradient text-fortune-navy font-semibold text-xs"
-                    onClick={() => navigate('games')}
+                    onClick={() => navigate('lotteries')}
                   >
                     Claim <ArrowRight className="size-3 ml-0.5" />
                   </Button>

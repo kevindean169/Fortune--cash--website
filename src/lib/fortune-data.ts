@@ -1,6 +1,6 @@
 export type PageId =
   | 'home'
-  | 'games'
+  | 'lotteries'
   | 'cashpot'
   | 'money-time'
   | 'pick-2-single'

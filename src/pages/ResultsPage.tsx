@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-
 import { useNavigate } from 'react-router-dom'
 
 const tabs = [
@@ -9,6 +8,20 @@ const tabs = [
   { id: 'pick2single', name: 'Pick 2 Single' },
   { id: 'pick2double', name: 'Pick 2 Double' },
 ]
+
+const getTabIcon = (id: string) => {
+  switch (id) {
+    case 'cashpot':
+      return <img src="/cashpot_logo.png" alt="Cashpot" className="w-7 h-7 object-contain" />
+    case 'moneytime':
+      return <img src="/moneytime_logo.png" alt="Money Time" className="w-7 h-7 object-contain" />
+    case 'pick2single':
+    case 'pick2double':
+      return <img src="/pick2_logo.png" alt="Pick 2" className="w-7 h-7 object-contain" />
+    default:
+      return null
+  }
+}
 
 const cashpotResults = [
   { draw_no: '4521', draw_time: '30 May, 2026 • 6:00 PM', cashpot_no: '14', megaball: 'yellow', monstaball: 'red' },
@@ -46,7 +59,7 @@ const pick2DoubleResults = [
 export function ResultsPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-    const [activeTab, setActiveTab] = useState('cashpot')
+  const [activeTab, setActiveTab] = useState('cashpot')
 
   const getActiveResults = () => {
     switch (activeTab) {
@@ -81,13 +94,13 @@ export function ResultsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border ${
-                activeTab === tab.id
+              className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border flex items-center gap-2.5 ${activeTab === tab.id
                   ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
                   : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-              }`}
+                }`}
             >
-              {tab.name}
+              {getTabIcon(tab.id)}
+              <span>{tab.name}</span>
             </button>
           ))}
         </div>
@@ -133,11 +146,10 @@ export function ResultsPage() {
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col items-center">
                         <span
-                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${
-                            (result as any).megaball === 'yellow'
+                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${(result as any).megaball === 'yellow'
                               ? 'bg-primary/20 border-primary text-primary'
                               : 'bg-muted border-border text-muted-foreground'
-                          }`}
+                            }`}
                         >
                           M
                         </span>
@@ -145,11 +157,10 @@ export function ResultsPage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <span
-                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${
-                            (result as any).monstaball === 'red'
+                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${(result as any).monstaball === 'red'
                               ? 'bg-red-500/15 border-red-500 text-red-400'
                               : 'bg-muted border-border text-muted-foreground'
-                          }`}
+                            }`}
                         >
                           X
                         </span>

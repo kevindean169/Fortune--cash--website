@@ -1,11 +1,14 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
+import { useState } from 'react'
 import { 
   User, Lock, Wallet, Trophy, Ticket, LogOut, 
-  ChevronRight, LayoutDashboard, FileText
+  ChevronRight, LayoutDashboard, FileText, Menu, X
 } from 'lucide-react'
 
 export function AccountLayout() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
   const profile = {
     firstName: 'Sachin',
     lastName: 'Kumar',
@@ -24,21 +27,79 @@ export function AccountLayout() {
   ]
 
   return (
-    <div className="min-h-screen py-10">
+    <div className="min-h-screen py-6 md:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-foreground">
-            My <span className="gold-text">Account</span>
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage your dashboard, tickets, and wallet balance</p>
+        <div className="mb-6 md:mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-foreground">
+              My <span className="gold-text">Account</span>
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">Manage your dashboard, tickets, and wallet balance</p>
+          </div>
+          {/* Mobile nav toggle */}
+          <button
+            className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-fortune-card text-sm font-semibold text-foreground"
+            onClick={() => setMobileNavOpen(v => !v)}
+          >
+            {mobileNavOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            <span>Menu</span>
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Mobile Slide-down Nav */}
+        {mobileNavOpen && (
+          <div className="lg:hidden mb-6 bg-fortune-card border border-border/60 rounded-2xl overflow-hidden">
+            <div className="flex items-center gap-3 p-4 border-b border-border/50">
+              <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                <span className="text-lg font-black text-primary">{profile.firstName.charAt(0)}</span>
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-foreground text-sm">{profile.firstName} {profile.lastName}</p>
+                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+              </div>
+              <div className="ml-auto text-right flex-shrink-0">
+                <p className="text-xs text-muted-foreground">Balance</p>
+                <p className="font-extrabold text-sm text-green-400">${profile.balance.toLocaleString()}</p>
+              </div>
+            </div>
+            <nav className="p-2 space-y-1">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={({ isActive }) =>
+                      `w-full flex items-center justify-between p-3 rounded-lg text-sm font-bold transition-all ${
+                        isActive 
+                          ? 'bg-primary/10 text-primary border border-primary/20' 
+                          : 'text-muted-foreground hover:bg-background hover:text-foreground'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <Icon className="size-4" />
+                          {item.label}
+                        </div>
+                        <ChevronRight className={`size-4 transition-transform ${isActive ? 'translate-x-1' : ''}`} />
+                      </>
+                    )}
+                  </NavLink>
+                )
+              })}
+            </nav>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
           
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Sidebar Navigation — hidden on mobile, shown on lg+ */}
+          <div className="hidden lg:block lg:col-span-1 space-y-6">
             
             {/* User Summary Card */}
             <Card className="bg-fortune-card border border-border/60 text-center">
