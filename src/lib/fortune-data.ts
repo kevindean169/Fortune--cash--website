@@ -43,6 +43,8 @@ export interface DrawResult {
   numbers: number[]
   jackpot: string
   winners: number
+  megaBall?: number
+  monstaBall?: number
 }
 
 export interface Ticket {
@@ -129,11 +131,11 @@ export const GAMES: Game[] = [
 ]
 
 export const RECENT_RESULTS: DrawResult[] = [
-  { date: 'Today, 7:29 PM', game: 'Cashpot', numbers: [24], jackpot: '$850,000', winners: 4 },
+  { date: 'Today, 7:29 PM', game: 'Cashpot', numbers: [24], megaBall: 12, monstaBall: 7, jackpot: '$850,000', winners: 4 },
   { date: 'Today, 7:29 PM', game: 'Money Time', numbers: [15], jackpot: '$240,000', winners: 12 },
-  { date: 'Today, 7:29 PM', game: 'Pick 2 Single', numbers: [8, 9], jackpot: '$120,000', winners: 87 },
+  { date: 'Today, 7:29 PM', game: 'Pick 2 Single', numbers: [89], jackpot: '$120,000', winners: 87 },
   { date: 'Today, 4:00 PM', game: 'Pick 2 Double', numbers: [1, 2], jackpot: '$120,000', winners: 2 },
-  { date: 'Yesterday, 7:29 PM', game: 'Cashpot', numbers: [3], jackpot: '$850,000', winners: 1 },
+  { date: 'Yesterday, 7:29 PM', game: 'Cashpot', numbers: [3], megaBall: 27, monstaBall: 14, jackpot: '$850,000', winners: 1 },
   { date: 'Yesterday, 7:29 PM', game: 'Money Time', numbers: [27], jackpot: '$240,000', winners: 8 },
 ]
 

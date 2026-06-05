@@ -51,7 +51,7 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <img src="/cashpot_logo.png" alt="Jamaica Cashpot" className="w-12 h-12 object-contain" />
+                <img src="/cashpot_logo.png?v=3" alt="Jamaica Cashpot" className="w-12 h-12 object-contain" />
                 <div>
                   <h1 className="text-4xl font-extrabold">Jamaica Cashpot</h1>
                   <p className="text-muted-foreground">Pick 1 number from 01–36.</p>
@@ -141,8 +141,8 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
                           key={m}
                           onClick={() => setMultiplier(m)}
                           className={`flex-1 rounded-lg py-2.5 text-sm font-bold border transition-all ${multiplier === m
-                              ? 'gold-gradient text-fortune-navy border-primary/50 gold-glow'
-                              : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
+                            ? 'gold-gradient text-fortune-navy border-primary/50 gold-glow'
+                            : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
                             }`}
                         >
                           {m === 100 ? '$100 Play' : '$200 Play (2x Prizes)'}
@@ -206,7 +206,7 @@ export function CashpotPage({ navigate }: CashpotPageProps) {
                 <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <img src="/cashpot_logo.png" alt="Cashpot" className="w-6 h-6 object-contain" />
+                      <img src="/cashpot_logo.png?v=3" alt="Cashpot" className="w-6 h-6 object-contain" />
                       <span className="font-bold">Cashpot</span>
                     </div>
                     <Badge variant="outline" className="text-xs border-border/60 text-muted-foreground">

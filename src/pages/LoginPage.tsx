@@ -11,9 +11,15 @@ export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!ageConfirmed || !termsAccepted) {
+      alert('Please confirm your age and accept the Terms & Conditions')
+      return
+    }
     navigate('dashboard')
   }
 
@@ -27,25 +33,20 @@ export function LoginPage() {
 
       <div className="relative w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <button onClick={() => navigate('home')} className="inline-flex items-center gap-2 mb-6">
-            <img src="/favicon.png" alt="Fortune Logo" className="w-10 h-10 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)]" />
-            <span className="text-2xl font-extrabold">
-              <span className="gold-text">Fortune</span>
-              <span> Lottery</span>
-            </span>
+        <div className="text-center mb-2">
+          <button onClick={() => navigate('home')} className="inline-flex items-center justify-center mb-1">
+            <img src="/favicon.png" alt="Fortune Logo" className="w-16 h-16 object-contain rounded-xl shadow-[0_0_15px_rgba(224,172,44,0.25)]" />
           </button>
         </div>
 
-        <Card className="bg-fortune-card border border-primary/20 relative overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-          <CardContent className="p-8 relative">
-            <div className="mb-8">
-              <h1 className="text-3xl font-extrabold leading-tight mb-2">
-                Welcome Back,<br />
+        <Card className="bg-fortune-card border-2 border-primary/40 border-b-[8px] border-b-primary/90 border-r-[4px] border-r-primary/70 rounded-3xl shadow-[inset_2px_2px_5px_rgba(255,255,255,0.05),0_10px_25px_rgba(0,0,0,0.5)] relative overflow-hidden">
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-extrabold mb-1">
+                Welcome <span className="gold-text"> Back</span>
               </h1>
               <p className="text-muted-foreground text-sm">
-                Log in to continue your winning journey with Fortune Lottery.
+                Log in to continue your winning journey with Fortune Lottery
               </p>
             </div>
 
@@ -98,16 +99,40 @@ export function LoginPage() {
                 </div>
               </div>
 
+              {/* Checkboxes */}
+              <div className="space-y-3 mt-4 text-left">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    required
+                    id="login-age"
+                    checked={ageConfirmed}
+                    onChange={(e) => setAgeConfirmed(e.target.checked)}
+                    className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-background size-4 cursor-pointer focus:ring-0 focus:outline-none"
+                  />
+                  <label htmlFor="login-age" className="text-sm text-muted-foreground cursor-pointer select-none leading-normal">
+                    I confirm that I am 18 years of age or older.
+                  </label>
+                </div>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    required
+                    id="login-terms"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-background size-4 cursor-pointer focus:ring-0 focus:outline-none"
+                  />
+                  <label htmlFor="login-terms" className="text-sm text-muted-foreground cursor-pointer select-none leading-normal">
+                    I have read and agree to the <span className="text-primary hover:underline cursor-pointer" onClick={() => navigate('terms')}>Terms & Conditions</span> and <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>.
+                  </label>
+                </div>
+              </div>
+
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest"
-                style={{
-                  background: 'linear-gradient(to bottom, #5c9e42, #36791d)',
-                  border: '1px solid oklch(0.83 0.17 84 / 0.5)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 0 15px rgba(92,158,66,0.3)',
-                  color: 'white',
-                }}
+                className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90"
               >
                 Login
               </Button>

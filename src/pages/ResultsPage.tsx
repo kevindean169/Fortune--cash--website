@@ -12,12 +12,12 @@ const tabs = [
 const getTabIcon = (id: string) => {
   switch (id) {
     case 'cashpot':
-      return <img src="/cashpot_logo.png" alt="Cashpot" className="w-7 h-7 object-contain" />
+      return <img src="/cashpot_logo.png?v=3" alt="Cashpot" className="w-9 h-9 object-contain" />
     case 'moneytime':
-      return <img src="/moneytime_logo.png" alt="Money Time" className="w-7 h-7 object-contain" />
+      return <img src="/moneytime_logo.png?v=3" alt="Money Time" className="w-9 h-9 object-contain" />
     case 'pick2single':
     case 'pick2double':
-      return <img src="/pick2_logo.png" alt="Pick 2" className="w-7 h-7 object-contain" />
+      return <img src="/pick2_logo.png?v=3" alt="Pick 2" className="w-9 h-9 object-contain" />
     default:
       return null
   }
@@ -70,7 +70,7 @@ export function ResultsPage() {
     }
   }
 
-  const hasMegaMonsta = activeTab === 'cashpot' || activeTab === 'moneytime'
+  const hasMegaMonsta = activeTab === 'cashpot'
   const isDouble = activeTab === 'pick2double'
 
   return (
@@ -95,8 +95,8 @@ export function ResultsPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${activeTab === tab.id
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
-                  : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
+                : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                 }`}
             >
               {getTabIcon(tab.id)}
@@ -117,9 +117,9 @@ export function ResultsPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <span className="font-extrabold text-lg text-foreground">#{result.draw_no}</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">{result.draw_time}</p>
+                    <p className="text-[13px] text-muted-foreground mt-1">{result.draw_time}</p>
                   </div>
-                  <div className="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                  <div className="bg-primary/10 text-primary px-2.5 py-1 rounded text-xs font-extrabold uppercase tracking-wider">
                     {isDouble ? 'Double' : 'Single'}
                   </div>
                 </div>
@@ -128,43 +128,44 @@ export function ResultsPage() {
                   <div className="flex items-center gap-2">
                     {isDouble ? (
                       (result.cashpot_no as string).split(',').map((num, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary/30 bg-primary/10 font-extrabold text-base text-primary"
-                        >
-                          {num.trim()}
-                        </span>
+                        <div key={idx} className="flex flex-col items-center gap-1.5">
+                          <div
+                            className="number-ball number-ball-result size-12 text-base font-black"
+                          >
+                            {num.trim()}
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-bold tracking-wider uppercase">Number</span>
+                        </div>
                       ))
                     ) : (
-                      <span className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 bg-primary/10 font-extrabold text-lg text-primary">
-                        {result.cashpot_no}
-                      </span>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <div className="number-ball number-ball-result size-12 text-base font-black">
+                          {result.cashpot_no}
+                        </div>
+                        <span className="text-[11px] text-muted-foreground font-bold tracking-wider uppercase">Number</span>
+                      </div>
                     )}
                   </div>
 
                   {hasMegaMonsta && 'megaball' in result && (
                     <div className="flex items-center gap-2">
-                      <div className="flex flex-col items-center">
-                        <span
-                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${(result as any).megaball === 'yellow'
-                              ? 'bg-primary/20 border-primary text-primary'
-                              : 'bg-muted border-border text-muted-foreground'
+                      <div className="flex flex-col items-center gap-1.5">
+                        <div
+                          className={`number-ball size-10 ${(result as any).megaball === 'yellow'
+                            ? 'number-ball-monsta'
+                            : 'number-ball-result'
                             }`}
-                        >
-                          M
-                        </span>
-                        <span className="text-[9px] text-muted-foreground font-bold uppercase">Mega</span>
+                        />
+                        <span className="text-[11px] text-amber-400 tracking-wider uppercase font-bold">Mega</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <span
-                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border-2 mb-1 ${(result as any).monstaball === 'red'
-                              ? 'bg-red-500/15 border-red-500 text-red-400'
-                              : 'bg-muted border-border text-muted-foreground'
+                      <div className="flex flex-col items-center gap-1.5">
+                        <div
+                          className={`number-ball size-10 ${(result as any).monstaball === 'red'
+                            ? 'number-ball-mega'
+                            : 'number-ball-result'
                             }`}
-                        >
-                          X
-                        </span>
-                        <span className="text-[9px] text-muted-foreground font-bold uppercase">Monsta</span>
+                        />
+                        <span className="text-[11px] text-red-400 tracking-wider uppercase font-bold">Monsta</span>
                       </div>
                     </div>
                   )}

@@ -38,7 +38,26 @@ export function ProfilePage() {
             </div>
             <div>
               <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold block mb-2">Phone Number</label>
-              <input type="text" defaultValue={profile.mobile} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-semibold text-foreground focus:outline-none focus:border-primary" />
+              <div className="flex gap-2">
+                <div className="relative">
+                  <select
+                    className="bg-background border border-border rounded-xl px-3 py-3 text-sm text-foreground font-semibold focus:outline-none focus:border-primary transition-all cursor-pointer appearance-none pr-8 min-w-[90px] h-full"
+                    defaultValue="+1"
+                  >
+                    <option value="+1">+1 (US/JA)</option>
+                    <option value="+91">+91 (IN)</option>
+                    <option value="+44">+44 (UK)</option>
+                    <option value="+55">+55 (BR)</option>
+                    <option value="+234">+234 (NG)</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-foreground text-[10px]">▼</div>
+                </div>
+                <input
+                  type="text"
+                  defaultValue="(876) 555-0199"
+                  className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm font-semibold text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
             </div>
           </div>
 

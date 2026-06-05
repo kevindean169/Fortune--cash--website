@@ -265,11 +265,11 @@ export function MyWinningsPage() {
 
       {/* Winning Details Modal */}
       <Dialog open={selectedWinning !== null} onOpenChange={(open) => !open && setSelectedWinning(null)}>
-        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-lg shadow-2xl p-0 overflow-hidden">
+        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-lg shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
           {selectedWinning && (
-            <div>
+            <div className="flex flex-col max-h-[90vh] overflow-hidden">
               {/* Modal Header */}
-              <div className="relative p-6 border-b border-border/20 bg-gradient-to-r from-green-500/10 via-transparent to-transparent">
+              <div className="relative p-6 border-b border-border/20 bg-gradient-to-r from-green-500/10 via-transparent to-transparent shrink-0">
                 <DialogHeader className="text-left">
                   <DialogTitle className="text-xl font-extrabold flex items-center gap-2 text-zinc-100">
                     Winning Receipt <span className="text-primary font-black">#{selectedWinning.order_no}</span>
@@ -282,9 +282,9 @@ export function MyWinningsPage() {
                   WON
                 </div>
               </div>
-
+ 
               {/* Modal Body */}
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 {/* Meta details grid */}
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
@@ -293,7 +293,7 @@ export function MyWinningsPage() {
                   </div>
                   {selectedWinning.customer_contact && (
                     <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
-                      <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Winner Contact</span>
+                       <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Winner Contact</span>
                       <p className="font-semibold text-zinc-200">{selectedWinning.customer_contact}</p>
                     </div>
                   )}
@@ -306,7 +306,7 @@ export function MyWinningsPage() {
                     <p className="font-semibold text-zinc-200">{selectedWinning.draw_slot_time} (#{selectedWinning.draw_no})</p>
                   </div>
                 </div>
-
+ 
                 {/* Paid Details Banner */}
                 {selectedWinning.status === 'paid' && (
                   <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-xl flex flex-col gap-1 text-xs">
@@ -326,7 +326,7 @@ export function MyWinningsPage() {
                     )}
                   </div>
                 )}
-
+ 
                 {/* Winnings Breakdown Table */}
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-1">
@@ -366,7 +366,7 @@ export function MyWinningsPage() {
                     </Table>
                   </div>
                 </div>
-
+ 
                 {/* Overall Summary Banner */}
                 <div className="p-4 bg-muted/15 border border-border/15 rounded-xl flex items-center justify-between text-sm">
                   <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Total Net Winnings</span>
@@ -375,9 +375,9 @@ export function MyWinningsPage() {
                   </span>
                 </div>
               </div>
-
+ 
               {/* Modal Footer */}
-              <DialogFooter className="p-4 border-t border-border/20 bg-background/50 flex justify-end gap-2">
+              <DialogFooter className="p-4 border-t border-border/20 bg-background/50 flex justify-end gap-2 shrink-0">
                 <Button
                   variant="outline"
                   onClick={() => setSelectedWinning(null)}

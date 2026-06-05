@@ -16,7 +16,7 @@ export function MobileAppHeader() {
     return (
       <div className="md:hidden flex items-center justify-center py-4 bg-background border-b border-border/30 px-4">
         <div className="flex items-center gap-2">
-          <img src="/moneytime_logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+          <img src="/moneytime_logo.png?v=3" alt="Logo" className="w-8 h-8 object-contain" />
           <span className="text-primary font-bold text-[10px] tracking-widest uppercase">📊 Statistics 📊</span>
         </div>
       </div>

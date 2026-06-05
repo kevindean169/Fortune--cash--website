@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Play, BarChart3, User } from 'lucide-react'
+import { Home, Ticket, BarChart3, User } from 'lucide-react'
 
 export function MobileBottomNav() {
   const location = useLocation()
@@ -7,7 +7,7 @@ export function MobileBottomNav() {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/lotteries', label: 'Live Roulette', icon: Play },
+    { path: '/lotteries', label: 'Lotteries', icon: Ticket },
     { path: '/dashboard', label: 'Statistics', icon: BarChart3 },
     { path: '/profile', label: 'Profile', icon: User },
   ]

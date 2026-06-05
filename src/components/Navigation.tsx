@@ -34,13 +34,9 @@ export function Navigation() {
           <Link
             to="/"
             onClick={handleNavigate}
-            className="flex items-center gap-2 group"
+            className="flex items-center group"
           >
-            <img src="/favicon.png" alt="Fortune Logo" className="w-8 h-8 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)] group-hover:scale-105 transition-transform" />
-            <span className="text-xl font-extrabold tracking-tight">
-              <span className="gold-text">Fortune</span>
-              <span className="text-foreground"> Lottery</span>
-            </span>
+            <img src="/favicon.png" alt="Fortune Logo" className="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(224,172,44,0.3)] group-hover:scale-105 transition-transform" style={{ mixBlendMode: 'screen' }} />
           </Link>
 
           {/* Desktop Nav */}
@@ -53,7 +49,7 @@ export function Navigation() {
                 onClick={handleNavigate}
                 className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${currentPath === item.id
                     ? 'text-primary'
-                    : 'text-muted-foreground'
+                    : 'text-foreground/90'
                   }`}
               >
                 {item.label}
@@ -63,20 +59,29 @@ export function Navigation() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <Link to="/wallet" onClick={handleNavigate}>
+              <div className="flex items-center gap-2 rounded-full border-2 bg-[#050505] p-1 pr-4 transition-all border-primary/70 hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)]">
+                <div className="size-7 rounded-full border border-primary/50 bg-[#1a150c] flex items-center justify-center">
+                  <Wallet className="size-4 text-primary" />
+                </div>
+                <span className="text-foreground font-bold tracking-wide text-sm">$5,249.50</span>
+              </div>
+            </Link>
+
             {/* User Profile Dropdown */}
             <div className="relative" onMouseLeave={() => setProfileOpen(false)}>
               <button
                 onMouseEnter={() => setProfileOpen(true)}
-                className={`flex items-center gap-2 rounded-full border bg-[#050505] p-1 pr-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
-                    ? 'border-[#c5a059] shadow-[0_0_10px_rgba(197,160,89,0.2)]'
-                    : 'border-[#c5a059]/30 hover:border-[#c5a059]/60'
+                className={`flex items-center gap-2.5 rounded-full py-1.5 px-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-white/5 text-foreground/90 hover:text-primary'
                   }`}
               >
-                <div className={`size-7 rounded-full border bg-[#1a150c] flex items-center justify-center ${['profile', 'dashboard'].includes(currentPath) ? 'border-[#c5a059]' : 'border-[#c5a059]/50'}`}>
-                  <User className="size-4 text-[#c5a059]" />
+                <div className="size-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                  <User className="size-4 text-primary" />
                 </div>
-                <span className={`text-sm font-bold ${['profile', 'dashboard'].includes(currentPath) ? 'text-[#c5a059]' : 'text-white'}`}>Profile</span>
-                <ChevronDown className={`size-3.5 text-[#c5a059] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                <span className="text-sm font-bold tracking-wide">Profile</span>
+                <ChevronDown className={`size-3.5 opacity-70 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {profileOpen && (
@@ -105,15 +110,9 @@ export function Navigation() {
                 </div>
               )}
             </div>
-
-            <Link to="/wallet" onClick={handleNavigate}>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
-                <Wallet className="size-4" />
-                $5,249.50
-              </Button>
-            </Link>
+            
             <Link to="/login" onClick={handleNavigate}>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="sm" className="text-foreground/90 font-semibold hover:text-primary hover:bg-transparent transition-colors">
                 Log In
               </Button>
             </Link>
@@ -134,9 +133,7 @@ export function Navigation() {
             <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0" showCloseButton={false}>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-border">
-                  <span className="text-lg font-extrabold">
-                    <span className="gold-text">Fortune</span> Lottery
-                  </span>
+                  <img src="/favicon.png" alt="Fortune Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(224,172,44,0.3)]" style={{ mixBlendMode: 'screen' }} />
                   <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
                     <X className="size-4" />
                   </Button>

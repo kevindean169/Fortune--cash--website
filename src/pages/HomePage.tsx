@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator'
 import {
   ArrowRight, Trophy, Zap, Clock,
   ChevronRight, Star, TrendingUp, Play,
-  Smartphone, Download, MessageCircle,
+  Download,
   User, Lock, EyeOff
 } from 'lucide-react'
 import { GAMES, RECENT_RESULTS, WINNERS } from '@/lib/fortune-data'
@@ -36,6 +36,19 @@ function JackpotCounter({ value }: { value: number }) {
   )
 }
 
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.95 9.95 0 0 0 4.777 1.217h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.669-1.039-5.176-2.927-7.065A9.925 9.925 0 0 0 12.012 2zm5.72 13.916c-.246.696-1.233 1.295-1.702 1.347-.468.052-.942.247-2.986-.566-2.614-1.04-4.29-3.72-4.42-3.896-.13-.176-1.053-1.4-1.053-2.671 0-1.272.663-1.898.897-2.146.234-.248.51-.31.68-.31h.485c.15 0 .354-.057.552.427.2.492.68 1.66.74 1.78.06.121.1.261.02.421-.08.16-.18.35-.355.556-.175.207-.37.432-.527.58-.175.166-.358.347-.155.696.203.35.9 1.48 1.93 2.4 1.03.92 1.9 1.18 2.17.92.27-.26 1.8-1.04 1.8-1.04s.48-.24.42-.54z" />
+    </svg>
+  )
+}
+
 export function HomePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
@@ -56,34 +69,34 @@ export function HomePage() {
                   <span className="gold-text">Fortune</span><br />
                   Awaits
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-                  Play Cashpot, Money Time, and Pick 2. Draws happen daily. Winners happen constantly.
+                <p className="text-lg text-foreground/90 max-w-md leading-relaxed">
+                  Play <span className="text-primary font-bold">Cashpot, Money Time, and Pick 2</span>. Draws happen daily. Winners happen constantly.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4 mt-6">
                 <Button
                   size="lg"
                   onClick={() => navigate('lotteries')}
-                  className="gold-gradient text-fortune-navy font-bold text-base px-8 gold-glow hover:opacity-90"
+                  className="gold-gradient text-fortune-navy font-extrabold text-base px-8 shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4)] hover:brightness-110 hover:scale-[1.02] transition-all"
                 >
-                  Play Now <ArrowRight className="size-4 ml-1" />
+                  Play Now <ArrowRight className="size-4 ml-2" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   onClick={() => navigate('results')}
-                  className="border-border/60 hover:border-primary/50 hover:text-primary"
+                  className="bg-transparent text-primary font-extrabold text-base px-8 border-[3px] border-primary hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.4)]"
                 >
                   View Results
                 </Button>
               </div>
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-wrap gap-5 pt-3">
                 {[
-                  { icon: <Zap className="size-4 text-primary" />, label: 'Instant Payouts' },
-                  { icon: <Clock className="size-4 text-sky-400" />, label: 'Daily Draws' },
+                  { icon: <Zap className="size-5 text-primary" />, label: 'Instant Payouts' },
+                  { icon: <Clock className="size-5 text-sky-400" />, label: 'Daily Draws' },
                 ].map((b, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div key={i} className="flex items-center gap-2 text-sm text-foreground/90 font-semibold tracking-wide">
                     {b.icon} {b.label}
                   </div>
                 ))}
@@ -147,12 +160,12 @@ export function HomePage() {
               const getGameLogoSrc = (id: string) => {
                 switch (id) {
                   case 'cashpot':
-                    return '/cashpot_logo.png'
+                    return '/cashpot_logo.png?v=3'
                   case 'money-time':
-                    return '/moneytime_logo.png'
+                    return '/moneytime_logo.png?v=3'
                   case 'pick-2-single':
                   case 'pick-2-double':
-                    return '/pick2_logo.png'
+                    return '/pick2_logo.png?v=3'
                   default:
                     return null
                 }
@@ -164,33 +177,24 @@ export function HomePage() {
                   onClick={() => navigate(game.id)}
                   className="group text-left"
                 >
-                  <Card className="bg-fortune-card border-border card-hover h-full">
-                    <CardContent className="p-5 flex flex-col gap-4">
-                      <div className="flex items-center justify-between">
-                        {logoSrc ? (
-                          <img src={logoSrc} alt={game.name} className="w-10 h-10 object-contain drop-shadow" />
-                        ) : (
-                          <span className="text-3xl">{game.icon}</span>
-                        )}
-                        <Badge className="bg-primary/15 text-primary border-primary/25 text-xs font-semibold">
-                          {game.price}
-                        </Badge>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold">{game.name}</h3>
-                        <p className="text-sm text-muted-foreground">{game.tagline}</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-extrabold text-primary">{game.jackpot}</p>
-                        <p className="text-xs text-muted-foreground">Top Prize</p>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Clock className="size-3" />
-                        <span>{game.nextDraw}</span>
-                      </div>
-                      <div className="mt-auto pt-2 flex items-center gap-1 text-sm text-primary font-semibold group-hover:gap-2 transition-all">
-                        Play Now <ArrowRight className="size-3.5" />
-                      </div>
+                  <Card className="bg-[#050505] border border-primary/20 hover:border-primary/60 transition-all h-full overflow-hidden group/card relative rounded-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-b from-primary/0 to-primary/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                    <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full relative z-10">
+                      {logoSrc ? (
+                        <div className="h-40 w-40 flex-shrink-0 mb-6 group-hover/card:scale-105 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(224,172,44,0.25)]">
+                          <img
+                            src={logoSrc}
+                            alt={game.name}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-6xl mb-6 group-hover/card:scale-105 transition-transform duration-500">{game.icon}</span>
+                      )}
+
+                      <h3 className="text-2xl font-extrabold text-primary mb-3 tracking-wide">{game.name}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{game.description}</p>
                     </CardContent>
                   </Card>
                 </button>
@@ -276,11 +280,11 @@ export function HomePage() {
                     className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
                     onClick={() => navigate(game.path as PageId)}
                   >
-                    <div className="size-10 rounded-xl bg-[#111111]/30 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="size-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(224,172,44,0.2)]">
                       <img
-                        src={game.path === 'cashpot' ? '/cashpot_logo.png' : game.path === 'money-time' ? '/moneytime_logo.png' : '/pick2_logo.png'}
+                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=3' : game.path === 'money-time' ? '/moneytime_logo.png?v=3' : '/pick2_logo.png?v=3'}
                         alt={game.name}
-                        className="w-8 h-8 object-contain"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                     <div>
@@ -315,30 +319,55 @@ export function HomePage() {
           <div className="space-y-3">
             {RECENT_RESULTS.slice(0, 4).map((result, i) => (
               <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
-                <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-4">
-                    <div className="flex items-center justify-between sm:justify-start gap-4">
-                      <div className="text-left min-w-[100px]">
-                        <p className="font-bold text-base sm:text-lg leading-tight">{result.game}</p>
-                        <p className="text-[11px] sm:text-sm text-muted-foreground mt-0.5">{result.date}</p>
-                      </div>
-                      <div className="flex gap-1.5 sm:gap-2">
-                        {result.numbers.map((n, ni) => (
-                          <div key={ni} className="number-ball number-ball-result size-8 sm:size-10 text-xs sm:text-sm">
-                            {n}
-                          </div>
-                        ))}
-                      </div>
+                <CardContent className="p-6 md:px-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-6 text-center sm:text-left">
+                    {/* Col 1: Game name + date */}
+                    <div className="text-center sm:text-left">
+                      <p className="font-bold text-base leading-tight">{result.game}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{result.date}</p>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t border-border/50 sm:border-0 mt-1 sm:mt-0">
-                      <div className="text-left sm:text-right">
-                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase sm:capitalize tracking-wider sm:tracking-normal mb-0.5 sm:mb-0">Top Prize</p>
-                        <p className="font-extrabold text-base sm:text-lg text-primary">{result.jackpot}</p>
+
+                    {/* Col 2: Balls spread evenly */}
+                    <div className="flex items-center justify-center gap-4 flex-wrap">
+                      {/* Number balls */}
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex gap-2">
+                          {result.numbers.map((n, ni) => (
+                            <div key={ni} className="number-ball number-ball-result size-10 text-sm">
+                              {n}
+                            </div>
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-muted-foreground tracking-wide uppercase">Number</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase sm:capitalize tracking-wider sm:tracking-normal mb-0.5 sm:mb-0">Winners</p>
-                        <p className="font-extrabold text-base sm:text-lg text-foreground">{result.winners}</p>
-                      </div>
+
+                      {/* Megaball — Cashpot only */}
+                      {result.megaBall != null && (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="number-ball number-ball-mega size-10" />
+                          <span className="text-[10px] text-red-400 tracking-wide uppercase font-semibold">Mega</span>
+                        </div>
+                      )}
+
+                      {/* Monstaball — Cashpot only */}
+                      {result.monstaBall != null && (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="number-ball number-ball-monsta size-10" />
+                          <span className="text-[10px] text-amber-400 tracking-wide uppercase font-semibold">Monsta</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Col 3: Top Prize */}
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-0.5">Top Prize</p>
+                      <p className="font-extrabold text-lg text-primary">{result.jackpot}</p>
+                    </div>
+
+                    {/* Col 4: Winners */}
+                    <div className="text-center sm:text-right min-w-[60px]">
+                      <p className="text-xs text-muted-foreground mb-0.5">Winners</p>
+                      <p className="font-extrabold text-lg">{result.winners}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -359,8 +388,8 @@ export function HomePage() {
             {WINNERS.map((w, i) => (
               <Card key={i} className="bg-fortune-card border-border text-center">
                 <CardContent className="p-5">
-                  <div className="size-12 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-                    <span className="text-sm font-bold text-[#c5a059] tracking-wider">{w.initials}</span>
+                  <div className="size-16 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+                    <span className="text-lg font-extrabold text-[#c5a059] tracking-wider">{w.initials}</span>
                   </div>
                   <p className="font-bold text-lg text-primary">{w.prize}</p>
                   <p className="text-sm font-semibold">{w.game}</p>
@@ -377,21 +406,49 @@ export function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
 
           {/* Mobile App Card */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 bg-fortune-card border border-border/60 rounded-3xl p-8 lg:px-12 lg:py-6 relative overflow-hidden group hover:border-primary/40 transition-colors">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1.1fr_0.9fr] items-center gap-8 lg:gap-12 bg-fortune-card border border-border/60 rounded-3xl p-8 lg:px-12 relative overflow-hidden group hover:border-primary/40 transition-colors">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
-            <div className="relative z-10 lg:max-w-xl py-6">
-              <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
-                <Smartphone className="size-3 mr-1" /> Android Only
+
+            {/* Column 1: Info and Download */}
+            <div className="relative z-10 py-4 flex flex-col justify-center h-full">
+              <Badge className="bg-primary/10 text-primary border-primary/20 mb-4 w-fit px-3 py-1 flex items-center">
+                <svg className="size-3.5 mr-1.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.523 15.3c-.551 0-.996-.445-.996-.996 0-.551.445-.996.996-.996.552 0 .997.445.997.996 0 .551-.445.996-.997.996m-11.046 0c-.551 0-.996-.445-.996-.996 0-.551.445-.996.996-.996.552 0 .997.445.997.996 0 .551-.445.996-.997.996m11.412-5.836l1.656-2.868a.498.498 0 00-.182-.68.498.498 0 00-.68.182l-1.68 2.91a10.978 10.978 0 00-6.003 0L7.3 5.1a.499.499 0 00-.862.378c0 .11.036.216.1.302l1.656 2.868A10.96 10.96 0 002 14.8h20a10.96 10.96 0 00-4.512-5.336" />
+                </svg>
+                Android
               </Badge>
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Play Anywhere, Anytime</h2>
               <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
-                Download the official Fortune Lottery app. Experience the fastest way to play, get instant draw notifications, and manage your tickets securely on the go.
+                Get the official Fortune Lottery Android app. Experience live draw streams, instant ticket purchases, and a secure wallet for immediate payouts. Play on the go and never miss a draw!
               </p>
-              <a href="/fortune-app.apk" download>
+              <a href="/fortune-app.apk" download className="w-fit">
                 <Button className="gold-gradient text-fortune-navy font-bold px-8 h-12 gold-glow gap-2 text-md">
-                  <Download className="size-4" /> Download APK Directly
+                  <Download className="size-4" /> Download APK
                 </Button>
               </a>
+            </div>
+
+            {/* Column 2: Steps */}
+            <div className="relative z-10 w-full flex flex-col gap-3 py-4 border-t lg:border-t-0 lg:border-x border-border/40 lg:px-6">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-2 text-center lg:text-left">
+                Easy Steps to Play
+              </h3>
+              {[
+                { step: '1', title: 'Download APK', desc: 'Click the download button to get the official application installer package.' },
+                { step: '2', title: 'Install App', desc: 'Allow installations from unknown sources in security settings and open the file.' },
+                { step: '3', title: 'Login or Sign Up', desc: 'Create your secure account credentials or log into your current profile.' },
+                { step: '4', title: 'Start Playing', desc: 'Fund your wallet balance securely, choose your lottery, and submit your tickets!' },
+              ].map((s, idx) => (
+                <div key={idx} className="flex items-start gap-4 bg-background/30 border border-border/40 hover:border-primary/20 rounded-2xl p-3.5 hover:bg-background/60 transition-all duration-300">
+                  <div className="size-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-black text-primary shrink-0 shadow-[0_0_10px_rgba(197,160,89,0.1)]">
+                    {s.step}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground leading-none mb-1.5">{s.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-normal">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Visual Phone Representation */}
@@ -411,52 +468,90 @@ export function HomePage() {
                     {/* Top Header Background */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-3xl rounded-full" />
 
-                    <div className="relative z-10 px-5 pt-20 pb-6 flex flex-col flex-1">
+                    <div className="relative z-10 px-5 pt-16 pb-6 flex flex-col flex-1">
+                      {/* Logo */}
+                      <div className="text-center mb-4">
+                        <img src="/favicon.png" alt="Fortune Logo" className="w-12 h-12 object-contain mx-auto rounded-xl shadow-[0_0_10px_rgba(224,172,44,0.2)]" />
+                      </div>
+
                       {/* Welcome Text */}
-                      <h2 className="text-white text-[22px] font-bold leading-tight">Welcome Back,</h2>
-                      <h2 className="text-primary text-[22px] font-bold leading-tight mb-4">High Roller!</h2>
-                      <p className="text-gray-300 text-[11px] leading-relaxed max-w-[85%] mb-8">
-                        Log in to continue your winning<br />journey with Money Time.
-                      </p>
+                      <div className="text-center mb-6">
+                        <h1 className="text-white text-lg font-extrabold mb-1">
+                          Welcome <span className="gold-text"> Back</span>
+                        </h1>
+                        <p className="text-muted-foreground text-[10px]">
+                          Log in to continue your winning journey with Fortune Lottery
+                        </p>
+                      </div>
 
                       {/* Form */}
-                      <div className="space-y-4 mb-3 mt-auto">
+                      <div className="space-y-3 mt-auto">
                         {/* Username Input */}
-                        <div className="relative">
-                          <label className="absolute -top-2 left-4 bg-[#050505] px-1 text-[9px] text-gray-500 font-medium tracking-wider uppercase">User Name</label>
-                          <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-[#0a0a0a] p-3 text-sm">
-                            <User className="size-4 text-primary" />
-                            <span className="text-gray-600 text-[11px]">Enter Your User Name</span>
+                        <div>
+                          <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+                            Username
+                          </label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-primary" />
+                            <div className="w-full bg-background border border-primary/30 rounded-xl pl-9 pr-4 py-2 text-xs text-muted-foreground/50 select-none">
+                              Enter Your Username
+                            </div>
                           </div>
                         </div>
 
                         {/* Password Input */}
-                        <div className="relative">
-                          <label className="absolute -top-2 left-4 bg-[#050505] px-1 text-[9px] text-gray-500 font-medium tracking-wider uppercase">Password</label>
-                          <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-[#0a0a0a] p-3 text-sm">
-                            <div className="flex items-center gap-3">
-                              <Lock className="size-4 text-primary" />
-                              <span className="text-gray-600 text-[11px]">Enter Your Password</span>
+                        <div>
+                          <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+                            Password
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-primary" />
+                            <div className="w-full bg-background border border-primary/30 rounded-xl pl-9 pr-9 py-2 text-xs text-muted-foreground/50 select-none">
+                              Enter Your Password
                             </div>
-                            <EyeOff className="size-4 text-gray-600" />
+                            <EyeOff className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-right mb-6 mt-2">
-                        <span className="text-[10px] text-gray-400 hover:text-white cursor-pointer transition-colors underline decoration-gray-600 underline-offset-2">Forgot Password</span>
-                      </div>
-
-                      {/* Login Button */}
-                      <div className="rounded-xl border border-primary p-[1px] bg-gradient-to-b from-[#4caf50] to-[#2e7d32] shadow-[0_0_15px_rgba(76,175,80,0.15)] cursor-pointer hover:brightness-110 transition-all">
-                        <div className="w-full h-[42px] flex items-center justify-center text-primary font-bold text-xs tracking-wider">
-                          LOGIN
+                      {/* Checkboxes */}
+                      <div className="space-y-2.5 mt-4 text-left">
+                        <div className="flex items-start gap-2.5">
+                          <input
+                            type="checkbox"
+                            required
+                            readOnly
+                            checked={false}
+                            id="mock-age"
+                            className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-[#0a0a0a] size-3.5 cursor-pointer focus:ring-0 focus:outline-none"
+                          />
+                          <label htmlFor="mock-age" className="text-[10px] text-muted-foreground cursor-pointer select-none leading-tight">
+                            I confirm that I am 18 years of age or older.
+                          </label>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <input
+                            type="checkbox"
+                            required
+                            readOnly
+                            checked={false}
+                            id="mock-terms"
+                            className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-[#0a0a0a] size-3.5 cursor-pointer focus:ring-0 focus:outline-none"
+                          />
+                          <label htmlFor="mock-terms" className="text-[10px] text-muted-foreground cursor-pointer select-none leading-tight">
+                            I have read and agree to the <span className="text-primary hover:underline">Terms & Conditions</span>.
+                          </label>
                         </div>
                       </div>
 
-                      <div className="mt-8 text-center">
+                      {/* Login Button */}
+                      <div className="w-full py-3 mt-4 text-xs font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 rounded-xl flex items-center justify-center cursor-pointer shadow-[0_0_15px_rgba(224,172,44,0.3)]">
+                        Login
+                      </div>
+
+                      <div className="mt-6 text-center">
                         <p className="text-[10px] text-gray-500">
-                          Don't have an account? <span className="text-primary font-bold cursor-pointer hover:brightness-125 transition-all">Register Now</span>
+                          Don't have an account? <span className="text-primary font-bold cursor-pointer hover:brightness-125 transition-all">Create Account</span>
                         </p>
                       </div>
                     </div>
@@ -468,12 +563,12 @@ export function HomePage() {
 
           {/* WhatsApp Community Card */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-fortune-card border border-border/60 rounded-3xl p-8 lg:p-12 relative overflow-hidden group hover:border-primary/40 transition-colors">
-            <div className="absolute -right-20 -top-20 opacity-5 pointer-events-none group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700">
-              <MessageCircle className="w-96 h-96 text-primary" />
+            <div className="absolute -right-20 -top-20 opacity-10 pointer-events-none group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700">
+              <WhatsAppIcon className="w-96 h-96 text-green-500" />
             </div>
             <div className="relative z-10 flex-1">
               <Badge variant="outline" className="mb-4 border-primary/30 text-primary bg-primary/10">
-                <MessageCircle className="size-3 mr-1" /> Join Community
+                <WhatsAppIcon className="size-3 mr-1 text-[#25D366]" /> Join Community
               </Badge>
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Join Our WhatsApp Group</h2>
               <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
@@ -481,9 +576,9 @@ export function HomePage() {
               </p>
             </div>
             <div className="relative z-10 whitespace-nowrap mt-4 md:mt-0">
-              <a href="https://chat.whatsapp.com/" target="_blank" rel="noreferrer">
+              <a href="https://chat.whatsapp.com/invite/YOUR_GROUP_INVITE_LINK" target="_blank" rel="noreferrer">
                 <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]">
-                  <MessageCircle className="size-5" /> Join Group Now
+                  <WhatsAppIcon className="size-5 text-[#25D366] group-hover:text-fortune-navy transition-colors" /> Join Group Now
                 </Button>
               </a>
             </div>

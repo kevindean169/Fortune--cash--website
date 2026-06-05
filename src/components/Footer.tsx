@@ -12,12 +12,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src="/favicon.png" alt="Fortune Logo" className="w-8 h-8 object-contain rounded-lg shadow-[0_0_10px_rgba(224,172,44,0.15)]" />
-              <span className="text-lg font-extrabold">
-                <span className="gold-text">Fortune</span>
-                <span className="text-foreground"> Lottery</span>
-              </span>
+            <Link to="/" className="flex items-center mb-4">
+              <img src="/favicon.png" alt="Fortune Logo" className="w-20 h-20 object-contain rounded-xl shadow-[0_0_15px_rgba(224,172,44,0.25)]" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Jamaica's trusted online lottery platform. Licensed, secure, and committed to responsible gaming.
@@ -37,14 +33,14 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Lotteries</h3>
             <ul className="space-y-2.5">
               {[
-                { id: 'cashpot' as PageId, label: 'Cashpot', logo: '/cashpot_logo.png' },
-                { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png' },
-                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_logo.png' },
-                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_logo.png' },
+                { id: 'cashpot' as PageId, label: 'Cashpot', logo: '/cashpot_logo.png?v=3' },
+                { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png?v=3' },
+                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_logo.png?v=3' },
+                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_logo.png?v=3' },
               ].map(g => (
                 <li key={g.id}>
                   <div className="flex items-center gap-2.5 text-sm text-muted-foreground select-none">
-                    <img src={g.logo} alt={g.label} className="w-6 h-6 object-contain" />
+                    <img src={g.logo} alt={g.label} className="w-8 h-8 object-contain" />
                     <span>{g.label}</span>
                   </div>
                 </li>
