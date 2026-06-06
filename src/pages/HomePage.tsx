@@ -49,9 +49,157 @@ function WhatsAppIcon({ className }: { className?: string }) {
   )
 }
 
+function formatToLocalTime(isoString: string): string {
+  if (!isoString) return '';
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '';
+    
+    const day = date.getDate();
+    const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    
+    return `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
+  } catch (e) {
+    return isoString;
+  }
+}
+
+const getInitials = (name: any): string => {
+  if (!name) return 'P.L.';
+  const strName = String(name).trim();
+  if (!strName || strName.toLowerCase() === 'player') return 'P.L.';
+  const parts = strName.split(/\s+/);
+  if (parts.length === 1) {
+    return parts[0].substring(0, 2).toUpperCase() + '.';
+  }
+  return parts.slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('.') + '.';
+}
+
 export function HomePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
+
+  const [homeData, setHomeData] = useState<{
+    latest_results: any[];
+    recent_winners: any[];
+    tonights_prizes: any[];
+  } | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+
+  useEffect(() => {
+    const cached = sessionStorage.getItem('fortune_home_data');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        setHomeData(parsed);
+        setLoading(false);
+      } catch (e) {
+        // parse error, proceed to fetch
+      }
+    }
+
+    fetch('/api/home')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch home data')
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (data.status === 'success' && data.data) {
+          console.log('API Home Response Data:', data.data);
+          setHomeData(data.data);
+          try {
+            sessionStorage.setItem('fortune_home_data', JSON.stringify(data.data));
+          } catch (e) {
+            // cache save error
+          }
+        } else {
+          throw new Error(data.message || 'Invalid structure')
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Home API error:', err)
+        setLoading(false)
+      })
+  }, [])
+
+  const parsePrizeNumber = (val: any, defaultVal: number): number => {
+    if (val === null || val === undefined) return defaultVal
+    const cleaned = String(val).replace(/[^0-9.]/g, '')
+    const num = Number(cleaned)
+    return isNaN(num) ? defaultVal : num
+  }
+
+  // Tonight's top prizes data with default fallbacks
+  const getPrizeValue = (gameType: string, defaultVal: number) => {
+    const p = homeData?.tonights_prizes?.find((x: any) => x.type === gameType || x.name === gameType)
+    return p ? parsePrizeNumber(p.top_prize, defaultVal) : defaultVal
+  }
+
+  const cashpotPrizeObj = homeData?.tonights_prizes?.find((x: any) => x.type === 'Cashpot' || x.name === 'Cashpot')
+  const cashpotPrize = cashpotPrizeObj ? parsePrizeNumber(cashpotPrizeObj.top_prize, 85000) : 85000
+
+  // 2) here latest result but at the top prize give bet no and draw date time
+  const cashpotBetNo = cashpotPrizeObj?.bet_no
+  const cashpotDrawTime = cashpotPrizeObj?.draw_time_human
+  
+  const topPrizeSubtitle = (cashpotBetNo && cashpotDrawTime)
+    ? `Cashpot · Bet No: ${cashpotBetNo} · ${cashpotDrawTime}`
+    : `Cashpot · Next Draw Soon`
+
+  // secondary tonight prizes
+  const secondaryPrizes = [
+    { label: 'Money Time', value: `$${getPrizeValue('Cashpot Money Time', 240000).toLocaleString()}` },
+    { label: 'Pick 2 Single', value: `$${getPrizeValue('Pick 2 Single', 120000).toLocaleString()}` },
+    { label: 'Pick 2 Double', value: `$${getPrizeValue('Pick 2 Double', 120000).toLocaleString()}` },
+  ]
+
+  // latest results with fallback to local mock data
+  const latestResults = homeData?.latest_results?.length
+    ? homeData.latest_results.map((r: any) => {
+        const gameTypeNormalized = r.type === 'Cashpot' ? 'Cashpot' : r.type === 'Cashpot Money Time' ? 'Money Time' : r.type;
+        return {
+          game: r.name ? `${r.name} (${gameTypeNormalized})` : gameTypeNormalized,
+          date: r.draw_time ? formatToLocalTime(r.draw_time) : r.draw_time_human,
+          drawNo: r.draw_no || 0,
+          numbers: r.winning_numbers || [],
+          megaBall: r.megaball || null,
+          monstaBall: r.monstaball || null,
+          jackpot: r.jackpot || `$${Number(r.top_prize || 0).toLocaleString()}`,
+          winners: r.winners_count || 0
+        };
+      })
+    : RECENT_RESULTS.map((r, idx) => ({ ...r, drawNo: 3 - idx }));
+
+  // recent winners with initials/fallback to local mock data
+  const winnersList = homeData?.recent_winners?.length
+    ? homeData.recent_winners.map((w: any) => {
+        const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
+        return {
+          initials: getInitials(w.name || w.initials),
+          prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
+          game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
+          location: w.location || 'Kingston',
+          date: w.date,
+          image: w.image,
+          name: w.name || w.initials || 'Player'
+        };
+      })
+    : WINNERS.map((w: any) => ({
+        ...w,
+        name: w.name || w.initials || 'Player'
+      }));
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -112,10 +260,18 @@ export function HomePage() {
                     <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">
                       Tonight's Top Prize
                     </p>
-                    <div className="text-6xl font-extrabold gold-text my-4">
-                      <JackpotCounter value={85000} />
+                    <div className="text-6xl font-extrabold gold-text my-4 min-h-[60px] flex items-center justify-center">
+                      {loading ? (
+                        <div className="h-14 w-44 bg-zinc-800/60 rounded animate-pulse" />
+                      ) : (
+                        <JackpotCounter value={cashpotPrize} />
+                      )}
                     </div>
-                    <p className="text-muted-foreground text-sm mb-6">Cashpot · Next Draw Soon</p>
+                    {loading ? (
+                      <div className="h-4 w-36 bg-zinc-800/40 rounded animate-pulse mx-auto mb-6" />
+                    ) : (
+                      <p className="text-muted-foreground text-sm mb-6">{topPrizeSubtitle}</p>
+                    )}
                     <Button
                       className="w-full gold-gradient text-fortune-navy font-bold"
                       onClick={() => navigate('cashpot')}
@@ -124,13 +280,13 @@ export function HomePage() {
                     </Button>
                     <Separator className="my-4 opacity-30" />
                     <div className="grid grid-cols-3 gap-3 text-center">
-                      {[
-                        { label: 'Money Time', value: '$240,000' },
-                        { label: 'Pick 2 Single', value: '$120,000' },
-                        { label: 'Pick 2 Double', value: '$120,000' },
-                      ].map((j, i) => (
+                      {secondaryPrizes.map((j, i) => (
                         <div key={i}>
-                          <p className="text-sm font-bold text-primary">{j.value}</p>
+                          {loading ? (
+                            <div className="h-5 w-16 bg-zinc-800/40 rounded animate-pulse mx-auto mb-1" />
+                          ) : (
+                            <p className="text-sm font-bold text-primary">{j.value}</p>
+                          )}
                           <p className="text-xs text-muted-foreground">{j.label}</p>
                         </div>
                       ))}
@@ -317,10 +473,10 @@ export function HomePage() {
             </Button>
           </div>
           <div className="space-y-3">
-            {RECENT_RESULTS.slice(0, 4).map((result, i) => (
+            {latestResults.slice(0, 4).map((result, i) => (
               <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
                 <CardContent className="p-6 md:px-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-6 text-center sm:text-left">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
                     {/* Col 1: Game name + date */}
                     <div className="text-center sm:text-left">
                       <p className="font-bold text-base leading-tight">{result.game}</p>
@@ -342,32 +498,26 @@ export function HomePage() {
                       </div>
 
                       {/* Megaball — Cashpot only */}
-                      {result.megaBall != null && (
+                      {result.megaBall != null && result.megaBall !== '' && (
                         <div className="flex flex-col items-center gap-1">
-                          <div className="number-ball number-ball-mega size-10" />
+                          <div className={`number-ball size-10 ${result.megaBall === 'white' ? 'number-ball-result' : 'number-ball-mega'}`} />
                           <span className="text-[10px] text-red-400 tracking-wide uppercase font-semibold">Mega</span>
                         </div>
                       )}
 
                       {/* Monstaball — Cashpot only */}
-                      {result.monstaBall != null && (
+                      {result.monstaBall != null && result.monstaBall !== '' && (
                         <div className="flex flex-col items-center gap-1">
-                          <div className="number-ball number-ball-monsta size-10" />
+                          <div className={`number-ball size-10 ${result.monstaBall === 'white' ? 'number-ball-result' : 'number-ball-monsta'}`} />
                           <span className="text-[10px] text-amber-400 tracking-wide uppercase font-semibold">Monsta</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Col 3: Top Prize */}
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground mb-0.5">Top Prize</p>
-                      <p className="font-extrabold text-lg text-primary">{result.jackpot}</p>
-                    </div>
-
-                    {/* Col 4: Winners */}
-                    <div className="text-center sm:text-right min-w-[60px]">
-                      <p className="text-xs text-muted-foreground mb-0.5">Winners</p>
-                      <p className="font-extrabold text-lg">{result.winners}</p>
+                    {/* Col 3: Draw No */}
+                    <div className="text-center sm:text-right min-w-[80px]">
+                      <p className="text-xs text-muted-foreground mb-0.5">Draw No</p>
+                      <p className="font-extrabold text-lg text-primary">{result.drawNo}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -385,15 +535,32 @@ export function HomePage() {
             <p className="text-muted-foreground">Real players. Real winnings. Real life-changing moments.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {WINNERS.map((w, i) => (
+            {winnersList.map((w, i) => (
               <Card key={i} className="bg-fortune-card border-border text-center">
                 <CardContent className="p-5">
-                  <div className="size-16 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-                    <span className="text-lg font-extrabold text-[#c5a059] tracking-wider">{w.initials}</span>
+                  <div className="size-16 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)] overflow-hidden relative">
+                    {w.image ? (
+                      <>
+                        <img 
+                          src={w.image} 
+                          alt={w.initials} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
+                        />
+                        <span className="fallback-initials hidden text-lg font-extrabold text-[#c5a059] tracking-wider">{w.initials}</span>
+                      </>
+                    ) : (
+                      <span className="text-lg font-extrabold text-[#c5a059] tracking-wider">{w.initials}</span>
+                    )}
                   </div>
-                  <p className="font-bold text-lg text-primary">{w.prize}</p>
-                  <p className="text-sm font-semibold">{w.game}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{w.location} · {w.date}</p>
+                  <p className="font-bold text-base text-foreground mt-2 mb-1">{w.name}</p>
+                  <p className="font-extrabold text-lg text-primary">{w.prize}</p>
+                  <p className="text-sm font-semibold text-muted-foreground">{w.game}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{w.date}</p>
                 </CardContent>
               </Card>
             ))}

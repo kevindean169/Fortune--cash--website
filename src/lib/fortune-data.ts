@@ -238,8 +238,8 @@ export const PROMOTIONS = [
 ]
 
 export const WINNERS = [
-  { initials: 'J.K.', location: 'Kingston', prize: '$850,000', game: 'Cashpot', date: 'Jun 02' },
-  { initials: 'M.R.', location: 'Montego Bay', prize: '$240,000', game: 'Money Time', date: 'Jun 01' },
-  { initials: 'A.T.', location: 'Ocho Rios', prize: '$120,000', game: 'Pick 2 Single', date: 'Jun 01' },
-  { initials: 'D.S.', location: 'Negril', prize: '$850,000', game: 'Cashpot', date: 'May 31' },
+  { initials: 'J.K.', name: 'James K.', location: 'Kingston', prize: '$850,000', game: 'Cashpot', date: 'Jun 02' },
+  { initials: 'M.R.', name: 'Maria R.', location: 'Montego Bay', prize: '$240,000', game: 'Money Time', date: 'Jun 01' },
+  { initials: 'A.T.', name: 'Andrew T.', location: 'Ocho Rios', prize: '$120,000', game: 'Pick 2 Single', date: 'Jun 01' },
+  { initials: 'D.S.', name: 'David S.', location: 'Negril', prize: '$850,000', game: 'Cashpot', date: 'May 31' },
 ]
