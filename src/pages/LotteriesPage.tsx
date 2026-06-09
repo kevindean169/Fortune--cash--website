@@ -9,7 +9,8 @@ export function LotteriesPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/lotteries')
+    const baseUrl = import.meta.env.VITE_API_URL || ''
+    fetch(`${baseUrl}/api/lotteries`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Failed to fetch lotteries data')

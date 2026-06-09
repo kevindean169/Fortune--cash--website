@@ -1,28 +1,29 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react'
-
+import { Lock, Eye, EyeOff, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
 
 export function RegisterPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
+  const { register, error, setError } = useAuth()
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
+    username: '',
     password: '',
     confirmPassword: '',
+    referCode: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match')
       return
@@ -31,7 +32,12 @@ export function RegisterPage() {
       alert('Please confirm your age and accept the Terms & Conditions')
       return
     }
-    navigate('login')
+    setSubmitting(true)
+    const success = await register(formData.username, formData.password, formData.referCode)
+    setSubmitting(false)
+    if (success) {
+      navigate('dashboard')
+    }
   }
 
   const inputClass = "w-full bg-background border border-primary/30 rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
@@ -61,74 +67,25 @@ export function RegisterPage() {
               </p>
             </div>
 
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">First Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    placeholder="Sachin"
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    placeholder="Kumar"
-                    className={inputClass}
-                  />
-                </div>
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-3 text-xs mb-4 text-center">
+                {error}
               </div>
+            )}
 
+            <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Email Address</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Username</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="sachin@example.com"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    placeholder="Enter Username"
                     className={`${inputClass} pl-10`}
                   />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Phone Number</label>
-                <div className="flex gap-2">
-                  <div className="relative">
-                    <select
-                      className="bg-background border border-primary/30 rounded-xl px-3 py-3 text-sm text-muted-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all cursor-pointer appearance-none pr-8 min-w-[90px] h-full"
-                      defaultValue="+1"
-                    >
-                      <option value="+1">+1 (US/JA)</option>
-                      <option value="+91">+91 (IN)</option>
-                      <option value="+44">+44 (UK)</option>
-                      <option value="+55">+55 (BR)</option>
-                      <option value="+234">+234 (NG)</option>
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">▼</div>
-                  </div>
-                  <div className="relative flex-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="(876) 555-0199"
-                      className={`${inputClass} pl-10`}
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -176,6 +133,17 @@ export function RegisterPage() {
                 </div>
               </div>
 
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Referral Code (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.referCode}
+                  onChange={(e) => setFormData({ ...formData, referCode: e.target.value })}
+                  placeholder="FRIEND10"
+                  className={inputClass}
+                />
+              </div>
+
               {/* Checkboxes */}
               <div className="space-y-3 mt-4 text-left">
                 <div className="flex items-start gap-3">
@@ -208,9 +176,14 @@ export function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full py-6 mt-2 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90"
+                disabled={submitting}
+                className="w-full py-6 mt-2 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 disabled:opacity-50"
               >
-                Register Account
+                {submitting ? (
+                  <div className="size-5 rounded-full border-2 border-t-fortune-navy border-fortune-navy/20 animate-spin" />
+                ) : (
+                  'Register Account'
+                )}
               </Button>
             </form>
 

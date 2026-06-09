@@ -88,7 +88,7 @@ export function GameCard({ game }: { game: APILottery }) {
         {/* Bet Button */}
         <Button
           size="sm"
-          onClick={() => navigate(path)}
+          onClick={() => navigate(`${path}?id=${game.id}`)}
           className="w-[80%] self-end gold-gradient text-white font-bold rounded-lg h-9 hover:opacity-90 transition-all text-xs tracking-wide shadow-md"
         >
           Bet Now

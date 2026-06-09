@@ -1,22 +1,17 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { 
-  User, Lock, Wallet, Trophy, Ticket, LogOut, 
+  User as UserIcon, Lock, Wallet, Trophy, Ticket, LogOut, 
   ChevronRight, LayoutDashboard, FileText
 } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 export function AccountLayout() {
-
-  const profile = {
-    firstName: 'Sachin',
-    lastName: 'Kumar',
-    email: 'sachin@example.com',
-    balance: 9898.98
-  }
+  const { user, walletBalance, logout } = useAuth()
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
-    { path: '/profile', label: 'Personal Details', icon: User },
+    { path: '/profile', label: 'Personal Details', icon: UserIcon },
     { path: '/wallet', label: 'My Wallet', icon: Wallet },
     { path: '/transactions', label: 'My Transactions', icon: FileText },
     { path: '/tickets', label: 'My Tickets', icon: Ticket },
@@ -47,15 +42,14 @@ export function AccountLayout() {
             <Card className="bg-fortune-card border border-border/60 text-center">
               <CardContent className="p-6">
                 <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mb-4">
-                  <span className="text-3xl font-black text-primary">{profile.firstName.charAt(0)}</span>
+                  <span className="text-3xl font-black text-primary">{(user?.username || 'U').charAt(0).toUpperCase()}</span>
                 </div>
                 <h2 className="font-bold text-lg text-foreground">
-                  {profile.firstName} {profile.lastName}
+                  {user?.username || 'Player'}
                 </h2>
-                <p className="text-xs text-muted-foreground mb-4">{profile.email}</p>
-                <div className="pt-4 border-t border-border/50">
+                <div className="pt-4 mt-4 border-t border-border/50">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Wallet Balance</p>
-                  <p className="font-extrabold text-xl text-green-400">${profile.balance.toLocaleString()}</p>
+                  <p className="font-extrabold text-xl text-green-400">${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
               </CardContent>
             </Card>
@@ -90,7 +84,7 @@ export function AccountLayout() {
                   )
                 })}
                 <div className="pt-2 mt-2 border-t border-border/50">
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors">
+                  <button onClick={logout} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors">
                     <LogOut className="size-4" />
                     Sign Out
                   </button>

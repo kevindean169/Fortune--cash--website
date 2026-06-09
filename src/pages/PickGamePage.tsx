@@ -96,7 +96,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               {game.id === 'pick-2-single' || game.id === 'pick-2-double' ? (
-                <img src="/pick2_logo.png?v=3" alt={game.name} className="w-12 h-12 object-contain" />
+                <img src="/pick2_logo.png?v=5" alt={game.name} className="w-12 h-12 object-contain" />
               ) : (
                 <span className="text-4xl">{game.icon}</span>
               )}
@@ -293,7 +293,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {game.id === 'pick-2-single' || game.id === 'pick-2-double' ? (
-                        <img src="/pick2_logo.png?v=3" alt={game.name} className="w-6 h-6 object-contain" />
+                        <img src="/pick2_logo.png?v=5" alt={game.name} className="w-6 h-6 object-contain" />
                       ) : (
                         <span className="text-xl">{game.icon}</span>
                       )}

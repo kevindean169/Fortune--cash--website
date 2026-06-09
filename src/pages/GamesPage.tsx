@@ -90,12 +90,12 @@ export function GamesPage({ navigate }: GamesPageProps) {
             const getGameLogoSrc = (id: string) => {
               switch (id) {
                 case 'cashpot':
-                  return '/cashpot_logo.png?v=3'
+                  return '/cashpot_logo.png?v=5'
                 case 'money-time':
-                  return '/moneytime_logo.png?v=3'
+                  return '/moneytime_logo.png?v=5'
                 case 'pick-2-single':
                 case 'pick-2-double':
-                  return '/pick2_logo.png?v=3'
+                  return '/pick2_logo.png?v=5'
                 default:
                   return null
               }

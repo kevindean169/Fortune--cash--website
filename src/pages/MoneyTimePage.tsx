@@ -20,13 +20,13 @@ const getImageUrl = (imagePath: string) => {
   return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
-export function CashpotPage() {
+export function MoneyTimePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [searchParams] = useSearchParams()
   const urlId = searchParams.get('id')
 
-  const { accessToken, user, fetchWallet } = useAuth()
+  const { accessToken } = useAuth()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -46,18 +46,22 @@ export function CashpotPage() {
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
 
+  // Money Time Slot Modal States
+  const [moneyTimeDraws, setMoneyTimeDraws] = useState<any[]>([])
+  const [isDrawModalOpen, setIsDrawModalOpen] = useState<boolean>(false)
+  const [tempSelectedDrawTimes, setTempSelectedDrawTimes] = useState<string[]>([])
+  const [activeHourTab, setActiveHourTab] = useState<string>('')
+
   // Local configurations fallback
   const localConfig = {
-    name: 'CASHPOT',
-    type: 'Cashpot',
+    name: 'Money Time',
+    type: 'Cashpot Money Time',
     range: 36,
     isGrid: true,
     betOptions: [
-      { id: '1', name: 'Cashpot', rate: '26x payout' },
-      { id: '2', name: 'Megaball', rate: '36x payout' },
-      { id: '3', name: 'Monstaball', rate: '50x payout' },
+      { id: '6', name: 'Cashpot Money Time', rate: '26x payout' },
     ],
-    drawTimes: ['08:30 AM', '10:30 AM', '01:00 PM', '05:00 PM', '08:25 PM'],
+    drawTimes: ['10:00 AM', '12:00 PM', '02:00 PM', '04:00 PM', '06:00 PM'],
   }
 
   // 1. Resolve Lottery ID from type if not in URL
@@ -81,7 +85,7 @@ export function CashpotPage() {
         if (data.status === 'success' && Array.isArray(data.data)) {
           const matched = data.data.find((lot: any) => {
             const typeLower = lot.type.toLowerCase()
-            return !typeLower.includes('double') && !typeLower.includes('single') && !typeLower.includes('money time')
+            return typeLower.includes('money time')
           })
           if (matched) {
             setLotteryId(String(matched.id))
@@ -136,6 +140,29 @@ export function CashpotPage() {
       })
   }, [lotteryId, accessToken])
 
+  // Fetch Money Time draws
+  useEffect(() => {
+    if (!lotteryId) return
+
+    const headers: any = {
+      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+    }
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`
+    }
+
+    const baseUrl = import.meta.env.VITE_API_URL || ''
+    fetch(`${baseUrl}/api/lotteryDraws/${lotteryId}`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data) {
+          const drawsArray = Array.isArray(data.data) ? data.data : (Array.isArray(data.data.draws) ? data.data.draws : []);
+          setMoneyTimeDraws(drawsArray)
+        }
+      })
+      .catch(err => console.error('Failed to fetch money time draws:', err))
+  }, [lotteryId])
+
   // Dynamic config construction
   const config = {
     name: lotteryData?.name || localConfig.name,
@@ -170,6 +197,13 @@ export function CashpotPage() {
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
 
+  const groups = getMoneyTimeGroups()
+  useEffect(() => {
+    if (groups.length > 0 && !activeHourTab) {
+      setActiveHourTab((groups[0] as { key: string }).key)
+    }
+  }, [groups, activeHourTab])
+
   // 3. Automatically pick first draw time for soldout page if none selected
   useEffect(() => {
     if (activeTab === 'soldout' && !selectedSoldOutTime && config.drawTimes.length > 0) {
@@ -188,7 +222,7 @@ export function CashpotPage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      fetch(`${baseUrl}/api/cashpotMoney-sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
@@ -204,10 +238,122 @@ export function CashpotPage() {
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
 
-  const toggleDrawTime = (time: string) => {
-    setSelectedDrawTimes((prev) =>
-      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
-    )
+  function getMoneyTimeGroups() {
+    if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) return [];
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const isNewFormat = moneyTimeDraws[0] && ('datetime' in moneyTimeDraws[0] || 'draws' in moneyTimeDraws[0]);
+
+    if (isNewFormat) {
+      return moneyTimeDraws.map((slot: any) => {
+        if (!slot.datetime || !Array.isArray(slot.draws)) return null;
+
+        const tIndex = slot.datetime.indexOf('T');
+        if (tIndex === -1) return null;
+
+        const datePart = slot.datetime.substring(0, tIndex);
+        const timePart = slot.datetime.substring(tIndex + 1, tIndex + 6);
+
+        const dateParts = datePart.split('-');
+        let dateLabel = datePart;
+        if (dateParts.length === 3) {
+          const year = parseInt(dateParts[0], 10);
+          const monthIndex = parseInt(dateParts[1], 10) - 1;
+          const day = parseInt(dateParts[2], 10);
+          const monthName = months[monthIndex] || '';
+          dateLabel = `${String(day).padStart(2, '0')} ${monthName} ${year}`;
+        }
+
+        const label = `${dateLabel}, ${timePart}`;
+        const key = slot.datetime;
+
+        const parsedDraws = slot.draws.map((d: any) => {
+          const drawTIndex = d.draw_time.indexOf('T');
+          const drawDisplayTime = drawTIndex !== -1 
+            ? d.draw_time.substring(drawTIndex + 1, drawTIndex + 6)
+            : d.draw_time;
+
+          return {
+            id: d.draw_no || d.timestamp || Math.random(),
+            time: drawDisplayTime,
+            fullTime: `${dateLabel}, ${drawDisplayTime}`,
+            raw: d
+          };
+        });
+
+        return {
+          key,
+          label,
+          draws: parsedDraws
+        };
+      }).filter(Boolean);
+    }
+
+    // Old format fallback:
+    const sortedDraws = [...moneyTimeDraws]
+      .filter(d => d.draw_date && d.draw_time)
+      .sort((a, b) => {
+        const datetimeA = `${a.draw_date}T${a.draw_time}`;
+        const datetimeB = `${b.draw_date}T${b.draw_time}`;
+        return datetimeA.localeCompare(datetimeB);
+      });
+
+    const groups: { key: string; label: string; draws: any[] }[] = [];
+
+    sortedDraws.forEach(draw => {
+      const [year, month, day] = draw.draw_date.split('-').map(Number);
+      const [hour, min, sec] = draw.draw_time.split(':').map(Number);
+      const drawMs = new Date(year, month - 1, day, hour, min, sec || 0).getTime();
+
+      let foundGroup = false;
+      if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const startDraw = lastGroup.draws[0].raw;
+        const [sYear, sMonth, sDay] = startDraw.draw_date.split('-').map(Number);
+        const [sHour, sMin, sSec] = startDraw.draw_time.split(':').map(Number);
+        const startMs = new Date(sYear, sMonth - 1, sDay, sHour, sMin, sSec || 0).getTime();
+
+        if (drawMs >= startMs && drawMs < startMs + 60 * 60 * 1000) {
+          foundGroup = true;
+          const displayTime = draw.draw_time.substring(0, 5);
+          const dateObj = new Date(year, month - 1, day);
+          const monthLabel = months[dateObj.getMonth()];
+          const dayLabel = String(dateObj.getDate()).padStart(2, '0');
+          const dateLabel = `${dayLabel} ${monthLabel} ${dateObj.getFullYear()}`;
+          lastGroup.draws.push({
+            id: draw.id,
+            time: displayTime,
+            fullTime: `${dateLabel}, ${displayTime}`,
+            raw: draw
+          });
+        }
+      }
+
+      if (!foundGroup) {
+        const dateObj = new Date(year, month - 1, day);
+        const monthLabel = months[dateObj.getMonth()];
+        const dayLabel = String(dateObj.getDate()).padStart(2, '0');
+        const dateLabel = `${dayLabel} ${monthLabel} ${dateObj.getFullYear()}`;
+        
+        const displayTime = draw.draw_time.substring(0, 5);
+        const label = `${dateLabel}, ${displayTime}`;
+        const key = `${draw.draw_date}_${draw.draw_time}`;
+
+        groups.push({
+          key,
+          label,
+          draws: [{
+            id: draw.id,
+            time: displayTime,
+            fullTime: `${dateLabel}, ${displayTime}`,
+            raw: draw
+          }]
+        });
+      }
+    });
+
+    return groups;
   }
 
   // getNumberWarning intentionally removed (unused)
@@ -216,21 +362,6 @@ export function CashpotPage() {
     if (!amountStr) return null
     const amountVal = parseFloat(amountStr)
     if (isNaN(amountVal) || amountVal <= 0) return 'Enter a valid amount.'
-
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-
-    // Cant bet in Mega / Monsta without Cashpot first
-    if ((gameIdStr === '2' || gameIdStr === '3') && cashpotVal <= 0) {
-      return 'Must place a Cashpot bet first.'
-    }
-
-    // Mega / Monsta cannot be greater than Cashpot
-    if (gameIdStr === '2' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
-    if (gameIdStr === '3' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
 
     // Realtime Bet limit warning
     const limitInfo = getMinLimitForGame(gameIdStr)
@@ -244,11 +375,7 @@ export function CashpotPage() {
   const getGameLimit = (gameIdStr: string, time: string): number => {
     const detail = lotteryData?.betlimit?.find((d: any) => d.draw_time === time)
     if (!detail) return Infinity
-
-    if (gameIdStr === '1') return parseFloat(detail.cashpot_bet_limit || 'Infinity')
-    if (gameIdStr === '2') return parseFloat(detail.remaining_megaball_bet_limit || 'Infinity')
-    if (gameIdStr === '3') return parseFloat(detail.remaining_monstaball_bet_limit || 'Infinity')
-
+    if (gameIdStr === '6') return parseFloat(detail.cashpot_bet_limit || 'Infinity')
     return Infinity
   }
 
@@ -268,9 +395,9 @@ export function CashpotPage() {
 
   const handleAddBetOption = (gameId: string) => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    const valid = selectedNumber === '0' || selectedNumber === '00' || (parseInt(selectedNumber, 10) >= 1 && parseInt(selectedNumber, 10) <= 36)
+    if (!valid) {
+      alert('For Money Time, number must be 0, 00, or between 01 and 36.')
       return
     }
 
@@ -280,21 +407,6 @@ export function CashpotPage() {
     const amountVal = parseFloat(amountStr)
     if (amountStr === '' || isNaN(amountVal) || amountVal <= 0) {
       alert('Please enter or select a valid bet amount');
-      return
-    }
-
-    // Direct constraints check
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    if ((gameId === '2' || gameId === '3') && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (gameId === '2' && amountVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (gameId === '3' && amountVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
       return
     }
 
@@ -310,7 +422,7 @@ export function CashpotPage() {
     const game = config.games.find((g: { id: string }) => g.id === gameId)
     if (!game) return
 
-    const numVal = selectedNumber.toString().padStart(2, '0')
+    const numVal = (selectedNumber === '0' || selectedNumber === '00') ? selectedNumber : selectedNumber.toString().padStart(2, '0')
 
     const newBets: BetItem[] = []
     selectedDrawTimes.forEach((time) => {
@@ -329,30 +441,13 @@ export function CashpotPage() {
 
   const handleAddAllBets = () => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    const valid = selectedNumber === '0' || selectedNumber === '00' || (parseInt(selectedNumber, 10) >= 1 && parseInt(selectedNumber, 10) <= 36)
+    if (!valid) {
+      alert('For Money Time, number must be 0, 00, or between 01 and 36.')
       return
     }
 
     if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
-
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    const megaVal = parseFloat(betAmounts['2'] || '0')
-    const monstaVal = parseFloat(betAmounts['3'] || '0')
-
-    if ((megaVal > 0 || monstaVal > 0) && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (megaVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (monstaVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
 
     // Validate limits
     for (const game of config.games) {
@@ -362,14 +457,14 @@ export function CashpotPage() {
         for (const time of selectedDrawTimes) {
           const limit = getGameLimit(game.id, time)
           if (amountVal > limit) {
-            alert(`Cannot place bet. Bet amount of $${amountVal} for {game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
             return
           }
         }
       }
     }
 
-    const numVal = selectedNumber.toString().padStart(2, '0')
+    const numVal = (selectedNumber === '0' || selectedNumber === '00') ? selectedNumber : selectedNumber.toString().padStart(2, '0')
 
     const newBets: BetItem[] = []
     let hasValidBet = false
@@ -416,89 +511,11 @@ export function CashpotPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) return
-
-    // Group cart items by number
-    const groups: Record<string, {
-      number: string;
-      drawTimes: Set<string>;
-      games: Record<string, number>; // gameId -> amount
-    }> = {};
-
-    cart.forEach(item => {
-      let gameId = '1';
-      if (item.gameName.toLowerCase().includes('megaball')) {
-        gameId = '2';
-      } else if (item.gameName.toLowerCase().includes('monstaball')) {
-        gameId = '3';
-      } else {
-        gameId = '1';
-      }
-
-      if (!groups[item.number]) {
-        groups[item.number] = {
-          number: item.number,
-          drawTimes: new Set(),
-          games: {}
-        };
-      }
-
-      groups[item.number].drawTimes.add(item.drawTime);
-      groups[item.number].games[gameId] = item.amount;
-    });
-
-    const formData = new URLSearchParams();
-
-    Object.values(groups).forEach((group, index) => {
-      formData.append(`result[${index}][number]`, group.number);
-      formData.append(`result[${index}][lottery_id]`, lotteryId || '');
-
-      group.drawTimes.forEach(dt => {
-        let cleanTime = dt.replace(/\s*[AP]M\s*/gi, '').trim();
-        formData.append(`result[${index}][draw_time][]`, cleanTime);
-      });
-
-      Object.entries(group.games).forEach(([gameId, amount]) => {
-        formData.append(`result[${index}][game_id][]`, gameId);
-        formData.append(`result[${index}][amount][]`, String(amount));
-      });
-    });
-
-    formData.append('customer_name', user?.id || user?.username || 'Guest');
-
-    const headers: any = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    
-    fetch(`${baseUrl}/api/user/purchase-lottery/${lotteryId}`, {
-      method: 'POST',
-      headers,
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'success' || resData.success) {
-          setPayoutSuccess(true)
-          if (fetchWallet) {
-            fetchWallet();
-          }
-          setTimeout(() => {
-            setPayoutSuccess(false)
-            setCart([])
-          }, 3000)
-        } else {
-          alert(resData.message || 'Failed to place bet. Please try again.')
-        }
-      })
-      .catch(err => {
-        console.error('Purchase error:', err)
-        alert('An error occurred while submitting purchase request.')
-      })
+    setPayoutSuccess(true)
+    setTimeout(() => {
+      setPayoutSuccess(false)
+      setCart([])
+    }, 3000)
   }
 
   if (loading) {
@@ -628,23 +645,38 @@ export function CashpotPage() {
                   </div>
 
                   <h3 className="font-extrabold text-lg text-foreground mb-4">Select your Next Draw Slots</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                    {config.drawTimes.map((time: string) => {
-                      const isSelected = selectedDrawTimes.includes(time)
-                      return (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => toggleDrawTime(time)}
-                          className={`py-3.5 text-xs font-bold rounded-xl border transition-all ${isSelected
-                            ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
-                            : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/30 hover:text-foreground'
-                            }`}
-                        >
-                          {time.substring(0, 5)}
-                        </button>
-                      )
-                    })}
+                  <div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setTempSelectedDrawTimes(selectedDrawTimes)
+                        setIsDrawModalOpen(true)
+                      }}
+                      className="w-full py-4 bg-primary text-primary-foreground font-extrabold rounded-xl hover:bg-primary/95 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(224,172,44,0.1)]"
+                    >
+                      <Clock className="size-4" />
+                      Select Draw Times
+                    </Button>
+                    
+                    {selectedDrawTimes.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-1 bg-background/50 border border-neutral-900 rounded-xl">
+                        {selectedDrawTimes.map(time => (
+                          <span 
+                            key={time} 
+                            className="px-2.5 py-1 bg-primary/10 border border-primary/20 text-primary font-bold text-xs rounded-lg flex items-center gap-1.5"
+                          >
+                            {time}
+                            <button 
+                              type="button"
+                              onClick={() => setSelectedDrawTimes(prev => prev.filter(t => t !== time))}
+                              className="text-primary/70 hover:text-primary transition-colors font-black text-xs"
+                            >
+                              &times;
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -676,7 +708,8 @@ export function CashpotPage() {
                   {showNumberGrid && (
                     <div className="mt-6 pt-6 border-t border-border/40 animate-fadeIn">
                       <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                        {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                        {/* 0, 00 and 01-36 */}
+                        {['0', '00', ...Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0'))].map((numStr) => {
                           const isSelected = selectedNumber === numStr
                           return (
                             <button
@@ -870,7 +903,7 @@ export function CashpotPage() {
                       payouts.push({ label: 'Without Mega', value: game.bet_amount })
                       payouts.push({ label: 'With Mega', value: game.bet_amount_monsta })
                     } else {
-                      payouts.push({ label: 'Standard Match', value: game.bet_amount })
+                      payouts.push({ label: 'Straight Match', value: game.bet_amount })
                     }
 
                     return (
@@ -887,11 +920,11 @@ export function CashpotPage() {
 
                         <div className="space-y-3">
                           {payouts.map((p, pIdx) => (
-                            <div key={pIdx} className="flex justify-between items-center text-sm py-1 border-b border-border/5 last:border-b-0">
-                              <span className="text-xs text-muted-foreground font-semibold">
+                            <div key={pIdx} className="flex justify-between items-start gap-4 text-sm py-1 border-b border-border/5 last:border-b-0">
+                              <span className="text-xs text-muted-foreground font-semibold shrink-0">
                                 {p.label}
                               </span>
-                              <span className="font-extrabold text-primary">
+                              <span className="font-extrabold text-primary text-right break-all">
                                 Bet Amount x {p.value}
                               </span>
                             </div>
@@ -920,9 +953,9 @@ export function CashpotPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                   {[
-                    { step: '01', title: 'Choose Numbers', desc: 'Select a single number from 01 to 36. Use grid selections.', icon: <Hash className="size-4 text-primary" /> },
-                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play. You can select one, multiple, or all draws for the day.', icon: <Clock className="size-4 text-primary" /> },
-                    { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type (e.g. Cashpot, Megaball) and enter your bet amount. Add the bet card and check out!', icon: <Ticket className="size-4 text-primary" /> },
+                    { step: '01', title: 'Choose Numbers', desc: 'Select 0, 00, or 01 to 36. Use grid selections.', icon: <Hash className="size-4 text-primary" /> },
+                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play.', icon: <Clock className="size-4 text-primary" /> },
+                    { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type and enter your bet amount.', icon: <Ticket className="size-4 text-primary" /> },
                   ].map((s) => (
                     <div key={s.step} className="p-5 border border-border rounded-xl bg-white/[0.02]">
                       <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-3">
@@ -944,7 +977,7 @@ export function CashpotPage() {
             <CardContent className="p-8">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
               <p className="text-muted-foreground text-base mb-6">
-                The following numbers have reached their draw bet limit for today and cannot accept any more bets.
+                The following numbers have reached their draw limit and cannot accept bets.
               </p>
 
               <div className="mb-6 flex items-center gap-4">
@@ -982,6 +1015,136 @@ export function CashpotPage() {
         )}
 
       </div>
+
+      {/* Draw Times Selector Modal for Money Time */}
+      {isDrawModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <Card className="max-w-md w-full bg-[#0d111b] border border-[#1e293b] shadow-2xl rounded-2xl overflow-hidden">
+            <CardContent className="p-6 md:p-8 space-y-6">
+              
+              {/* Header: Title and Select All */}
+              <div className="flex justify-between items-center border-b border-border/20 pb-4">
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-white tracking-wide">Select Draw Times</span>
+                </div>
+                
+                {/* Select All Toggle Switch */}
+                {activeHourTab && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-muted-foreground">Select All</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const activeGroup = groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined;
+                        const activeFullTimes = activeGroup?.draws.map((d: { fullTime: string }) => d.fullTime) || [];
+                        const isAllSelected = activeFullTimes.length > 0 && activeFullTimes.every((ft: string) => tempSelectedDrawTimes.includes(ft));
+                        
+                        if (isAllSelected) {
+                          setTempSelectedDrawTimes(prev => prev.filter((ft: string) => !activeFullTimes.includes(ft)));
+                        } else {
+                          setTempSelectedDrawTimes(prev => {
+                            const next = [...prev];
+                            activeFullTimes.forEach((ft: string) => {
+                              if (!next.includes(ft)) next.push(ft);
+                            });
+                            return next;
+                          });
+                        }
+                      }}
+                      className={`w-11 h-6 rounded-full transition-all relative outline-none flex items-center ${
+                        activeHourTab && (groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws.map((d: { fullTime: string }) => d.fullTime).every((ft: string) => tempSelectedDrawTimes.includes(ft))
+                          ? 'bg-[#0073ec]'
+                          : 'bg-neutral-800 border border-neutral-700'
+                      }`}
+                    >
+                      <span 
+                        className={`absolute size-4.5 rounded-full bg-white transition-all shadow-md ${
+                          activeHourTab && (groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws.map((d: { fullTime: string }) => d.fullTime).every((ft: string) => tempSelectedDrawTimes.includes(ft))
+                            ? 'left-[22px]'
+                            : 'left-1'
+                        }`} 
+                      />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Hour Selection Slots (Horizontal Scroll) */}
+              <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-neutral-800">
+                {groups.map((group: { key: string; label: string; draws: any[] } | null) => {
+                  if (!group) return null;
+                  const isActive = activeHourTab === group.key;
+                  return (
+                    <button
+                      key={group.key}
+                      type="button"
+                      onClick={() => setActiveHourTab(group.key)}
+                      className={`px-4 py-3 text-xs font-semibold rounded-lg border whitespace-nowrap transition-all ${
+                        isActive
+                          ? 'bg-[#0073ec] border-[#0073ec] text-white shadow-lg'
+                          : 'bg-[#131722] border-[#222e47] text-muted-foreground hover:border-[#33466d] hover:text-white'
+                      }`}
+                    >
+                      {group.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Draws Grid */}
+              <div className="max-h-[260px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                <div className="grid grid-cols-4 gap-2">
+                  {(groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: any[] } | undefined)?.draws.map((draw: any) => {
+                    const isSelected = tempSelectedDrawTimes.includes(draw.fullTime);
+                    return (
+                      <button
+                        key={draw.id}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setTempSelectedDrawTimes(prev => prev.filter(ft => ft !== draw.fullTime));
+                          } else {
+                            setTempSelectedDrawTimes(prev => [...prev, draw.fullTime]);
+                          }
+                        }}
+                        className={`py-2.5 text-xs font-semibold rounded-lg border transition-all ${
+                          isSelected
+                            ? 'bg-[#1e2d4a] border-[#0073ec] text-white'
+                            : 'bg-[#131722]/50 border-neutral-800 text-muted-foreground hover:border-[#1e2d4a] hover:text-white'
+                        }`}
+                      >
+                        {draw.time}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex gap-4 border-t border-border/20 pt-5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDrawModalOpen(false)}
+                  className="flex-1 py-3 border-neutral-800 bg-transparent text-muted-foreground text-xs font-bold uppercase rounded-xl hover:bg-neutral-900"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDrawTimes(tempSelectedDrawTimes);
+                    setIsDrawModalOpen(false);
+                  }}
+                  className="flex-1 py-3 bg-[#0073ec] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#0062c9]"
+                >
+                  Done
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

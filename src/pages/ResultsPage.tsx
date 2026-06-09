@@ -12,12 +12,12 @@ const tabs = [
 const getTabIcon = (id: string) => {
   switch (id) {
     case 'cashpot':
-      return <img src="/cashpot_logo.png?v=3" alt="Cashpot" className="w-9 h-9 object-contain" />
+      return <img src="/cashpot_logo.png?v=5" alt="Cashpot" className="w-9 h-9 object-contain" />
     case 'moneytime':
-      return <img src="/moneytime_logo.png?v=3" alt="Money Time" className="w-9 h-9 object-contain" />
+      return <img src="/moneytime_logo.png?v=5" alt="Money Time" className="w-9 h-9 object-contain" />
     case 'pick2single':
     case 'pick2double':
-      return <img src="/pick2_logo.png?v=3" alt="Pick 2" className="w-9 h-9 object-contain" />
+      return <img src="/pick2_logo.png?v=5" alt="Pick 2" className="w-9 h-9 object-contain" />
     default:
       return null
   }
@@ -95,7 +95,7 @@ export function ResultsPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${activeTab === tab.id
-                ? 'bg-primary text-primary-foreground border-primary shadow-md gold-glow'
+                ? 'gold-gradient shadow-md'
                 : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                 }`}
             >

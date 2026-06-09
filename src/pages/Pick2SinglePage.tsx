@@ -20,13 +20,13 @@ const getImageUrl = (imagePath: string) => {
   return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
-export function CashpotPage() {
+export function Pick2SinglePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [searchParams] = useSearchParams()
   const urlId = searchParams.get('id')
 
-  const { accessToken, user, fetchWallet } = useAuth()
+  const { accessToken } = useAuth()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -48,16 +48,14 @@ export function CashpotPage() {
 
   // Local configurations fallback
   const localConfig = {
-    name: 'CASHPOT',
-    type: 'Cashpot',
-    range: 36,
-    isGrid: true,
+    name: 'Pick 2 Single',
+    type: 'Pick 2 Single',
+    range: 99,
+    isGrid: false,
     betOptions: [
-      { id: '1', name: 'Cashpot', rate: '26x payout' },
-      { id: '2', name: 'Megaball', rate: '36x payout' },
-      { id: '3', name: 'Monstaball', rate: '50x payout' },
+      { id: '4', name: 'Pick 2 Single', rate: 'Based on match' },
     ],
-    drawTimes: ['08:30 AM', '10:30 AM', '01:00 PM', '05:00 PM', '08:25 PM'],
+    drawTimes: ['09:00 AM', '01:00 PM', '07:00 PM'],
   }
 
   // 1. Resolve Lottery ID from type if not in URL
@@ -81,7 +79,7 @@ export function CashpotPage() {
         if (data.status === 'success' && Array.isArray(data.data)) {
           const matched = data.data.find((lot: any) => {
             const typeLower = lot.type.toLowerCase()
-            return !typeLower.includes('double') && !typeLower.includes('single') && !typeLower.includes('money time')
+            return typeLower.includes('single')
           })
           if (matched) {
             setLotteryId(String(matched.id))
@@ -140,8 +138,8 @@ export function CashpotPage() {
   const config = {
     name: lotteryData?.name || localConfig.name,
     type: lotteryData?.type || localConfig.type,
-    range: 36,
-    isGrid: true,
+    range: 99,
+    isGrid: false,
     drawTimes: lotteryData?.drawDetails?.map((d: any) => d.draw_time) || localConfig.drawTimes,
     games: (lotteryData?.gameDetails || priceData?.gameDetails) ?
       (lotteryData?.gameDetails || priceData?.gameDetails).map((game: any) => {
@@ -188,7 +186,7 @@ export function CashpotPage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      fetch(`${baseUrl}/api/pick-sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
@@ -217,21 +215,6 @@ export function CashpotPage() {
     const amountVal = parseFloat(amountStr)
     if (isNaN(amountVal) || amountVal <= 0) return 'Enter a valid amount.'
 
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-
-    // Cant bet in Mega / Monsta without Cashpot first
-    if ((gameIdStr === '2' || gameIdStr === '3') && cashpotVal <= 0) {
-      return 'Must place a Cashpot bet first.'
-    }
-
-    // Mega / Monsta cannot be greater than Cashpot
-    if (gameIdStr === '2' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
-    if (gameIdStr === '3' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
-
     // Realtime Bet limit warning
     const limitInfo = getMinLimitForGame(gameIdStr)
     if (limitInfo.limit !== Infinity && amountVal > limitInfo.limit) {
@@ -244,11 +227,7 @@ export function CashpotPage() {
   const getGameLimit = (gameIdStr: string, time: string): number => {
     const detail = lotteryData?.betlimit?.find((d: any) => d.draw_time === time)
     if (!detail) return Infinity
-
-    if (gameIdStr === '1') return parseFloat(detail.cashpot_bet_limit || 'Infinity')
-    if (gameIdStr === '2') return parseFloat(detail.remaining_megaball_bet_limit || 'Infinity')
-    if (gameIdStr === '3') return parseFloat(detail.remaining_monstaball_bet_limit || 'Infinity')
-
+    if (gameIdStr === '4') return parseFloat(detail.pick2_bet_limit || 'Infinity')
     return Infinity
   }
 
@@ -269,8 +248,8 @@ export function CashpotPage() {
   const handleAddBetOption = (gameId: string) => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
     const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    if (isNaN(val) || val < 0 || val > 99) {
+      alert('For Pick 2 Single, number must be between 00 and 99.')
       return
     }
 
@@ -280,21 +259,6 @@ export function CashpotPage() {
     const amountVal = parseFloat(amountStr)
     if (amountStr === '' || isNaN(amountVal) || amountVal <= 0) {
       alert('Please enter or select a valid bet amount');
-      return
-    }
-
-    // Direct constraints check
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    if ((gameId === '2' || gameId === '3') && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (gameId === '2' && amountVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (gameId === '3' && amountVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
       return
     }
 
@@ -330,29 +294,12 @@ export function CashpotPage() {
   const handleAddAllBets = () => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
     const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    if (isNaN(val) || val < 0 || val > 99) {
+      alert('For Pick 2 Single, number must be between 00 and 99.')
       return
     }
 
     if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
-
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    const megaVal = parseFloat(betAmounts['2'] || '0')
-    const monstaVal = parseFloat(betAmounts['3'] || '0')
-
-    if ((megaVal > 0 || monstaVal > 0) && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (megaVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (monstaVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
 
     // Validate limits
     for (const game of config.games) {
@@ -362,7 +309,7 @@ export function CashpotPage() {
         for (const time of selectedDrawTimes) {
           const limit = getGameLimit(game.id, time)
           if (amountVal > limit) {
-            alert(`Cannot place bet. Bet amount of $${amountVal} for {game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
             return
           }
         }
@@ -416,89 +363,11 @@ export function CashpotPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) return
-
-    // Group cart items by number
-    const groups: Record<string, {
-      number: string;
-      drawTimes: Set<string>;
-      games: Record<string, number>; // gameId -> amount
-    }> = {};
-
-    cart.forEach(item => {
-      let gameId = '1';
-      if (item.gameName.toLowerCase().includes('megaball')) {
-        gameId = '2';
-      } else if (item.gameName.toLowerCase().includes('monstaball')) {
-        gameId = '3';
-      } else {
-        gameId = '1';
-      }
-
-      if (!groups[item.number]) {
-        groups[item.number] = {
-          number: item.number,
-          drawTimes: new Set(),
-          games: {}
-        };
-      }
-
-      groups[item.number].drawTimes.add(item.drawTime);
-      groups[item.number].games[gameId] = item.amount;
-    });
-
-    const formData = new URLSearchParams();
-
-    Object.values(groups).forEach((group, index) => {
-      formData.append(`result[${index}][number]`, group.number);
-      formData.append(`result[${index}][lottery_id]`, lotteryId || '');
-
-      group.drawTimes.forEach(dt => {
-        let cleanTime = dt.replace(/\s*[AP]M\s*/gi, '').trim();
-        formData.append(`result[${index}][draw_time][]`, cleanTime);
-      });
-
-      Object.entries(group.games).forEach(([gameId, amount]) => {
-        formData.append(`result[${index}][game_id][]`, gameId);
-        formData.append(`result[${index}][amount][]`, String(amount));
-      });
-    });
-
-    formData.append('customer_name', user?.id || user?.username || 'Guest');
-
-    const headers: any = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    
-    fetch(`${baseUrl}/api/user/purchase-lottery/${lotteryId}`, {
-      method: 'POST',
-      headers,
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'success' || resData.success) {
-          setPayoutSuccess(true)
-          if (fetchWallet) {
-            fetchWallet();
-          }
-          setTimeout(() => {
-            setPayoutSuccess(false)
-            setCart([])
-          }, 3000)
-        } else {
-          alert(resData.message || 'Failed to place bet. Please try again.')
-        }
-      })
-      .catch(err => {
-        console.error('Purchase error:', err)
-        alert('An error occurred while submitting purchase request.')
-      })
+    setPayoutSuccess(true)
+    setTimeout(() => {
+      setPayoutSuccess(false)
+      setCart([])
+    }, 3000)
   }
 
   if (loading) {
@@ -676,7 +545,7 @@ export function CashpotPage() {
                   {showNumberGrid && (
                     <div className="mt-6 pt-6 border-t border-border/40 animate-fadeIn">
                       <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                        {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                        {Array.from({ length: 100 }, (_, i) => String(i).padStart(2, '0')).map((numStr) => {
                           const isSelected = selectedNumber === numStr
                           return (
                             <button
@@ -866,12 +735,7 @@ export function CashpotPage() {
                     const numStr = String(idx + 1).padStart(2, '0')
 
                     const payouts: { label?: string; value: any }[] = []
-                    if (game.bet_amount_monsta !== undefined && game.bet_amount_monsta !== null) {
-                      payouts.push({ label: 'Without Mega', value: game.bet_amount })
-                      payouts.push({ label: 'With Mega', value: game.bet_amount_monsta })
-                    } else {
-                      payouts.push({ label: 'Standard Match', value: game.bet_amount })
-                    }
+                    payouts.push({ label: 'Straight Match', value: game.bet_amount })
 
                     return (
                       <div key={game.game_id} className="bg-background/40 border border-neutral-900 rounded-2xl p-5 space-y-4">
@@ -920,9 +784,9 @@ export function CashpotPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                   {[
-                    { step: '01', title: 'Choose Numbers', desc: 'Select a single number from 01 to 36. Use grid selections.', icon: <Hash className="size-4 text-primary" /> },
-                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play. You can select one, multiple, or all draws for the day.', icon: <Clock className="size-4 text-primary" /> },
-                    { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type (e.g. Cashpot, Megaball) and enter your bet amount. Add the bet card and check out!', icon: <Ticket className="size-4 text-primary" /> },
+                    { step: '01', title: 'Choose Numbers', desc: 'Select a number from 00 to 99.', icon: <Hash className="size-4 text-primary" /> },
+                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play.', icon: <Clock className="size-4 text-primary" /> },
+                    { step: '03', title: 'Choose Options & Bet', desc: 'Enter your bet amount and place the bet.', icon: <Ticket className="size-4 text-primary" /> },
                   ].map((s) => (
                     <div key={s.step} className="p-5 border border-border rounded-xl bg-white/[0.02]">
                       <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-3">
@@ -944,7 +808,7 @@ export function CashpotPage() {
             <CardContent className="p-8">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
               <p className="text-muted-foreground text-base mb-6">
-                The following numbers have reached their draw bet limit for today and cannot accept any more bets.
+                The following numbers have reached their limit for today and cannot accept any more bets.
               </p>
 
               <div className="mb-6 flex items-center gap-4">

@@ -6,7 +6,8 @@ import {
   ShieldCheck, Phone, ChevronDown, User, LogOut,
   FileText
 } from 'lucide-react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
 
 const mainNav = [
   { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
@@ -16,6 +17,8 @@ const mainNav = [
 ]
 
 export function Navigation() {
+  const { user, walletBalance, logout } = useAuth()
+  const navigateHook = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
@@ -24,6 +27,12 @@ export function Navigation() {
   const handleNavigate = () => {
     setMobileOpen(false)
     setProfileOpen(false)
+  }
+
+  const handleLogout = () => {
+    logout()
+    handleNavigate()
+    navigateHook('/')
   }
 
   return (
@@ -59,68 +68,76 @@ export function Navigation() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/wallet" onClick={handleNavigate}>
-              <div className="flex items-center gap-2 rounded-full border-2 bg-[#050505] p-1 pr-4 transition-all border-primary/70 hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)]">
-                <div className="size-7 rounded-full border border-primary/50 bg-[#1a150c] flex items-center justify-center">
-                  <Wallet className="size-4 text-primary" />
-                </div>
-                <span className="text-foreground font-bold tracking-wide text-sm">$5,249.50</span>
-              </div>
-            </Link>
-
-            {/* User Profile Dropdown */}
-            <div className="relative" onMouseLeave={() => setProfileOpen(false)}>
-              <button
-                onMouseEnter={() => setProfileOpen(true)}
-                className={`flex items-center gap-2.5 rounded-full py-1.5 px-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
-                    ? 'bg-primary/10 text-primary'
-                    : 'hover:bg-white/5 text-foreground/90 hover:text-primary'
-                  }`}
-              >
-                <div className="size-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                  <User className="size-4 text-primary" />
-                </div>
-                <span className="text-sm font-bold tracking-wide">Profile</span>
-                <ChevronDown className={`size-3.5 opacity-70 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {profileOpen && (
-                <div className="absolute top-full right-0 pt-2 z-50">
-                  <div className="w-56 rounded-2xl border border-[#c5a059]/30 bg-[#0a0a0a] shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden">
-                    <div className="p-4 border-b border-[#c5a059]/20 bg-gradient-to-br from-[#1a150c] to-transparent">
-                      <p className="text-sm font-extrabold text-white tracking-wide">Sachin Kumar</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">sachin@example.com</p>
+            {user ? (
+              <>
+                <Link to="/wallet" onClick={handleNavigate}>
+                  <div className="flex items-center gap-2 rounded-full border-2 bg-[#050505] p-1 pr-4 transition-all border-primary/70 hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)]">
+                    <div className="size-7 rounded-full border border-primary/50 bg-[#1a150c] flex items-center justify-center">
+                      <Wallet className="size-4 text-primary" />
                     </div>
-                    <div className="p-2 space-y-1">
-                      <Link to="/dashboard" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'dashboard' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
-                        }`}>
-                        <LayoutDashboard className={`size-4 ${currentPath === 'dashboard' ? 'text-[#c5a059]' : ''}`} /> Dashboard
-                      </Link>
-                      <Link to="/profile" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'profile' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
-                        }`}>
-                        <User className={`size-4 ${currentPath === 'profile' ? 'text-[#c5a059]' : ''}`} /> Personal Details
-                      </Link>
-                    </div>
-                    <div className="p-2 border-t border-[#c5a059]/20">
-                      <button onClick={handleNavigate} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
-                        <LogOut className="size-4" /> Logout
-                      </button>
-                    </div>
+                    <span className="text-foreground font-bold tracking-wide text-sm">
+                      ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
                   </div>
+                </Link>
+
+                {/* User Profile Dropdown */}
+                <div className="relative" onMouseLeave={() => setProfileOpen(false)}>
+                  <button
+                    onMouseEnter={() => setProfileOpen(true)}
+                    className={`flex items-center gap-2.5 rounded-full py-1.5 px-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-white/5 text-foreground/90 hover:text-primary'
+                      }`}
+                  >
+                    <div className="size-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                      <User className="size-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-bold tracking-wide">{user.username}</span>
+                    <ChevronDown className={`size-3.5 opacity-70 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute top-full right-0 pt-2 z-50">
+                      <div className="w-56 rounded-2xl border border-[#c5a059]/30 bg-[#0a0a0a] shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden">
+                        <div className="p-4 border-b border-[#c5a059]/20 bg-gradient-to-br from-[#1a150c] to-transparent">
+                          <p className="text-sm font-extrabold text-white tracking-wide">{user.username}</p>
+                          {user.email && <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>}
+                        </div>
+                        <div className="p-2 space-y-1">
+                          <Link to="/dashboard" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'dashboard' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
+                            }`}>
+                            <LayoutDashboard className={`size-4 ${currentPath === 'dashboard' ? 'text-[#c5a059]' : ''}`} /> Dashboard
+                          </Link>
+                          <Link to="/profile" onClick={handleNavigate} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-[#c5a059]/10 hover:text-white ${currentPath === 'profile' ? 'bg-[#c5a059]/15 text-white' : 'text-muted-foreground'
+                            }`}>
+                            <User className={`size-4 ${currentPath === 'profile' ? 'text-[#c5a059]' : ''}`} /> Personal Details
+                          </Link>
+                        </div>
+                        <div className="p-2 border-t border-[#c5a059]/20">
+                          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+                            <LogOut className="size-4" /> Logout
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            
-            <Link to="/login" onClick={handleNavigate}>
-              <Button variant="ghost" size="sm" className="text-foreground/90 font-semibold hover:text-primary hover:bg-transparent transition-colors">
-                Log In
-              </Button>
-            </Link>
-            <Link to="/register" onClick={handleNavigate}>
-              <Button size="sm" className="gold-gradient text-fortune-navy font-bold hover:opacity-90 gold-glow">
-                Sign Up
-              </Button>
-            </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={handleNavigate}>
+                  <Button variant="ghost" size="sm" className="text-foreground/90 font-semibold hover:text-primary hover:bg-transparent transition-colors">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/register" onClick={handleNavigate}>
+                  <Button size="sm" className="gold-gradient text-fortune-navy font-bold hover:opacity-90 gold-glow">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Hamburger */}
@@ -143,11 +160,13 @@ export function Navigation() {
                   {[
                     { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
                     { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
-                    { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
-                    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
-                    { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
-                    { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
-                    { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
+                    ...(user ? [
+                      { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
+                      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
+                      { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
+                      { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
+                      { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
+                    ] : []),
                     { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
                     { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
                     { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
@@ -164,39 +183,56 @@ export function Navigation() {
                   ))}
                   
                   <div className="pt-2 mt-2 border-t border-border/50">
-                    {[
-                      { id: 'login', label: 'Log In', icon: <User className="size-4" /> },
-                      { id: 'register', label: 'Sign Up', icon: <ShieldCheck className="size-4" /> },
-                    ].map(item => (
-                      <Link
-                        key={item.id}
-                        to={`/${item.id}`}
-                        onClick={handleNavigate}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
-                          }`}
+                    {user ? (
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                       >
-                        {item.icon} {item.label}
-                      </Link>
-                    ))}
-                    <button
-                      onClick={handleNavigate}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                    >
-                      <LogOut className="size-4" /> Log Out
-                    </button>
+                        <LogOut className="size-4" /> Log Out
+                      </button>
+                    ) : (
+                      <>
+                        {[
+                          { id: 'login', label: 'Log In', icon: <User className="size-4" /> },
+                          { id: 'register', label: 'Sign Up', icon: <ShieldCheck className="size-4" /> },
+                        ].map(item => (
+                          <Link
+                            key={item.id}
+                            to={`/${item.id}`}
+                            onClick={handleNavigate}
+                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
+                              }`}
+                          >
+                            {item.icon} {item.label}
+                          </Link>
+                        ))}
+                      </>
+                    )}
                   </div>
                 </nav>
 
                 <div className="p-4 border-t border-border space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Wallet Balance</span>
-                    <span className="font-bold text-primary">$5,249.50</span>
-                  </div>
-                  <Link to="/lotteries" onClick={handleNavigate} className="w-full">
-                    <Button className="w-full gold-gradient text-fortune-navy font-bold">
-                      Play Now
-                    </Button>
-                  </Link>
+                  {user ? (
+                    <>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Wallet Balance</span>
+                        <span className="font-bold text-primary">
+                          ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <Link to="/lotteries" onClick={handleNavigate} className="w-full">
+                        <Button className="w-full gold-gradient text-fortune-navy font-bold">
+                          Play Now
+                        </Button>
+                      </Link>
+                    </>
+                  ) : (
+                    <Link to="/login" onClick={handleNavigate} className="w-full">
+                      <Button className="w-full gold-gradient text-fortune-navy font-bold">
+                        Login to Play
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </SheetContent>

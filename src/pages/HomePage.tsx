@@ -106,7 +106,8 @@ export function HomePage() {
       }
     }
 
-    fetch('/api/home')
+    const baseUrl = import.meta.env.VITE_API_URL || ''
+    fetch(`${baseUrl}/api/home`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Failed to fetch home data')
@@ -316,12 +317,12 @@ export function HomePage() {
               const getGameLogoSrc = (id: string) => {
                 switch (id) {
                   case 'cashpot':
-                    return '/cashpot_logo.png?v=3'
+                    return '/cashpot_logo.png?v=5'
                   case 'money-time':
-                    return '/moneytime_logo.png?v=3'
+                    return '/moneytime_logo.png?v=5'
                   case 'pick-2-single':
                   case 'pick-2-double':
-                    return '/pick2_logo.png?v=3'
+                    return '/pick2_logo.png?v=5'
                   default:
                     return null
                 }
@@ -438,7 +439,7 @@ export function HomePage() {
                   >
                     <div className="size-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(224,172,44,0.2)]">
                       <img
-                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=3' : game.path === 'money-time' ? '/moneytime_logo.png?v=3' : '/pick2_logo.png?v=3'}
+                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=5' : game.path === 'money-time' ? '/moneytime_logo.png?v=5' : '/pick2_logo.png?v=5'}
                         alt={game.name}
                         className="w-full h-full object-contain"
                       />
@@ -488,7 +489,7 @@ export function HomePage() {
                       {/* Number balls */}
                       <div className="flex flex-col items-center gap-1">
                         <div className="flex gap-2">
-                          {result.numbers.map((n, ni) => (
+                          {result.numbers.map((n: string | number, ni: number) => (
                             <div key={ni} className="number-ball number-ball-result size-10 text-sm">
                               {n}
                             </div>

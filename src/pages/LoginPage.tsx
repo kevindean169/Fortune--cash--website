@@ -2,25 +2,33 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Eye, EyeOff, User, Lock } from 'lucide-react'
-
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
 
 export function LoginPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
+  const { login, error, setError } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     if (!ageConfirmed || !termsAccepted) {
       alert('Please confirm your age and accept the Terms & Conditions')
       return
     }
-    navigate('dashboard')
+    setSubmitting(true)
+    const success = await login(username, password)
+    setSubmitting(false)
+    if (success) {
+      navigate('dashboard')
+    }
   }
 
   return (
@@ -49,6 +57,12 @@ export function LoginPage() {
                 Log in to continue your winning journey with Fortune Lottery
               </p>
             </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-3 text-xs mb-4 text-center">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleLogin} className="space-y-5">
               {/* Username */}
@@ -132,9 +146,14 @@ export function LoginPage() {
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90"
+                disabled={submitting}
+                className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 disabled:opacity-50"
               >
-                Login
+                {submitting ? (
+                  <div className="size-5 rounded-full border-2 border-t-fortune-navy border-fortune-navy/20 animate-spin" />
+                ) : (
+                  'Login'
+                )}
               </Button>
             </form>
 

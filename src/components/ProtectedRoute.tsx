@@ -1,12 +1,18 @@
 import { Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
 
 export function ProtectedRoute() {
-  // Mock authentication check - replace with real auth logic later
-  // For demonstration, we'll assume the user is always logged in. 
-  // Change to false to test redirect to login.
-  const isAuthenticated = true 
+  const { user, loading } = useAuth()
 
-  if (!isAuthenticated) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-12 w-12 rounded-full border-4 border-t-primary border-primary/20 animate-spin" />
+      </div>
+    )
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />
   }
 

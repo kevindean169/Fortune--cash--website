@@ -20,13 +20,13 @@ const getImageUrl = (imagePath: string) => {
   return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
-export function CashpotPage() {
+export function Pick2DoublePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const [searchParams] = useSearchParams()
   const urlId = searchParams.get('id')
 
-  const { accessToken, user, fetchWallet } = useAuth()
+  const { accessToken } = useAuth()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -39,8 +39,10 @@ export function CashpotPage() {
   const [error, setError] = useState<string | null>(null)
 
   // Flow states
-  const [showNumberGrid, setShowNumberGrid] = useState<boolean>(false)
   const [selectedNumber, setSelectedNumber] = useState('')
+  const [selectedNumber2, setSelectedNumber2] = useState('')
+  const [showGrid1, setShowGrid1] = useState<boolean>(false)
+  const [showGrid2, setShowGrid2] = useState<boolean>(false)
   const [selectedDrawTimes, setSelectedDrawTimes] = useState<string[]>([])
   const [betAmounts, setBetAmounts] = useState<Record<string, string>>({}) // GameId -> Amount mapping
   const [cart, setCart] = useState<BetItem[]>([])
@@ -48,16 +50,14 @@ export function CashpotPage() {
 
   // Local configurations fallback
   const localConfig = {
-    name: 'CASHPOT',
-    type: 'Cashpot',
-    range: 36,
-    isGrid: true,
+    name: 'P2 Double Digit',
+    type: 'Pick 2 Double',
+    range: 99,
+    isGrid: false,
     betOptions: [
-      { id: '1', name: 'Cashpot', rate: '26x payout' },
-      { id: '2', name: 'Megaball', rate: '36x payout' },
-      { id: '3', name: 'Monstaball', rate: '50x payout' },
+      { id: '5', name: 'Pick 2 Double', rate: 'Based on match' },
     ],
-    drawTimes: ['08:30 AM', '10:30 AM', '01:00 PM', '05:00 PM', '08:25 PM'],
+    drawTimes: ['11:00 AM', '03:00 PM', '08:00 PM'],
   }
 
   // 1. Resolve Lottery ID from type if not in URL
@@ -81,7 +81,7 @@ export function CashpotPage() {
         if (data.status === 'success' && Array.isArray(data.data)) {
           const matched = data.data.find((lot: any) => {
             const typeLower = lot.type.toLowerCase()
-            return !typeLower.includes('double') && !typeLower.includes('single') && !typeLower.includes('money time')
+            return typeLower.includes('double')
           })
           if (matched) {
             setLotteryId(String(matched.id))
@@ -140,8 +140,8 @@ export function CashpotPage() {
   const config = {
     name: lotteryData?.name || localConfig.name,
     type: lotteryData?.type || localConfig.type,
-    range: 36,
-    isGrid: true,
+    range: 99,
+    isGrid: false,
     drawTimes: lotteryData?.drawDetails?.map((d: any) => d.draw_time) || localConfig.drawTimes,
     games: (lotteryData?.gameDetails || priceData?.gameDetails) ?
       (lotteryData?.gameDetails || priceData?.gameDetails).map((game: any) => {
@@ -188,7 +188,7 @@ export function CashpotPage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      fetch(`${baseUrl}/api/pick-sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
@@ -210,27 +210,19 @@ export function CashpotPage() {
     )
   }
 
-  // getNumberWarning intentionally removed (unused)
+  const getNumberWarning = (num: string, label: string): string | null => {
+    if (!num) return null
+    const val = parseInt(num, 10)
+    if (num === '0' || num === '00' || isNaN(val) || val < 1 || val > 36) {
+      return `${label} must be between 01 and 36.`
+    }
+    return null
+  }
 
   const getBetAmountWarning = (gameIdStr: string, amountStr: string): string | null => {
     if (!amountStr) return null
     const amountVal = parseFloat(amountStr)
     if (isNaN(amountVal) || amountVal <= 0) return 'Enter a valid amount.'
-
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-
-    // Cant bet in Mega / Monsta without Cashpot first
-    if ((gameIdStr === '2' || gameIdStr === '3') && cashpotVal <= 0) {
-      return 'Must place a Cashpot bet first.'
-    }
-
-    // Mega / Monsta cannot be greater than Cashpot
-    if (gameIdStr === '2' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
-    if (gameIdStr === '3' && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
-    }
 
     // Realtime Bet limit warning
     const limitInfo = getMinLimitForGame(gameIdStr)
@@ -244,11 +236,7 @@ export function CashpotPage() {
   const getGameLimit = (gameIdStr: string, time: string): number => {
     const detail = lotteryData?.betlimit?.find((d: any) => d.draw_time === time)
     if (!detail) return Infinity
-
-    if (gameIdStr === '1') return parseFloat(detail.cashpot_bet_limit || 'Infinity')
-    if (gameIdStr === '2') return parseFloat(detail.remaining_megaball_bet_limit || 'Infinity')
-    if (gameIdStr === '3') return parseFloat(detail.remaining_monstaball_bet_limit || 'Infinity')
-
+    if (gameIdStr === '5') return parseFloat(detail.pick2_bet_limit || 'Infinity')
     return Infinity
   }
 
@@ -268,9 +256,15 @@ export function CashpotPage() {
 
   const handleAddBetOption = (gameId: string) => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    if (!selectedNumber2) { alert('Please select or enter Bet No. 2'); return }
+    const val1 = parseInt(selectedNumber, 10)
+    const val2 = parseInt(selectedNumber2, 10)
+    if (isNaN(val1) || val1 < 1 || val1 > 36 || selectedNumber === '0' || selectedNumber === '00') {
+      alert('Bet No. 1 must be between 01 and 36.')
+      return
+    }
+    if (isNaN(val2) || val2 < 1 || val2 > 36 || selectedNumber2 === '0' || selectedNumber2 === '00') {
+      alert('Bet No. 2 must be between 01 and 36.')
       return
     }
 
@@ -280,21 +274,6 @@ export function CashpotPage() {
     const amountVal = parseFloat(amountStr)
     if (amountStr === '' || isNaN(amountVal) || amountVal <= 0) {
       alert('Please enter or select a valid bet amount');
-      return
-    }
-
-    // Direct constraints check
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    if ((gameId === '2' || gameId === '3') && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (gameId === '2' && amountVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (gameId === '3' && amountVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
       return
     }
 
@@ -310,7 +289,7 @@ export function CashpotPage() {
     const game = config.games.find((g: { id: string }) => g.id === gameId)
     if (!game) return
 
-    const numVal = selectedNumber.toString().padStart(2, '0')
+    const numVal = `${selectedNumber.toString().padStart(2, '0')} - ${selectedNumber2.toString().padStart(2, '0')}`
 
     const newBets: BetItem[] = []
     selectedDrawTimes.forEach((time) => {
@@ -329,30 +308,19 @@ export function CashpotPage() {
 
   const handleAddAllBets = () => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
+    if (!selectedNumber2) { alert('Please select or enter Bet No. 2'); return }
+    const val1 = parseInt(selectedNumber, 10)
+    const val2 = parseInt(selectedNumber2, 10)
+    if (isNaN(val1) || val1 < 1 || val1 > 36 || selectedNumber === '0' || selectedNumber === '00') {
+      alert('Bet No. 1 must be between 01 and 36.')
+      return
+    }
+    if (isNaN(val2) || val2 < 1 || val2 > 36 || selectedNumber2 === '0' || selectedNumber2 === '00') {
+      alert('Bet No. 2 must be between 01 and 36.')
       return
     }
 
     if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
-
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    const megaVal = parseFloat(betAmounts['2'] || '0')
-    const monstaVal = parseFloat(betAmounts['3'] || '0')
-
-    if ((megaVal > 0 || monstaVal > 0) && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (megaVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (monstaVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
 
     // Validate limits
     for (const game of config.games) {
@@ -362,14 +330,14 @@ export function CashpotPage() {
         for (const time of selectedDrawTimes) {
           const limit = getGameLimit(game.id, time)
           if (amountVal > limit) {
-            alert(`Cannot place bet. Bet amount of $${amountVal} for {game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
             return
           }
         }
       }
     }
 
-    const numVal = selectedNumber.toString().padStart(2, '0')
+    const numVal = `${selectedNumber.toString().padStart(2, '0')} - ${selectedNumber2.toString().padStart(2, '0')}`
 
     const newBets: BetItem[] = []
     let hasValidBet = false
@@ -399,16 +367,20 @@ export function CashpotPage() {
     setCart([...cart, ...newBets])
     // Reset inputs
     setSelectedNumber('')
+    setSelectedNumber2('')
     setSelectedDrawTimes([])
     setBetAmounts({})
-    setShowNumberGrid(false)
+    setShowGrid1(false)
+    setShowGrid2(false)
   }
 
   const handleClearData = () => {
     setSelectedNumber('')
+    setSelectedNumber2('')
     setSelectedDrawTimes([])
     setBetAmounts({})
-    setShowNumberGrid(false)
+    setShowGrid1(false)
+    setShowGrid2(false)
   }
 
   const handleRemoveBet = (betId: number) => setCart(cart.filter((b) => b.id !== betId))
@@ -416,89 +388,11 @@ export function CashpotPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) return
-
-    // Group cart items by number
-    const groups: Record<string, {
-      number: string;
-      drawTimes: Set<string>;
-      games: Record<string, number>; // gameId -> amount
-    }> = {};
-
-    cart.forEach(item => {
-      let gameId = '1';
-      if (item.gameName.toLowerCase().includes('megaball')) {
-        gameId = '2';
-      } else if (item.gameName.toLowerCase().includes('monstaball')) {
-        gameId = '3';
-      } else {
-        gameId = '1';
-      }
-
-      if (!groups[item.number]) {
-        groups[item.number] = {
-          number: item.number,
-          drawTimes: new Set(),
-          games: {}
-        };
-      }
-
-      groups[item.number].drawTimes.add(item.drawTime);
-      groups[item.number].games[gameId] = item.amount;
-    });
-
-    const formData = new URLSearchParams();
-
-    Object.values(groups).forEach((group, index) => {
-      formData.append(`result[${index}][number]`, group.number);
-      formData.append(`result[${index}][lottery_id]`, lotteryId || '');
-
-      group.drawTimes.forEach(dt => {
-        let cleanTime = dt.replace(/\s*[AP]M\s*/gi, '').trim();
-        formData.append(`result[${index}][draw_time][]`, cleanTime);
-      });
-
-      Object.entries(group.games).forEach(([gameId, amount]) => {
-        formData.append(`result[${index}][game_id][]`, gameId);
-        formData.append(`result[${index}][amount][]`, String(amount));
-      });
-    });
-
-    formData.append('customer_name', user?.id || user?.username || 'Guest');
-
-    const headers: any = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    
-    fetch(`${baseUrl}/api/user/purchase-lottery/${lotteryId}`, {
-      method: 'POST',
-      headers,
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'success' || resData.success) {
-          setPayoutSuccess(true)
-          if (fetchWallet) {
-            fetchWallet();
-          }
-          setTimeout(() => {
-            setPayoutSuccess(false)
-            setCart([])
-          }, 3000)
-        } else {
-          alert(resData.message || 'Failed to place bet. Please try again.')
-        }
-      })
-      .catch(err => {
-        console.error('Purchase error:', err)
-        alert('An error occurred while submitting purchase request.')
-      })
+    setPayoutSuccess(true)
+    setTimeout(() => {
+      setPayoutSuccess(false)
+      setCart([])
+    }, 3000)
   }
 
   if (loading) {
@@ -652,52 +546,126 @@ export function CashpotPage() {
               {/* Pick Number Panel */}
               <Card className="bg-fortune-card border border-border/60">
                 <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-6">
                     <div>
-                      <h3 className="font-extrabold text-lg text-foreground">Pick your Bet Number</h3>
-                      <p className="text-xs text-muted-foreground">Select a single lottery number to place bets on</p>
+                      <h3 className="font-extrabold text-lg text-foreground">Pick your Bet Numbers</h3>
+                      <p className="text-xs text-muted-foreground">Select two numbers (01-36) for Pick 2 Double</p>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bet No.</span>
-                      <button
-                        type="button"
-                        onClick={() => setShowNumberGrid(!showNumberGrid)}
-                        className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
-                      >
-                        <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
-                          {selectedNumber ? `#${selectedNumber}` : 'Select Bet Number'}
-                        </span>
-                        {showNumberGrid ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {showNumberGrid && (
-                    <div className="mt-6 pt-6 border-t border-border/40 animate-fadeIn">
-                      <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                        {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
-                          const isSelected = selectedNumber === numStr
-                          return (
+                    <div className="space-y-4">
+                      {/* Bet No. 1 */}
+                      <div className="flex flex-col gap-4 border-b border-border/45 pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <span className="text-sm font-extrabold text-foreground uppercase tracking-wider font-semibold">Bet No. 1</span>
+                          <div className="flex items-center gap-3">
                             <button
-                              key={numStr}
+                              type="button"
+                              onClick={() => setShowGrid1(!showGrid1)}
+                              className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
+                            >
+                              <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
+                                {selectedNumber ? `#${selectedNumber}` : 'Select Bet No. 1'}
+                              </span>
+                              {showGrid1 ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                            </button>
+                            <button
                               type="button"
                               onClick={() => {
-                                setSelectedNumber(numStr)
-                                setShowNumberGrid(false)
+                                setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                               }}
-                              className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
-                                ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
-                                }`}
+                              className="px-4 py-3 bg-background border border-border text-foreground text-xs font-bold rounded-xl hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
                             >
-                              {numStr}
+                              Quick Pick
                             </button>
-                          )
-                        })}
+                          </div>
+                        </div>
+                        {showGrid1 && (
+                          <div className="mt-2 p-4 bg-background/50 border border-border/40 rounded-xl animate-fadeIn">
+                            <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
+                              {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                                const isSelected = selectedNumber === numStr
+                                return (
+                                  <button
+                                    key={numStr}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedNumber(numStr)
+                                      setShowGrid1(false)
+                                    }}
+                                    className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
+                                      ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                      : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                      }`}
+                                  >
+                                    {numStr}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {getNumberWarning(selectedNumber, 'Bet No. 1') && (
+                          <span className="text-red-400 text-xs mt-1 font-semibold text-right">{getNumberWarning(selectedNumber, 'Bet No. 1')}</span>
+                        )}
+                      </div>
+
+                      {/* Bet No. 2 */}
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <span className="text-sm font-extrabold text-foreground uppercase tracking-wider font-semibold">Bet No. 2</span>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setShowGrid2(!showGrid2)}
+                              className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
+                            >
+                              <span className={selectedNumber2 ? 'text-primary' : 'text-muted-foreground'}>
+                                {selectedNumber2 ? `#${selectedNumber2}` : 'Select Bet No. 2'}
+                              </span>
+                              {showGrid2 ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
+                              }}
+                              className="px-4 py-3 bg-background border border-border text-foreground text-xs font-bold rounded-xl hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
+                            >
+                              Quick Pick
+                            </button>
+                          </div>
+                        </div>
+                        {showGrid2 && (
+                          <div className="mt-2 p-4 bg-background/50 border border-border/40 rounded-xl animate-fadeIn">
+                            <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
+                              {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                                const isSelected = selectedNumber2 === numStr
+                                return (
+                                  <button
+                                    key={numStr}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedNumber2(numStr)
+                                      setShowGrid2(false)
+                                    }}
+                                    className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
+                                      ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                      : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                      }`}
+                                  >
+                                    {numStr}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {getNumberWarning(selectedNumber2, 'Bet No. 2') && (
+                          <span className="text-red-400 text-xs mt-1 font-semibold text-right">{getNumberWarning(selectedNumber2, 'Bet No. 2')}</span>
+                        )}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -866,11 +834,14 @@ export function CashpotPage() {
                     const numStr = String(idx + 1).padStart(2, '0')
 
                     const payouts: { label?: string; value: any }[] = []
-                    if (game.bet_amount_monsta !== undefined && game.bet_amount_monsta !== null) {
-                      payouts.push({ label: 'Without Mega', value: game.bet_amount })
-                      payouts.push({ label: 'With Mega', value: game.bet_amount_monsta })
+                    if (game.reverse_bet_amount !== undefined && game.reverse_bet_amount !== null) {
+                      payouts.push({ label: 'Straight Match', value: game.bet_amount })
+                      payouts.push({ label: 'Reverse / Mix Match', value: game.reverse_bet_amount })
+                      if (game.single_bet_amount !== undefined && game.single_bet_amount !== null) {
+                        payouts.push({ label: 'Single Digit Match', value: game.single_bet_amount })
+                      }
                     } else {
-                      payouts.push({ label: 'Standard Match', value: game.bet_amount })
+                      payouts.push({ label: 'Straight Match', value: game.bet_amount })
                     }
 
                     return (
@@ -920,9 +891,9 @@ export function CashpotPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                   {[
-                    { step: '01', title: 'Choose Numbers', desc: 'Select a single number from 01 to 36. Use grid selections.', icon: <Hash className="size-4 text-primary" /> },
-                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play. You can select one, multiple, or all draws for the day.', icon: <Clock className="size-4 text-primary" /> },
-                    { step: '03', title: 'Choose Options & Bet', desc: 'Pick a bet type (e.g. Cashpot, Megaball) and enter your bet amount. Add the bet card and check out!', icon: <Ticket className="size-4 text-primary" /> },
+                    { step: '01', title: 'Choose Numbers', desc: 'Select two distinct numbers from 01 to 36.', icon: <Hash className="size-4 text-primary" /> },
+                    { step: '02', title: 'Select Draw Times', desc: 'Decide which draw times you want to play.', icon: <Clock className="size-4 text-primary" /> },
+                    { step: '03', title: 'Choose Options & Bet', desc: 'Enter bet amount for Straight, Reverse, or Mix match.', icon: <Ticket className="size-4 text-primary" /> },
                   ].map((s) => (
                     <div key={s.step} className="p-5 border border-border rounded-xl bg-white/[0.02]">
                       <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-3">
@@ -944,7 +915,7 @@ export function CashpotPage() {
             <CardContent className="p-8">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
               <p className="text-muted-foreground text-base mb-6">
-                The following numbers have reached their draw bet limit for today and cannot accept any more bets.
+                The following numbers have reached their limit for today and cannot accept any more bets.
               </p>
 
               <div className="mb-6 flex items-center gap-4">

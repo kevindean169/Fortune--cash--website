@@ -1,7 +1,10 @@
 import type { RouteObject } from 'react-router-dom'
 import { HomePage } from '@/pages/HomePage'
 import { LotteriesPage } from '@/pages/LotteriesPage'
-import { SingleLotteryPage } from '@/pages/SingleLotteryPage'
+import { CashpotPage } from '@/pages/CashpotPage'
+import { MoneyTimePage } from '@/pages/MoneyTimePage'
+import { Pick2SinglePage } from '@/pages/Pick2SinglePage'
+import { Pick2DoublePage } from '@/pages/Pick2DoublePage'
 import { ResultsPage } from '@/pages/ResultsPage'
 import { WinnersPage } from '@/pages/WinnersPage'
 import { ResponsibleGamingPage } from '@/pages/ResponsibleGamingPage'
@@ -13,10 +16,10 @@ import { TermsPage } from '@/pages/TermsPage'
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
   { path: 'lotteries', element: <LotteriesPage /> },
-  { path: 'cashpot', element: <SingleLotteryPage gameId="cashpot" /> },
-  { path: 'money-time', element: <SingleLotteryPage gameId="money-time" /> },
-  { path: 'pick-2-single', element: <SingleLotteryPage gameId="pick-2-single" /> },
-  { path: 'pick-2-double', element: <SingleLotteryPage gameId="pick-2-double" /> },
+  { path: 'cashpot', element: <CashpotPage /> },
+  { path: 'money-time', element: <MoneyTimePage /> },
+  { path: 'pick-2-single', element: <Pick2SinglePage /> },
+  { path: 'pick-2-double', element: <Pick2DoublePage /> },
   { path: 'results', element: <ResultsPage /> },
   { path: 'winners', element: <WinnersPage /> },
   { path: 'responsible-gaming', element: <ResponsibleGamingPage /> },
