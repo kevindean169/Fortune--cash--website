@@ -10,6 +10,7 @@ export type PageId =
   | 'tickets'
   | 'wallet'
   | 'responsible-gaming'
+  | 'about'
   | 'contact'
   | 'profile'
   | 'my-lotteries'

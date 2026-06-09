@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 const mainNav = [
   { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
   { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
+  { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
   { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
   { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
 ]
@@ -160,6 +161,7 @@ export function Navigation() {
                   {[
                     { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
                     { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
+                    { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
                     ...(user ? [
                       { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
                       { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },

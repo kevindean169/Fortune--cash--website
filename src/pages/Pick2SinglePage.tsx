@@ -5,6 +5,7 @@ import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp } from 'lucid
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
+import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
 
 interface BetItem {
   id: number
@@ -26,7 +27,7 @@ export function Pick2SinglePage() {
   const [searchParams] = useSearchParams()
   const urlId = searchParams.get('id')
 
-  const { accessToken } = useAuth()
+  const { accessToken, fetchWallet } = useAuth()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -45,6 +46,7 @@ export function Pick2SinglePage() {
   const [betAmounts, setBetAmounts] = useState<Record<string, string>>({}) // GameId -> Amount mapping
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   // Local configurations fallback
   const localConfig = {
@@ -361,13 +363,37 @@ export function Pick2SinglePage() {
   const handleRemoveBet = (betId: number) => setCart(cart.filter((b) => b.id !== betId))
   const cartTotal = cart.reduce((sum, item) => sum + item.amount, 0)
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return
-    setPayoutSuccess(true)
-    setTimeout(() => {
-      setPayoutSuccess(false)
-      setCart([])
-    }, 3000)
+  const handleCheckout = async () => {
+    if (cart.length === 0 || !lotteryId || checkoutLoading) return
+
+    setCheckoutLoading(true)
+    try {
+      await submitLotteryPurchase({
+        baseUrl: import.meta.env.VITE_API_URL || '',
+        accessToken,
+        appKey: import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+        lotteryId,
+        cart,
+        purchasePath: `/api/customer/purchase-lottery/${lotteryId}`,
+        printStatusPath: '/api/customer/printstatus',
+        getGameId: (item) => {
+          const game = config.games.find((g: { id: string; name: string }) => g.name === item.gameName)
+          return game?.id || '4'
+        },
+      })
+
+      setPayoutSuccess(true)
+      fetchWallet()
+      setTimeout(() => {
+        setPayoutSuccess(false)
+        setCart([])
+      }, 3000)
+    } catch (err: any) {
+      console.error('Purchase error:', err)
+      alert(err.message || 'An error occurred while submitting purchase request.')
+    } finally {
+      setCheckoutLoading(false)
+    }
   }
 
   if (loading) {
@@ -705,15 +731,15 @@ export function Pick2SinglePage() {
                       <span className="font-extrabold text-lg text-green-400">${cartTotal.toFixed(2)}</span>
                     </div>
                     <Button
-                      disabled={cart.length === 0}
+                      disabled={cart.length === 0 || checkoutLoading}
                       onClick={handleCheckout}
                       size="lg"
-                      className={`w-full font-bold text-xs uppercase tracking-widest transition-all ${cart.length === 0
+                      className={`w-full font-bold text-xs uppercase tracking-widest transition-all ${cart.length === 0 || checkoutLoading
                         ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
                         : 'gold-gradient text-fortune-navy gold-glow hover:opacity-90'
                         }`}
                     >
-                      Place Bets & Checkout
+                      {checkoutLoading ? 'Processing...' : 'Place Bets & Checkout'}
                     </Button>
                   </div>
                 </CardContent>

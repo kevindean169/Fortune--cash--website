@@ -5,6 +5,7 @@ import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp } from 'lucid
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
+import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
 
 interface BetItem {
   id: number
@@ -26,7 +27,7 @@ export function CashpotPage() {
   const [searchParams] = useSearchParams()
   const urlId = searchParams.get('id')
 
-  const { accessToken, user, fetchWallet } = useAuth()
+  const { accessToken, fetchWallet } = useAuth()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -45,6 +46,7 @@ export function CashpotPage() {
   const [betAmounts, setBetAmounts] = useState<Record<string, string>>({}) // GameId -> Amount mapping
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   // Local configurations fallback
   const localConfig = {
@@ -414,91 +416,37 @@ export function CashpotPage() {
   const handleRemoveBet = (betId: number) => setCart(cart.filter((b) => b.id !== betId))
   const cartTotal = cart.reduce((sum, item) => sum + item.amount, 0)
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return
+  const handleCheckout = async () => {
+    if (cart.length === 0 || !lotteryId || checkoutLoading) return
 
-    // Group cart items by number
-    const groups: Record<string, {
-      number: string;
-      drawTimes: Set<string>;
-      games: Record<string, number>; // gameId -> amount
-    }> = {};
-
-    cart.forEach(item => {
-      let gameId = '1';
-      if (item.gameName.toLowerCase().includes('megaball')) {
-        gameId = '2';
-      } else if (item.gameName.toLowerCase().includes('monstaball')) {
-        gameId = '3';
-      } else {
-        gameId = '1';
-      }
-
-      if (!groups[item.number]) {
-        groups[item.number] = {
-          number: item.number,
-          drawTimes: new Set(),
-          games: {}
-        };
-      }
-
-      groups[item.number].drawTimes.add(item.drawTime);
-      groups[item.number].games[gameId] = item.amount;
-    });
-
-    const formData = new URLSearchParams();
-
-    Object.values(groups).forEach((group, index) => {
-      formData.append(`result[${index}][number]`, group.number);
-      formData.append(`result[${index}][lottery_id]`, lotteryId || '');
-
-      group.drawTimes.forEach(dt => {
-        let cleanTime = dt.replace(/\s*[AP]M\s*/gi, '').trim();
-        formData.append(`result[${index}][draw_time][]`, cleanTime);
-      });
-
-      Object.entries(group.games).forEach(([gameId, amount]) => {
-        formData.append(`result[${index}][game_id][]`, gameId);
-        formData.append(`result[${index}][amount][]`, String(amount));
-      });
-    });
-
-    formData.append('customer_name', user?.id || user?.username || 'Guest');
-
-    const headers: any = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    
-    fetch(`${baseUrl}/api/user/purchase-lottery/${lotteryId}`, {
-      method: 'POST',
-      headers,
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'success' || resData.success) {
-          setPayoutSuccess(true)
-          if (fetchWallet) {
-            fetchWallet();
-          }
-          setTimeout(() => {
-            setPayoutSuccess(false)
-            setCart([])
-          }, 3000)
-        } else {
-          alert(resData.message || 'Failed to place bet. Please try again.')
-        }
+    setCheckoutLoading(true)
+    try {
+      await submitLotteryPurchase({
+        baseUrl: import.meta.env.VITE_API_URL || '',
+        accessToken,
+        appKey: import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+        lotteryId,
+        cart,
+        purchasePath: `/api/customer/purchase-lottery/${lotteryId}`,
+        printStatusPath: '/api/customer/printstatus',
+        getGameId: (item) => {
+          const game = config.games.find((g: { id: string; name: string }) => g.name === item.gameName)
+          return game?.id || '1'
+        },
       })
-      .catch(err => {
-        console.error('Purchase error:', err)
-        alert('An error occurred while submitting purchase request.')
-      })
+
+      setPayoutSuccess(true)
+      fetchWallet()
+      setTimeout(() => {
+        setPayoutSuccess(false)
+        setCart([])
+      }, 3000)
+    } catch (err: any) {
+      console.error('Purchase error:', err)
+      alert(err.message || 'An error occurred while submitting purchase request.')
+    } finally {
+      setCheckoutLoading(false)
+    }
   }
 
   if (loading) {
@@ -836,15 +784,15 @@ export function CashpotPage() {
                       <span className="font-extrabold text-lg text-green-400">${cartTotal.toFixed(2)}</span>
                     </div>
                     <Button
-                      disabled={cart.length === 0}
+                      disabled={cart.length === 0 || checkoutLoading}
                       onClick={handleCheckout}
                       size="lg"
-                      className={`w-full font-bold text-xs uppercase tracking-widest transition-all ${cart.length === 0
+                      className={`w-full font-bold text-xs uppercase tracking-widest transition-all ${cart.length === 0 || checkoutLoading
                         ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
                         : 'gold-gradient text-fortune-navy gold-glow hover:opacity-90'
                         }`}
                     >
-                      Place Bets & Checkout
+                      {checkoutLoading ? 'Processing...' : 'Place Bets & Checkout'}
                     </Button>
                   </div>
                 </CardContent>

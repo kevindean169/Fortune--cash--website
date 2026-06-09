@@ -76,6 +76,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Support</h3>
             <ul className="space-y-2.5">
               {[
+                { id: 'about' as PageId, label: 'About Us', icon: <FileText className="size-3" /> },
                 { id: 'contact' as PageId, label: 'Contact Us', icon: <Phone className="size-3" /> },
                 { id: 'contact' as PageId, label: 'Help Center', icon: <HelpCircle className="size-3" /> },
                 { id: 'responsible-gaming' as PageId, label: 'Responsible Gaming', icon: <ShieldCheck className="size-3" /> },
