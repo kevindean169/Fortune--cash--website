@@ -2,6 +2,7 @@ export interface LotteryCartItem {
   number: string
   gameName: string
   drawTime: string
+  apiDrawTime?: string
   amount: number
 }
 
@@ -79,7 +80,7 @@ export async function submitLotteryPurchase({
       }
     }
 
-    groups[item.number].drawTimes.add(cleanDrawTime(item.drawTime))
+    groups[item.number].drawTimes.add(cleanDrawTime(item.apiDrawTime || item.drawTime))
     groups[item.number].games.set(getGameId(item), item.amount)
   })
 

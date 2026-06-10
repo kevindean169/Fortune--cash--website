@@ -129,9 +129,41 @@ function pickOptionalNumber(source: unknown, keys: string[]): number | undefined
   return undefined
 }
 
+function parseJamaicaDate(value: string): Date {
+  if (!value) return new Date(NaN)
+  let cleaned = value.trim()
+  
+  // If it already has Z, GMT, or an explicit timezone offset, parse it as-is
+  if (cleaned.endsWith('Z') || /[\+\-]\d{2}:?\d{2}$/.test(cleaned) || cleaned.includes('GMT')) {
+    return new Date(cleaned)
+  }
+  
+  // Try to parse using native Date parser
+  const tempDate = new Date(cleaned)
+  if (!isNaN(tempDate.getTime())) {
+    // Extract local time components and assume they are America/Jamaica (UTC-5)
+    const year = tempDate.getFullYear()
+    const month = tempDate.getMonth()
+    const date = tempDate.getDate()
+    const hours = tempDate.getHours()
+    const minutes = tempDate.getMinutes()
+    const seconds = tempDate.getSeconds()
+    
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const isoStr = `${year}-${pad(month + 1)}-${pad(date)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}-05:00`
+    return new Date(isoStr)
+  }
+  
+  if (cleaned.includes(' ')) {
+    cleaned = cleaned.replace(' ', 'T')
+  }
+  // Append Jamaica offset (UTC-5)
+  return new Date(cleaned + '-05:00')
+}
+
 function normalizeDate(value: string): string {
   if (!value) return '-'
-  const parsed = new Date(value)
+  const parsed = parseJamaicaDate(value)
   if (Number.isNaN(parsed.getTime())) return value
 
   return parsed.toLocaleString(undefined, {
@@ -213,6 +245,55 @@ function mapTicket(raw: unknown): ApiTicketOrder {
     payout: pickNumber(raw, ['payout', 'winning_amount', 'won_amount', 'win_amount']),
   }]
 
+  const rawDrawDate = pickString(raw, ['draw_date', 'drawDate'], '')
+  const rawDrawTime = pickString(raw, ['draw_time', 'drawTime'], '')
+  
+  let drawDateVal = '-'
+  let drawTimeVal = '-'
+  
+  if (rawDrawDate) {
+    let datePart = ''
+    const d = new Date(rawDrawDate)
+    if (!isNaN(d.getTime())) {
+      const pad = (n: number) => String(n).padStart(2, '0')
+      datePart = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    } else {
+      datePart = rawDrawDate.substring(0, 10)
+    }
+    const timePart = rawDrawTime.includes(' ') ? rawDrawTime.split(' ')[1] : rawDrawTime
+    
+    // Normalize timePart to HH:MM:SS
+    let formattedTime = '00:00:00'
+    if (timePart) {
+      const parts = timePart.split(':')
+      if (parts.length === 1) {
+        formattedTime = `${parts[0].padStart(2, '0')}:00:00`
+      } else if (parts.length === 2) {
+        formattedTime = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:00`
+      } else if (parts.length === 3) {
+        formattedTime = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:${parts[2].padStart(2, '0')}`
+      }
+    }
+    
+    const combinedStr = `${datePart}T${formattedTime}`
+    const parsedDrawDate = parseJamaicaDate(combinedStr)
+    if (!isNaN(parsedDrawDate.getTime())) {
+      drawDateVal = parsedDrawDate.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })
+      drawTimeVal = parsedDrawDate.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    } else {
+      drawDateVal = rawDrawDate
+      drawTimeVal = rawDrawTime || '-'
+    }
+  }
+
   return {
     lottery_id: pickNumber(raw, ['lottery_id'], 0),
     order_no: orderNo,
@@ -224,8 +305,8 @@ function mapTicket(raw: unknown): ApiTicketOrder {
     customer_name: pickString(raw, ['customer_name', 'name'], pickString(customer, ['name', 'username'], '-')),
     customer_contact: pickString(raw, ['customer_contact', 'phone', 'mobile'], pickString(customer, ['phone', 'mobile'], '')),
     created_at: normalizeDate(pickString(raw, ['created_at', 'createdAt', 'purchased_on', 'date'], '')),
-    draw_date: normalizeDate(pickString(raw, ['draw_date', 'drawDate'], '')),
-    draw_time: pickString(raw, ['draw_time', 'drawTime'], '-'),
+    draw_date: drawDateVal,
+    draw_time: drawTimeVal,
     draw_no: pickString(raw, ['draw_no', 'draw_number', 'drawNo'], ''),
     games: fallbackGames,
   }

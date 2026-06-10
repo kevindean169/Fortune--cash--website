@@ -21,6 +21,47 @@ const getImageUrl = (imagePath: string) => {
   return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
+function formatDrawTimeToLocal(timeStr: string): { display: string; original: string } {
+  if (!timeStr) return { display: '-', original: '' }
+  
+  let cleanTime = timeStr.trim();
+  if (/[AP]M/i.test(cleanTime)) {
+    const parts = cleanTime.match(/(\d{1,2}):(\d{2})\s*([AP]M)/i);
+    if (parts) {
+      let hrs = parseInt(parts[1], 10);
+      const mins = parts[2];
+      const ampm = parts[3].toUpperCase();
+      if (ampm === 'PM' && hrs < 12) hrs += 12;
+      if (ampm === 'AM' && hrs === 12) hrs = 0;
+      cleanTime = `${String(hrs).padStart(2, '0')}:${mins}:00`;
+    }
+  }
+  
+  if (cleanTime.split(':').length === 2) {
+    cleanTime += ':00';
+  }
+
+  const today = new Date();
+  const jDateStr = today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0];
+  const [m, d, y] = jDateStr.split('/');
+  const dateIso = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  
+  const dateStr = `${dateIso}T${cleanTime}-05:00`;
+  const localDate = new Date(dateStr);
+  
+  if (isNaN(localDate.getTime())) {
+    return { display: timeStr, original: timeStr };
+  }
+  
+  const localTimeDisplay = localDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+  const localDateDisplay = localDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
+  
+  return {
+    display: `${localTimeDisplay} (${localDateDisplay})`,
+    original: timeStr
+  };
+}
+
 export function CashpotPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
@@ -584,12 +625,12 @@ export function CashpotPage() {
                           key={time}
                           type="button"
                           onClick={() => toggleDrawTime(time)}
-                          className={`py-3.5 text-xs font-bold rounded-xl border transition-all ${isSelected
+                          className={`py-3.5 px-2 text-xs font-bold rounded-xl border transition-all ${isSelected
                             ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
                             : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/30 hover:text-foreground'
                             }`}
                         >
-                          {time.substring(0, 5)}
+                          {formatDrawTimeToLocal(time).display}
                         </button>
                       )
                     })}
@@ -761,7 +802,7 @@ export function CashpotPage() {
                                   {item.gameName}
                                 </span>
                               </div>
-                              <p className="text-xs text-muted-foreground mt-1">Draw: {item.drawTime}</p>
+                              <p className="text-xs text-muted-foreground mt-1">Draw: {formatDrawTimeToLocal(item.drawTime).display}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               <span className="font-black text-sm text-foreground">${item.amount.toFixed(2)}</span>

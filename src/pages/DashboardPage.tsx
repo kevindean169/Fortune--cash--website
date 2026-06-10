@@ -1,16 +1,72 @@
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
-import { CreditCard, Ticket, Lightbulb, Zap, Gift, Clock, Trophy, Coins } from 'lucide-react'
+import { CreditCard, Trophy, ArrowDownLeft, Zap, Gift, Clock, Coins } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
+
+const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1'
+const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
 export function DashboardPage() {
   const navigate = useNavigate()
-  
+  const { accessToken, walletBalance, user } = useAuth()
+
+  const [currency, setCurrency] = useState('USD')
+  const [totalWon, setTotalWon] = useState(0)
+  const [totalWithdrawal, setTotalWithdrawal] = useState(0)
+  const [totalPayout, setTotalPayout] = useState(0) // Simulated since Admin API is not created yet
+
+  useEffect(() => {
+    if (!accessToken) return
+
+    // Fetch currency from wallet details
+    fetch(`${BASE_URL}/wallet`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'X-App-Key': APP_KEY,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setCurrency(data.data.currency || 'USD')
+        }
+      })
+      .catch(err => console.error('Error fetching wallet:', err))
+
+    // Fetch financial summary stats
+    fetch(`${BASE_URL}/wallet/summary`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'X-App-Key': APP_KEY,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setTotalWon(data.data.total_won || 0)
+          setTotalWithdrawal(data.data.total_withdrawn || 0)
+          // Fallback payout value based on won or default placeholder
+          setTotalPayout((data.data.total_won || 0) * 0.95)
+        }
+      })
+      .catch(err => console.error('Error fetching summary stats:', err))
+  }, [accessToken])
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2
+    }).format(val)
+  }
+
   const stats = [
-    { label: 'Wallet Balance', value: '$9,898.98', color: 'text-foreground', icon: <CreditCard className="size-8 text-primary" /> },
-    { label: "Today's Bet Volume", value: '$12.00', color: 'text-foreground', icon: <Ticket className="size-8 text-primary" /> },
-    { label: "Today's Winning Slips", value: '3', color: 'text-primary', icon: <Lightbulb className="size-8 text-primary animate-pulse" /> },
-    { label: "Today's Payout Wins", value: '$228.00', color: 'text-primary', icon: <Zap className="size-8 text-primary" /> },
+    { label: 'Wallet Balance', value: formatCurrency(walletBalance), color: 'text-foreground', icon: <CreditCard className="size-8 text-primary" /> },
+    { label: 'Total Won', value: formatCurrency(totalWon), color: 'text-foreground', icon: <Trophy className="size-8 text-primary" /> },
+    { label: 'Total Payout', value: formatCurrency(totalPayout), color: 'text-primary', icon: <Zap className="size-8 text-primary animate-pulse" />, isMock: true },
+    { label: 'Total Withdrawal', value: formatCurrency(totalWithdrawal), color: 'text-primary', icon: <ArrowDownLeft className="size-8 text-primary" /> },
   ]
 
   const quickLinks = [
@@ -26,10 +82,10 @@ export function DashboardPage() {
       <div className="bg-fortune-card border border-l-4 border-l-primary border-border/60 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-            Welcome back, <span className="gold-text">Sachin!</span>
+            Welcome back, <span className="gold-text">{user?.username || 'Sachin'}!</span>
           </h2>
           <p className="text-muted-foreground text-xs mt-1">
-            Account status: <span className="text-primary font-bold">Active Agent</span>&nbsp;•&nbsp;Timezone: America/Jamaica
+            Account status: <span className="text-primary font-bold">Active Customer</span>&nbsp;•&nbsp;Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
           </p>
         </div>
         <Button
@@ -46,7 +102,12 @@ export function DashboardPage() {
           <Card key={stat.label} className="bg-fortune-card border border-border/60 hover:-translate-y-1 transition-all">
             <CardContent className="p-5 flex flex-col justify-between">
               <div className="flex justify-between items-start mb-2">
-                <span className="text-muted-foreground text-xs font-semibold leading-tight">{stat.label}</span>
+                <span className="text-muted-foreground text-xs font-semibold leading-tight flex items-center gap-1">
+                  {stat.label}
+                  {stat.isMock && (
+                    <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-1 rounded uppercase tracking-wider scale-90">Pending Admin API</span>
+                  )}
+                </span>
                 {stat.icon}
               </div>
               <p className={`text-2xl sm:text-3xl font-extrabold mt-2 ${stat.color}`}>{stat.value}</p>

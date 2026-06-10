@@ -12,6 +12,7 @@ interface BetItem {
   number: string
   gameName: string
   drawTime: string
+  apiDrawTime?: string
   amount: number
 }
 
@@ -240,6 +241,18 @@ export function MoneyTimePage() {
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
 
+  function parseJamaicaDrawDate(dateTimeStr: string): Date {
+    if (!dateTimeStr) return new Date(NaN);
+    let cleaned = dateTimeStr.trim();
+    if (cleaned.endsWith('Z') || /[\+\-]\d{2}:?\d{2}$/.test(cleaned) || cleaned.includes('GMT')) {
+      return new Date(cleaned);
+    }
+    if (cleaned.includes(' ')) {
+      cleaned = cleaned.replace(' ', 'T');
+    }
+    return new Date(cleaned + '-05:00');
+  }
+
   function getMoneyTimeGroups() {
     if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) return [];
 
@@ -255,31 +268,28 @@ export function MoneyTimePage() {
         if (tIndex === -1) return null;
 
         const datePart = slot.datetime.substring(0, tIndex);
-        const timePart = slot.datetime.substring(tIndex + 1, tIndex + 6);
 
-        const dateParts = datePart.split('-');
-        let dateLabel = datePart;
-        if (dateParts.length === 3) {
-          const year = parseInt(dateParts[0], 10);
-          const monthIndex = parseInt(dateParts[1], 10) - 1;
-          const day = parseInt(dateParts[2], 10);
-          const monthName = months[monthIndex] || '';
-          dateLabel = `${String(day).padStart(2, '0')} ${monthName} ${year}`;
-        }
-
-        const label = `${dateLabel}, ${timePart}`;
+        const slotDate = parseJamaicaDrawDate(slot.datetime);
+        const localSlotHour = slotDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const localSlotDateLabel = `${String(slotDate.getDate()).padStart(2, '0')} ${months[slotDate.getMonth()]} ${slotDate.getFullYear()}`;
+        const label = `${localSlotDateLabel}, ${localSlotHour}`;
         const key = slot.datetime;
 
         const parsedDraws = slot.draws.map((d: any) => {
-          const drawTIndex = d.draw_time.indexOf('T');
-          const drawDisplayTime = drawTIndex !== -1 
-            ? d.draw_time.substring(drawTIndex + 1, drawTIndex + 6)
-            : d.draw_time;
+          let drawDateTimeStr = d.draw_time;
+          if (!drawDateTimeStr.includes('-') && !drawDateTimeStr.includes('T')) {
+            drawDateTimeStr = `${datePart}T${drawDateTimeStr}`;
+          }
+          const drawDate = parseJamaicaDrawDate(drawDateTimeStr);
+          const drawDisplayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const localDrawDateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
+          const fullTime = `${localDrawDateLabel}, ${drawDisplayTime}`;
 
           return {
             id: d.draw_no || d.timestamp || Math.random(),
             time: drawDisplayTime,
-            fullTime: `${dateLabel}, ${drawDisplayTime}`,
+            fullTime: fullTime,
+            apiDrawTime: d.draw_time,
             raw: d
           };
         });
@@ -304,41 +314,33 @@ export function MoneyTimePage() {
     const groups: { key: string; label: string; draws: any[] }[] = [];
 
     sortedDraws.forEach(draw => {
-      const [year, month, day] = draw.draw_date.split('-').map(Number);
-      const [hour, min, sec] = draw.draw_time.split(':').map(Number);
-      const drawMs = new Date(year, month - 1, day, hour, min, sec || 0).getTime();
+      const drawDate = parseJamaicaDrawDate(`${draw.draw_date}T${draw.draw_time}`);
+      const drawMs = drawDate.getTime();
 
       let foundGroup = false;
       if (groups.length > 0) {
         const lastGroup = groups[groups.length - 1];
         const startDraw = lastGroup.draws[0].raw;
-        const [sYear, sMonth, sDay] = startDraw.draw_date.split('-').map(Number);
-        const [sHour, sMin, sSec] = startDraw.draw_time.split(':').map(Number);
-        const startMs = new Date(sYear, sMonth - 1, sDay, sHour, sMin, sSec || 0).getTime();
+        const startDrawDate = parseJamaicaDrawDate(`${startDraw.draw_date}T${startDraw.draw_time}`);
+        const startMs = startDrawDate.getTime();
 
         if (drawMs >= startMs && drawMs < startMs + 60 * 60 * 1000) {
           foundGroup = true;
-          const displayTime = draw.draw_time.substring(0, 5);
-          const dateObj = new Date(year, month - 1, day);
-          const monthLabel = months[dateObj.getMonth()];
-          const dayLabel = String(dateObj.getDate()).padStart(2, '0');
-          const dateLabel = `${dayLabel} ${monthLabel} ${dateObj.getFullYear()}`;
+          const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
           lastGroup.draws.push({
             id: draw.id,
             time: displayTime,
             fullTime: `${dateLabel}, ${displayTime}`,
+            apiDrawTime: draw.draw_time,
             raw: draw
           });
         }
       }
 
       if (!foundGroup) {
-        const dateObj = new Date(year, month - 1, day);
-        const monthLabel = months[dateObj.getMonth()];
-        const dayLabel = String(dateObj.getDate()).padStart(2, '0');
-        const dateLabel = `${dayLabel} ${monthLabel} ${dateObj.getFullYear()}`;
-        
-        const displayTime = draw.draw_time.substring(0, 5);
+        const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
         const label = `${dateLabel}, ${displayTime}`;
         const key = `${draw.draw_date}_${draw.draw_time}`;
 
@@ -349,6 +351,7 @@ export function MoneyTimePage() {
             id: draw.id,
             time: displayTime,
             fullTime: `${dateLabel}, ${displayTime}`,
+            apiDrawTime: draw.draw_time,
             raw: draw
           }]
         });
@@ -428,11 +431,22 @@ export function MoneyTimePage() {
 
     const newBets: BetItem[] = []
     selectedDrawTimes.forEach((time) => {
+      const currentGroups = getMoneyTimeGroups();
+      let apiDrawTime = '';
+      for (const g of currentGroups) {
+        const found = g?.draws?.find((d: any) => d.fullTime === time);
+        if (found) {
+          apiDrawTime = found.apiDrawTime || found.raw.draw_time;
+          break;
+        }
+      }
+
       newBets.push({
         id: Date.now() + Math.random(),
         number: numVal,
         gameName: game.name,
         drawTime: time,
+        apiDrawTime: apiDrawTime,
         amount: amountVal,
       })
     })
@@ -477,11 +491,22 @@ export function MoneyTimePage() {
       if (amountStr !== '' && !isNaN(amountVal) && amountVal > 0) {
         hasValidBet = true
         selectedDrawTimes.forEach((time) => {
+          const currentGroups = getMoneyTimeGroups();
+          let apiDrawTime = '';
+          for (const g of currentGroups) {
+            const found = g?.draws?.find((d: any) => d.fullTime === time);
+            if (found) {
+              apiDrawTime = found.apiDrawTime || found.raw.draw_time;
+              break;
+            }
+          }
+
           newBets.push({
             id: Date.now() + Math.random(),
             number: numVal,
             gameName: game.name,
             drawTime: time,
+            apiDrawTime: apiDrawTime,
             amount: amountVal,
           })
         })
