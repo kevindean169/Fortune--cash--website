@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Eye, EyeOff, User, Lock } from 'lucide-react'
@@ -8,13 +8,35 @@ import { useAuth } from '@/context/AuthContext'
 export function LoginPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const { login, error, setError } = useAuth()
+  const { user, accessToken, loading, login, error, setError } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    const authError = sessionStorage.getItem('fortune_auth_error')
+    if (authError) {
+      setError(authError)
+      sessionStorage.removeItem('fortune_auth_error')
+    }
+  }, [setError])
+
+  useEffect(() => {
+    if (!loading && user && accessToken) {
+      routerNavigate('/dashboard', { replace: true })
+    }
+  }, [accessToken, loading, routerNavigate, user])
+
+  if (loading) {
+    return null
+  }
+
+  if (user && accessToken) {
+    return null
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

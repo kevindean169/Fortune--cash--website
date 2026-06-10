@@ -1,7 +1,7 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { 
-  User as UserIcon, Lock, Wallet, Trophy, Ticket, LogOut, 
+  User as UserIcon, Wallet, Trophy, Ticket, LogOut, 
   ChevronRight, LayoutDashboard, FileText
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -16,7 +16,6 @@ export function AccountLayout() {
     { path: '/transactions', label: 'My Transactions', icon: FileText },
     { path: '/tickets', label: 'My Tickets', icon: Ticket },
     { path: '/winnings', label: 'My Winnings', icon: Trophy },
-    { path: '/security', label: 'Security', icon: Lock },
   ]
 
   return (
@@ -84,7 +83,7 @@ export function AccountLayout() {
                   )
                 })}
                 <div className="pt-2 mt-2 border-t border-border/50">
-                  <button onClick={logout} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors">
+                  <button onClick={() => logout()} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors">
                     <LogOut className="size-4" />
                     Sign Out
                   </button>

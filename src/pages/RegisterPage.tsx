@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Lock, Eye, EyeOff, User } from 'lucide-react'
@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 export function RegisterPage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
-  const { register, error, setError } = useAuth()
+  const { user, accessToken, loading, register, error, setError } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -20,6 +20,20 @@ export function RegisterPage() {
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!loading && user && accessToken) {
+      routerNavigate('/dashboard', { replace: true })
+    }
+  }, [accessToken, loading, routerNavigate, user])
+
+  if (loading) {
+    return null
+  }
+
+  if (user && accessToken) {
+    return null
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()

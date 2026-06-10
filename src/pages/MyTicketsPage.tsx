@@ -103,8 +103,6 @@ export function MyTicketsPage() {
   }
 
   const getOrderTotalBet = (ticket: ApiTicketOrder) => ticket.games.reduce((sum, game) => sum + game.bet_amount, 0)
-  const getOrderTotalWon = (ticket: ApiTicketOrder) => ticket.games.reduce((sum, game) => sum + (game.payout || 0), 0)
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -341,9 +339,9 @@ export function MyTicketsPage() {
                     <div>{getStatusBadge(selectedTicket.status)}</div>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold">Total Bet / Won</span>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold">Total Bet</span>
                     <div className="font-extrabold text-zinc-100">
-                      ${getOrderTotalBet(selectedTicket).toFixed(2)} / <span className="text-green-400">${getOrderTotalWon(selectedTicket).toFixed(2)}</span>
+                      ${getOrderTotalBet(selectedTicket).toFixed(2)}
                     </div>
                   </div>
                 </div>
