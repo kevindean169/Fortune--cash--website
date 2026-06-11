@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
@@ -13,6 +13,7 @@ interface BetItem {
   gameName: string
   drawTime: string
   amount: number
+  batchId?: string
 }
 
 const getImageUrl = (imagePath: string) => {
@@ -23,7 +24,7 @@ const getImageUrl = (imagePath: string) => {
 
 function formatDrawTimeToLocal(timeStr: string): { display: string; original: string } {
   if (!timeStr) return { display: '-', original: '' }
-  
+
   let cleanTime = timeStr.trim();
   if (/[AP]M/i.test(cleanTime)) {
     const parts = cleanTime.match(/(\d{1,2}):(\d{2})\s*([AP]M)/i);
@@ -36,7 +37,7 @@ function formatDrawTimeToLocal(timeStr: string): { display: string; original: st
       cleanTime = `${String(hrs).padStart(2, '0')}:${mins}:00`;
     }
   }
-  
+
   if (cleanTime.split(':').length === 2) {
     cleanTime += ':00';
   }
@@ -45,17 +46,17 @@ function formatDrawTimeToLocal(timeStr: string): { display: string; original: st
   const jDateStr = today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0];
   const [m, d, y] = jDateStr.split('/');
   const dateIso = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-  
+
   const dateStr = `${dateIso}T${cleanTime}-05:00`;
   const localDate = new Date(dateStr);
-  
+
   if (isNaN(localDate.getTime())) {
     return { display: timeStr, original: timeStr };
   }
-  
+
   const localTimeDisplay = localDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
   const localDateDisplay = localDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
-  
+
   return {
     display: `${localTimeDisplay} (${localDateDisplay})`,
     original: timeStr
@@ -88,6 +89,8 @@ export function CashpotPage() {
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [editingGameAmount, setEditingGameAmount] = useState<string | null>(null)
+  const [showCartModal, setShowCartModal] = useState(false)
 
   // Local configurations fallback
   const localConfig = {
@@ -309,67 +312,6 @@ export function CashpotPage() {
     return { limit: minLimit, time: minTime }
   }
 
-  const handleAddBetOption = (gameId: string) => {
-    if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    const val = parseInt(selectedNumber, 10)
-    if (isNaN(val) || val < 1 || val > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('For Cashpot, number must be between 01 and 36.')
-      return
-    }
-
-    if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
-
-    const amountStr = betAmounts[gameId] || ''
-    const amountVal = parseFloat(amountStr)
-    if (amountStr === '' || isNaN(amountVal) || amountVal <= 0) {
-      alert('Please enter or select a valid bet amount');
-      return
-    }
-
-    // Direct constraints check
-    const cashpotVal = parseFloat(betAmounts['1'] || '0')
-    if ((gameId === '2' || gameId === '3') && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
-      return
-    }
-    if (gameId === '2' && amountVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-    if (gameId === '3' && amountVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
-      return
-    }
-
-    // Validate limit
-    for (const time of selectedDrawTimes) {
-      const limit = getGameLimit(gameId, time)
-      if (amountVal > limit) {
-        alert(`Cannot place bet. Bet amount of $${amountVal} exceeds the remaining limit of $${limit} for draw time ${time}.`)
-        return
-      }
-    }
-
-    const game = config.games.find((g: { id: string }) => g.id === gameId)
-    if (!game) return
-
-    const numVal = selectedNumber.toString().padStart(2, '0')
-
-    const newBets: BetItem[] = []
-    selectedDrawTimes.forEach((time) => {
-      newBets.push({
-        id: Date.now() + Math.random(),
-        number: numVal,
-        gameName: game.name,
-        drawTime: time,
-        amount: amountVal,
-      })
-    })
-
-    setCart([...cart, ...newBets])
-    setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
-  }
-
   const handleAddAllBets = () => {
     if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
     const val = parseInt(selectedNumber, 10)
@@ -405,7 +347,7 @@ export function CashpotPage() {
         for (const time of selectedDrawTimes) {
           const limit = getGameLimit(game.id, time)
           if (amountVal > limit) {
-            alert(`Cannot place bet. Bet amount of $${amountVal} for {game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
             return
           }
         }
@@ -414,6 +356,7 @@ export function CashpotPage() {
 
     const numVal = selectedNumber.toString().padStart(2, '0')
 
+    const batchId = `batch-${Date.now()}-${Math.random()}`
     const newBets: BetItem[] = []
     let hasValidBet = false
 
@@ -425,6 +368,7 @@ export function CashpotPage() {
         selectedDrawTimes.forEach((time) => {
           newBets.push({
             id: Date.now() + Math.random(),
+            batchId,
             number: numVal,
             gameName: game.name,
             drawTime: time,
@@ -440,11 +384,6 @@ export function CashpotPage() {
     }
 
     setCart([...cart, ...newBets])
-    // Reset inputs
-    setSelectedNumber('')
-    setSelectedDrawTimes([])
-    setBetAmounts({})
-    setShowNumberGrid(false)
   }
 
   const handleClearData = () => {
@@ -452,9 +391,42 @@ export function CashpotPage() {
     setSelectedDrawTimes([])
     setBetAmounts({})
     setShowNumberGrid(false)
+    setShowNumberGrid(false)
   }
 
-  const handleRemoveBet = (betId: number) => setCart(cart.filter((b) => b.id !== betId))
+  const groupedCart = (() => {
+    const groups: { batchId: string; number: string; draws: string[]; games: { name: string; amount: number }[] }[] = [];
+    cart.forEach(item => {
+      const bId = item.batchId || `batch-legacy-${item.number}`;
+      let existing = groups.find(g => g.batchId === bId);
+      if (!existing) {
+        existing = {
+          batchId: bId,
+          number: item.number,
+          draws: [],
+          games: []
+        };
+        groups.push(existing);
+      }
+      if (!existing.draws.includes(item.drawTime)) {
+        existing.draws.push(item.drawTime);
+      }
+      const gameExists = existing.games.find(g => g.name === item.gameName && g.amount === item.amount);
+      if (!gameExists) {
+        existing.games.push({ name: item.gameName, amount: item.amount });
+      }
+    });
+    return groups;
+  })();
+
+  const handleRemoveBatch = (batchId: string) => {
+    setCart(cart.filter(item => (item.batchId || `batch-legacy-${item.number}`) !== batchId));
+  };
+
+  const handleRemoveDrawFromBatch = (batchId: string, drawTime: string) => {
+    setCart(cart.filter(item => !((item.batchId || `batch-legacy-${item.number}`) === batchId && item.drawTime === drawTime)))
+  };
+
   const cartTotal = cart.reduce((sum, item) => sum + item.amount, 0)
 
   const handleCheckout = async () => {
@@ -481,6 +453,7 @@ export function CashpotPage() {
       setTimeout(() => {
         setPayoutSuccess(false)
         setCart([])
+        handleClearData()
       }, 3000)
     } catch (err: any) {
       console.error('Purchase error:', err)
@@ -529,48 +502,50 @@ export function CashpotPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Lottery Header styled like App */}
-        <Card className="bg-fortune-card border border-border/60 mb-8 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-72 h-72 bg-primary/5 blur-3xl rounded-full" />
-          <CardContent className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div className="flex items-center gap-5">
+        <Card className="border border-border/60 mb-6 overflow-hidden relative min-h-[64px] flex items-center bg-[#0c0c0c]">
+          {/* Background Image covering full card */}
+          <div className="absolute inset-0 w-full h-full">
+            <img
+              src={getImageUrl(lotteryData?.image)}
+              alt={config.name}
+              className="w-full h-full object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
+          </div>
+
+          <CardContent className="p-3 md:p-4 flex flex-row items-center justify-between gap-4 w-full relative z-10">
+            {/* Left side: Back button + Name and Type in one row */}
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => navigate('lotteries')}
-                className="size-12 bg-background border border-border rounded-xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
+                className="size-10 bg-background/80 backdrop-blur border border-border rounded-xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
               >
-                <ArrowLeft className="size-5" />
+                <ArrowLeft className="size-4" />
               </button>
 
-              <div className="flex items-center gap-4">
-                <div className="size-16 rounded-2xl bg-background/50 border border-primary/20 p-2 flex items-center justify-center overflow-hidden shrink-0">
-                  <img
-                    src={getImageUrl(lotteryData?.image)}
-                    alt={config.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground uppercase tracking-wide">{config.name}</h1>
-                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mt-0.5">
-                    Type: <span className="text-primary font-bold">{config.type}</span>
-                  </p>
-                </div>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-xl font-black text-white uppercase tracking-wide truncate">
+                  {config.name}
+                </h1>
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">
+                  Type: <span className="text-primary">{config.type}</span>
+                </p>
               </div>
             </div>
 
-            {/* Countdown Blocks */}
-            <div className="flex flex-col items-start md:items-end">
-              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1.5 pl-0.5">
-                Next Draw In
-              </p>
-              <div className="flex gap-2">
-                {[{ v: d, l: 'Day' }, { v: h, l: 'Hour' }, { v: m, l: 'Minute' }, { v: s, l: 'Second' }].map((t) => (
-                  <div key={t.l} className="flex flex-col items-center">
-                    <div className="w-12 h-10 rounded border border-neutral-800 flex items-center justify-center bg-black/60 mb-1 shadow-inner">
-                      <span className="font-extrabold text-sm text-white tabular-nums">{t.v}</span>
-                    </div>
-                    <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">{t.l}</span>
-                  </div>
-                ))}
+            {/* Right side: Timer in one compact row */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[9px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
+                Next Draw:
+              </span>
+              <div className="flex items-center gap-1 text-[11px] sm:text-xs lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2.5 py-1.5 lg:px-4 lg:py-2 rounded-xl text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
+                <span className="text-primary">{d}d</span>
+                <span className="text-muted-foreground/60">:</span>
+                <span>{h}h</span>
+                <span className="text-muted-foreground/60">:</span>
+                <span>{m}m</span>
+                <span className="text-muted-foreground/60">:</span>
+                <span className="text-primary animate-pulse">{s}s</span>
               </div>
             </div>
           </CardContent>
@@ -599,25 +574,297 @@ export function CashpotPage() {
 
         {/* BUY TICKETS */}
         {activeTab === 'buy' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div>
+            {/* Desktop View */}
+            <div className="hidden lg:grid grid-cols-3 gap-8">
 
-            {/* Play Area */}
-            <div className="lg:col-span-2 space-y-6">
+              {/* Play Area */}
+              <div className="lg:col-span-2 space-y-6">
 
-              {/* Draw Selector Slots */}
-              <Card className="bg-fortune-card border border-border/60">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-center mb-4 border-b border-border/40 pb-3">
-                    <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary font-extrabold text-xs rounded-lg uppercase tracking-wider">
-                      Daily Schedule
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-900 border border-neutral-800 text-foreground font-extrabold text-xs rounded-lg">
-                      {selectedDrawTimes.length.toString().padStart(2, '0')} Selected Draws
-                    </span>
+                {/* Draw Selector Slots */}
+                <Card className="bg-fortune-card border border-border/60">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center mb-4 border-b border-border/40 pb-3">
+                      <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary font-extrabold text-xs rounded-lg uppercase tracking-wider">
+                        Daily Schedule
+                      </span>
+                      <span className="px-3 py-1 bg-neutral-900 border border-neutral-800 text-foreground font-extrabold text-xs rounded-lg">
+                        {selectedDrawTimes.length.toString().padStart(2, '0')} Selected Draws
+                      </span>
+                    </div>
+
+                    <h3 className="font-extrabold text-lg text-foreground mb-4">Select your Next Draw Slots</h3>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                      {config.drawTimes.map((time: string) => {
+                        const isSelected = selectedDrawTimes.includes(time)
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => toggleDrawTime(time)}
+                            className={`py-3.5 px-2 text-xs font-bold rounded-xl border transition-all ${isSelected
+                              ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
+                              : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                              }`}
+                          >
+                            {formatDrawTimeToLocal(time).display}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Pick Number Panel */}
+                <Card className="bg-fortune-card border border-border/60">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="font-extrabold text-lg text-foreground">Pick your Bet Number</h3>
+                        <p className="text-xs text-muted-foreground">Select a single lottery number to place bets on</p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bet No.</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowNumberGrid(!showNumberGrid)}
+                          className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
+                        >
+                          <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
+                            {selectedNumber ? `#${selectedNumber}` : 'Select Bet Number'}
+                          </span>
+                          {showNumberGrid ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {showNumberGrid && (
+                      <div className="mt-6 pt-6 border-t border-border/40 animate-fadeIn">
+                        <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                          {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                            const isSelected = selectedNumber === numStr
+                            return (
+                              <button
+                                key={numStr}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedNumber(numStr)
+                                  setShowNumberGrid(false)
+                                }}
+                                className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
+                                  ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                  : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                  }`}
+                              >
+                                {numStr}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Enter Bet Amounts for Each Game Option */}
+                <Card className="bg-fortune-card border border-border/60">
+                  <CardContent className="p-6">
+                    <h3 className="font-extrabold text-lg text-foreground mb-4">Enter your Bet Amount</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }, index: number) => {
+                        const amount = betAmounts[game.id] || ''
+                        const warning = getBetAmountWarning(game.id, amount)
+                        let isDisabled = false;
+                        if (index > 0) {
+                          const prevGameId = config.games[index - 1].id;
+                          const prevAmount = parseFloat(betAmounts[prevGameId] || '0');
+                          isDisabled = isNaN(prevAmount) || prevAmount <= 0;
+                        }
+
+                        return (
+                          <div key={game.id} className={`bg-background/40 border border-neutral-900 rounded-2xl p-4 flex flex-col justify-between min-h-[220px] transition-all ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
+                            <div>
+                              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide block mb-1">
+                                {game.name}
+                              </span>
+
+                              <div className="relative">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 font-extrabold text-sm">$</span>
+                                <input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={amount}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    setBetAmounts(prev => ({ ...prev, [game.id]: val }))
+                                  }}
+                                  className="w-full bg-[#0d0d0d] border border-border/80 rounded-xl pl-8 pr-4 py-3 text-sm font-extrabold text-foreground focus:outline-none focus:border-primary"
+                                />
+                              </div>
+
+                              {warning && (
+                                <p className="text-red-400 text-[11px] font-semibold mt-1.5 leading-tight">{warning}</p>
+                              )}
+
+                              {/* Preset Buttons per Game Input */}
+                              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                                {game.presets.map((val: string) => (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => setBetAmounts(prev => ({ ...prev, [game.id]: val }))}
+                                    className={`px-2 py-1 border text-[10px] font-extrabold rounded transition-all ${amount === val
+                                      ? 'border-primary text-primary bg-primary/15'
+                                      : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-neutral-700'
+                                      }`}
+                                  >
+                                    ${val}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Actions Row */}
+                    <div className="mt-8 border-t border-border/40 pt-6 flex justify-between gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleClearData}
+                        className="px-6 py-3 border-neutral-800 bg-transparent text-muted-foreground text-xs font-extrabold uppercase tracking-wider rounded-xl hover:bg-neutral-900"
+                      >
+                        Clear Data
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleAddAllBets}
+                        className="px-6 py-3 bg-[#468a35] hover:bg-[#3a7526] border border-white text-white font-extrabold text-[15px] uppercase tracking-wider rounded-lg shadow-sm transition-all"
+                      >
+                        ADD BET +
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Cart Section */}
+              <div className="lg:col-span-1">
+                <Card className="bg-fortune-card border border-border/60 sticky top-24">
+                  <CardContent className="p-6 flex flex-col justify-between min-h-[450px]">
+                    <div>
+                      <h3 className="font-extrabold text-lg text-foreground border-b border-border pb-3 mb-4">
+                        Total Bets View ({groupedCart.length})
+                      </h3>
+
+                      {cart.length === 0 ? (
+                        <div className="text-center py-12 flex flex-col items-center justify-center">
+                          <Ticket className="size-12 text-primary/60 mb-3" />
+                          <p className="text-muted-foreground text-sm font-semibold">No bets added to card yet.</p>
+                          <p className="text-xs text-muted-foreground/50 mt-1">Configure options on the left and click "Add Bet".</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                          {groupedCart.map((group, idx) => {
+                            const groupItems = cart.filter(c => c.batchId === group.batchId);
+                            const itemsByDraw = groupItems.reduce((acc, item) => {
+                              if (!acc[item.drawTime]) acc[item.drawTime] = [];
+                              acc[item.drawTime].push(item);
+                              return acc;
+                            }, {} as Record<string, typeof cart>);
+
+                            return (
+                              <div key={group.batchId} className="animate-fadeIn">
+                                <div className="flex items-center justify-between bg-primary/10 border border-primary/20 border-b-0 px-3 py-2 rounded-t-xl">
+                                  <span className="text-[11px] font-bold text-primary px-1">Entry {idx + 1}</span>
+                                  <button
+                                    onClick={() => handleRemoveBatch(group.batchId)}
+                                    className="text-muted-foreground hover:text-red-400 p-1"
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                  </button>
+                                </div>
+                                <div className="bg-[#0d0d0d] border border-border/40 rounded-b-xl p-2.5">
+                                  {Object.entries(itemsByDraw).map(([time, items], tIdx) => (
+                                    <div key={time} className={tIdx > 0 ? "border-t border-border/30 pt-2 mt-2 relative" : "relative"}>
+                                      <button
+                                        onClick={() => handleRemoveDrawFromBatch(group.batchId, time)}
+                                        className="absolute right-1 top-1 z-10 text-muted-foreground/40 hover:text-red-400 transition-colors"
+                                        title="Remove this draw"
+                                      >
+                                        <X className="size-3.5" />
+                                      </button>
+                                      {items.map(item => (
+                                        <div key={item.id} className="flex items-center justify-between text-[11px] py-1.5 px-1">
+                                          <div className="flex items-center gap-2.5 w-[45%]">
+                                            {item.gameName.toLowerCase().includes('cashpot') ? (
+                                              <span className="flex items-center justify-center size-[22px] bg-white text-black rounded-full font-black text-[10px] shadow-sm">
+                                                {item.number}
+                                              </span>
+                                            ) : item.gameName.toLowerCase().includes('mega') ? (
+                                              <span className="size-[22px] bg-[#d4af37] rounded-full shadow-sm"></span>
+                                            ) : item.gameName.toLowerCase().includes('monsta') ? (
+                                              <span className="size-[22px] bg-[#ef4444] rounded-full shadow-sm"></span>
+                                            ) : (
+                                              <span className="size-[22px] bg-neutral-600 rounded-full shadow-sm"></span>
+                                            )}
+                                            <span className="font-bold text-foreground truncate">{item.gameName}</span>
+                                          </div>
+                                          <span className="text-muted-foreground w-[25%] text-left font-medium">
+                                            {formatDrawTimeToLocal(time).display.split(' ')[0]}
+                                          </span>
+                                          <span className="font-extrabold text-foreground w-[30%] text-right pr-5">
+                                            $ {item.amount.toFixed(2)}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-t border-border pt-4 mt-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-muted-foreground text-sm font-bold">Grand Total:</span>
+                        <span className="font-extrabold text-lg text-green-400">${cartTotal.toFixed(2)}</span>
+                      </div>
+                      <Button
+                        disabled={cart.length === 0 || checkoutLoading}
+                        onClick={handleCheckout}
+                        size="lg"
+                        className={`w-full font-extrabold text-[15px] uppercase tracking-widest transition-all rounded-lg ${cart.length === 0 || checkoutLoading
+                          ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
+                          : 'bg-[#468a35] hover:bg-[#3a7526] border border-white text-white shadow-sm'
+                          }`}
+                      >
+                        {checkoutLoading ? 'Processing...' : 'Place Bets & Checkout'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+            </div>
+
+            {/* Mobile Responsive Single Page View */}
+            <div className="lg:hidden space-y-2 pb-36">
+              {/* Draws selection */}
+              <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                <CardContent className="px-3 py-1">
+                  <div className="flex justify-between items-center mb-1 pb-1 border-b border-border/40">
+                    <span className="text-xs text-primary font-black uppercase tracking-wider">Draw Schedule</span>
+                    <span className="text-xs text-muted-foreground font-bold">{selectedDrawTimes.length} Selected</span>
                   </div>
-
-                  <h3 className="font-extrabold text-lg text-foreground mb-4">Select your Next Draw Slots</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-4 gap-1.5">
                     {config.drawTimes.map((time: string) => {
                       const isSelected = selectedDrawTimes.includes(time)
                       return (
@@ -625,12 +872,12 @@ export function CashpotPage() {
                           key={time}
                           type="button"
                           onClick={() => toggleDrawTime(time)}
-                          className={`py-3.5 px-2 text-xs font-bold rounded-xl border transition-all ${isSelected
-                            ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
-                            : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                          className={`py-2 px-1 text-xs font-bold rounded-lg border text-center transition-all ${isSelected
+                            ? 'border-primary bg-primary/15 text-primary'
+                            : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground'
                             }`}
                         >
-                          {formatDrawTimeToLocal(time).display}
+                          {formatDrawTimeToLocal(time).display.split(' ')[0]}
                         </button>
                       )
                     })}
@@ -638,208 +885,304 @@ export function CashpotPage() {
                 </CardContent>
               </Card>
 
-              {/* Pick Number Panel */}
-              <Card className="bg-fortune-card border border-border/60">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-extrabold text-lg text-foreground">Pick your Bet Number</h3>
-                      <p className="text-xs text-muted-foreground">Select a single lottery number to place bets on</p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bet No.</span>
-                      <button
-                        type="button"
-                        onClick={() => setShowNumberGrid(!showNumberGrid)}
-                        className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
-                      >
-                        <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
-                          {selectedNumber ? `#${selectedNumber}` : 'Select Bet Number'}
-                        </span>
-                        {showNumberGrid ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-                      </button>
-                    </div>
+              {/* Pick Number */}
+              <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                <CardContent className="px-3 py-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-extrabold text-sm text-foreground shrink-0">Pick your Bet Number</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowNumberGrid(!showNumberGrid)}
+                      className="flex-1 bg-background border border-border hover:border-primary/40 px-3 py-2.5 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all min-w-0"
+                    >
+                      <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
+                        {selectedNumber ? `#${selectedNumber}` : 'Select Number'}
+                      </span>
+                      {showNumberGrid ? <ChevronUp className="size-4 shrink-0 ml-2" /> : <ChevronDown className="size-4 shrink-0 ml-2" />}
+                    </button>
                   </div>
 
                   {showNumberGrid && (
-                    <div className="mt-6 pt-6 border-t border-border/40 animate-fadeIn">
-                      <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                        {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
-                          const isSelected = selectedNumber === numStr
-                          return (
-                            <button
-                              key={numStr}
-                              type="button"
-                              onClick={() => {
-                                setSelectedNumber(numStr)
-                                setShowNumberGrid(false)
-                              }}
-                              className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
-                                ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
-                                }`}
-                            >
-                              {numStr}
-                            </button>
-                          )
-                        })}
+                    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                      <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn">
+                        <h3 className="font-extrabold text-lg text-foreground mb-4">Pick your Bet Number</h3>
+                        <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                          {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => {
+                            const isSelected = selectedNumber === numStr
+                            return (
+                              <button
+                                key={numStr}
+                                type="button"
+                                onClick={() => setSelectedNumber(numStr)}
+                                className={`aspect-square rounded-lg flex items-center justify-center font-bold text-xs border transition-all ${isSelected
+                                  ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                  : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                  }`}
+                              >
+                                {numStr}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
+                          <Button variant="outline" onClick={() => setShowNumberGrid(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
+                          <Button onClick={() => setShowNumberGrid(false)} className="gold-gradient text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
+                        </div>
                       </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Enter Bet Amounts for Each Game Option */}
-              <Card className="bg-fortune-card border border-border/60">
-                <CardContent className="p-6">
-                  <h3 className="font-extrabold text-lg text-foreground mb-4">Enter your Bet Amount</h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }) => {
+              {/* Enter Bet Amounts */}
+              <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                <CardContent className="px-3 py-1 space-y-1">
+                  <h3 className="font-extrabold text-sm text-foreground">Enter your Bet Amount</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {config.games.map((game: { id: string; name: string; presets: string[] }, index: number) => {
                       const amount = betAmounts[game.id] || ''
-                      const warning = getBetAmountWarning(game.id, amount)
+                      let isDisabled = false;
+                      if (index > 0) {
+                        const prevGameId = config.games[index - 1].id;
+                        const prevAmount = parseFloat(betAmounts[prevGameId] || '0');
+                        isDisabled = isNaN(prevAmount) || prevAmount <= 0;
+                      }
+
                       return (
-                        <div key={game.id} className="bg-background/40 border border-neutral-900 rounded-2xl p-4 flex flex-col justify-between min-h-[220px]">
-                          <div>
-                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide block mb-1">
-                              {game.name}
-                            </span>
-
-                            <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 font-extrabold text-sm">$</span>
-                              <input
-                                type="number"
-                                placeholder="0.00"
-                                value={amount}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  setBetAmounts(prev => ({ ...prev, [game.id]: val }))
-                                }}
-                                className="w-full bg-[#0d0d0d] border border-border/80 rounded-xl pl-8 pr-4 py-3 text-sm font-extrabold text-foreground focus:outline-none focus:border-primary"
-                              />
-                            </div>
-
-                            {warning && (
-                              <p className="text-red-400 text-[11px] font-semibold mt-1.5 leading-tight">{warning}</p>
-                            )}
-
-                            {/* Preset Buttons per Game Input */}
-                            <div className="flex flex-wrap gap-1.5 mt-2.5">
-                              {game.presets.map((val: string) => (
-                                <button
-                                  key={val}
-                                  type="button"
-                                  onClick={() => setBetAmounts(prev => ({ ...prev, [game.id]: val }))}
-                                  className={`px-2 py-1 border text-[10px] font-extrabold rounded transition-all ${amount === val
-                                    ? 'border-primary text-primary bg-primary/15'
-                                    : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-neutral-700'
-                                    }`}
-                                >
-                                  ${val}
-                                </button>
-                              ))}
-                            </div>
+                        <div key={game.id} className="flex flex-col space-y-1.5">
+                          <span className={`text-[10px] font-bold text-center ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                            {game.name}
+                          </span>
+                          <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
+                            <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
+                            <input
+                              type="number"
+                              placeholder="0.00"
+                              value={amount}
+                              disabled={isDisabled}
+                              onChange={(e) => setBetAmounts(prev => ({ ...prev, [game.id]: e.target.value }))}
+                              className={`bg-transparent w-full outline-none text-sm font-bold ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
+                            />
                           </div>
-
-                          <Button
+                          <button
                             type="button"
-                            onClick={() => handleAddBetOption(game.id)}
-                            className="w-full mt-4 py-2 text-xs font-bold uppercase tracking-wider border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl"
+                            disabled={isDisabled}
+                            onClick={() => setEditingGameAmount(game.id)}
+                            className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
+                              ? 'bg-primary/5 border border-primary/20 text-primary/40 cursor-not-allowed'
+                              : 'bg-primary/10 border border-primary text-primary hover:bg-primary/20'}`}
                           >
                             + Add
-                          </Button>
+                          </button>
                         </div>
                       )
                     })}
                   </div>
-
-                  {/* Actions Row */}
-                  <div className="mt-8 border-t border-border/40 pt-6 flex justify-between gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleClearData}
-                      className="px-6 py-3 border-neutral-800 bg-transparent text-muted-foreground text-xs font-extrabold uppercase tracking-wider rounded-xl hover:bg-neutral-900"
-                    >
-                      Clear Data
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleAddAllBets}
-                      className="px-6 py-3 gold-gradient text-fortune-navy font-bold text-xs uppercase tracking-wider rounded-xl gold-glow hover:opacity-90"
-                    >
-                      Add Bet +
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
-            </div>
 
-            {/* Cart Section */}
-            <div className="lg:col-span-1">
-              <Card className="bg-fortune-card border border-border/60 sticky top-24">
-                <CardContent className="p-6 flex flex-col justify-between min-h-[450px]">
-                  <div>
-                    <h3 className="font-extrabold text-lg text-foreground border-b border-border pb-3 mb-4">
-                      Total Bets View ({cart.length})
+              {/* Fixed Bottom Action Buttons */}
+              <div className="fixed bottom-[80px] left-4 right-4 sm:left-6 sm:right-6 z-40 bg-[#0c0c0c]/95 backdrop-blur-xl border border-border/40 rounded-xl shadow-[0_-10px_30px_rgba(0,0,0,0.8)] p-3 flex flex-col gap-2 animate-slideUp">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClearData}
+                    className="w-1/3 h-10 border-transparent bg-neutral-900/50 text-muted-foreground text-xs font-extrabold rounded-lg hover:bg-neutral-800 hover:text-white"
+                  >
+                    Clear Data
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleAddAllBets}
+                    className="w-2/3 h-10 bg-[#468a35] hover:bg-[#3a7526] border border-white text-white font-extrabold text-[15px] uppercase tracking-wider rounded-lg shadow-sm transition-all"
+                  >
+                    ADD BET +
+                  </Button>
+                </div>
+
+                <Button
+                  onClick={() => setShowCartModal(true)}
+                  className="w-full h-[50px] bg-[#0d0d0d] border border-primary text-primary font-bold text-[15px] rounded-xl hover:bg-neutral-900 transition-all shadow-[0_0_10px_rgba(255,215,0,0.1)]"
+                >
+                  Total Bets View ({groupedCart.length})
+                </Button>
+              </div>
+
+              {/* Custom Amount Pad Popup */}
+              {editingGameAmount && (
+                <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="bg-fortune-card border border-border/60 rounded-3xl w-full max-w-[300px] p-5 flex flex-col relative animate-fadeIn shadow-2xl">
+                    <h3 className="font-extrabold text-base text-foreground mb-0.5 tracking-wide">
+                      {config.games.find((g: any) => g.id === editingGameAmount)?.name}
                     </h3>
+                    <p className="text-muted-foreground text-[10px] mb-3">Enter the Amount</p>
 
-                    {cart.length === 0 ? (
-                      <div className="text-center py-12 flex flex-col items-center justify-center">
-                        <Ticket className="size-12 text-primary/60 mb-3" />
-                        <p className="text-muted-foreground text-sm font-semibold">No bets added to card yet.</p>
-                        <p className="text-xs text-muted-foreground/50 mt-1">Configure options on the left and click "Add Bet".</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                        {cart.map((item) => (
-                          <div key={item.id} className="p-3 bg-[#0a0a0a] border border-border rounded-xl flex items-center justify-between">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-primary text-sm">#{item.number}</span>
-                                <span className="text-[10px] text-muted-foreground px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded-full font-bold">
-                                  {item.gameName}
-                                </span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1">Draw: {formatDrawTimeToLocal(item.drawTime).display}</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className="font-black text-sm text-foreground">${item.amount.toFixed(2)}</span>
-                              <button
-                                onClick={() => handleRemoveBet(item.id)}
-                                className="text-muted-foreground hover:text-red-400 transition-colors"
-                              >
-                                <X className="size-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-t border-border pt-4 mt-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-muted-foreground text-sm font-bold">Grand Total:</span>
-                      <span className="font-extrabold text-lg text-green-400">${cartTotal.toFixed(2)}</span>
+                    <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner">
+                      <span className="text-primary/70 mr-2">$</span>
+                      {betAmounts[editingGameAmount] || '0.00'}
                     </div>
-                    <Button
-                      disabled={cart.length === 0 || checkoutLoading}
-                      onClick={handleCheckout}
-                      size="lg"
-                      className={`w-full font-bold text-xs uppercase tracking-widest transition-all ${cart.length === 0 || checkoutLoading
-                        ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
-                        : 'gold-gradient text-fortune-navy gold-glow hover:opacity-90'
-                        }`}
-                    >
-                      {checkoutLoading ? 'Processing...' : 'Place Bets & Checkout'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
+                    <div className="flex gap-2 mb-4">
+                      {config.games.find((g: any) => g.id === editingGameAmount)?.presets.map((val: string) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setBetAmounts(prev => ({ ...prev, [editingGameAmount]: val }))}
+                          className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
+                        >
+                          $ {val}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1.5 mb-5">
+                      {/* Row 1 */}
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '1' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '2' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '3' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + (p[editingGameAmount]?.includes('.') ? '' : '.') }))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+
+                      {/* Row 2 */}
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '4' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '5' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '6' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+
+                      {/* Row 3 */}
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '7' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '8' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '9' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: '' }))} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+
+                      {/* Row 4 */}
+                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '0' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                    </div>
+
+                    <div className="flex justify-between items-center gap-3">
+                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
+                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 gold-gradient text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Full Screen Cart View on Mobile */}
+              {showCartModal && (
+                <div className="fixed inset-0 z-[110] bg-[#0a0a0a] sm:bg-black/80 sm:backdrop-blur-sm flex sm:items-center sm:justify-center animate-slideUp">
+                  <div className="bg-fortune-card sm:border sm:border-border/60 sm:rounded-2xl w-full sm:max-w-md h-full sm:h-auto sm:max-h-[85vh] flex flex-col relative">
+                    <div className="p-4 border-b border-border/40 flex justify-between items-center bg-[#0d0d0d] sm:rounded-t-2xl">
+                      <h3 className="font-black text-lg text-foreground tracking-wide flex items-center gap-2">
+                        <Ticket className="size-5 text-primary" /> Total Bets ({groupedCart.length})
+                      </h3>
+                      <button onClick={() => setShowCartModal(false)} className="bg-neutral-900 p-1.5 rounded-full text-muted-foreground hover:text-white transition-colors">
+                        <X className="size-5" />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-800 bg-[#0a0a0a]">
+                      {cart.length === 0 ? (
+                        <div className="text-center py-20 flex flex-col items-center justify-center">
+                          <Ticket className="size-12 text-primary/60 mb-4" />
+                          <p className="text-muted-foreground text-sm font-semibold">No bets added to cart yet.</p>
+                          <p className="text-xs text-muted-foreground/50 mt-1">Configure options and click "Add Bet".</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4 pr-1">
+                          {groupedCart.map((group, idx) => {
+                            const groupItems = cart.filter(c => c.batchId === group.batchId);
+                            const itemsByDraw = groupItems.reduce((acc, item) => {
+                              if (!acc[item.drawTime]) acc[item.drawTime] = [];
+                              acc[item.drawTime].push(item);
+                              return acc;
+                            }, {} as Record<string, typeof cart>);
+
+                            return (
+                              <div key={group.batchId} className="animate-fadeIn">
+                                <div className="flex items-center justify-between bg-primary/10 border border-primary/20 border-b-0 px-3 py-2 rounded-t-xl">
+                                  <span className="text-[11px] font-bold text-primary px-1">Entry {idx + 1}</span>
+                                  <button
+                                    onClick={() => handleRemoveBatch(group.batchId)}
+                                    className="text-muted-foreground hover:text-red-400 p-1"
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                  </button>
+                                </div>
+                                <div className="bg-[#0d0d0d] border border-border/40 rounded-b-xl p-2.5">
+                                  {Object.entries(itemsByDraw).map(([time, items], tIdx) => (
+                                    <div key={time} className={tIdx > 0 ? "border-t border-border/30 pt-2 mt-2 relative" : "relative"}>
+                                      <button
+                                        onClick={() => handleRemoveDrawFromBatch(group.batchId, time)}
+                                        className="absolute right-1 top-1 z-10 text-muted-foreground/40 hover:text-red-400 transition-colors"
+                                        title="Remove this draw"
+                                      >
+                                        <X className="size-3.5" />
+                                      </button>
+                                      {items.map(item => (
+                                        <div key={item.id} className="flex items-center justify-between text-[11px] py-1.5 px-1">
+                                          <div className="flex items-center gap-2.5 w-[45%]">
+                                            {item.gameName.toLowerCase().includes('cashpot') ? (
+                                              <span className="flex items-center justify-center size-[22px] bg-white text-black rounded-full font-black text-[10px] shadow-sm">
+                                                {item.number}
+                                              </span>
+                                            ) : item.gameName.toLowerCase().includes('mega') ? (
+                                              <span className="size-[22px] bg-[#d4af37] rounded-full shadow-sm"></span>
+                                            ) : item.gameName.toLowerCase().includes('monsta') ? (
+                                              <span className="size-[22px] bg-[#ef4444] rounded-full shadow-sm"></span>
+                                            ) : (
+                                              <span className="size-[22px] bg-neutral-600 rounded-full shadow-sm"></span>
+                                            )}
+                                            <span className="font-bold text-foreground truncate">{item.gameName}</span>
+                                          </div>
+                                          <span className="text-muted-foreground w-[25%] text-left font-medium">
+                                            {formatDrawTimeToLocal(time).display.split(' ')[0]}
+                                          </span>
+                                          <span className="font-extrabold text-foreground w-[30%] text-right pr-5">
+                                            $ {item.amount.toFixed(2)}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4 border-t border-border/40 bg-[#0d0d0d] sm:rounded-b-2xl pb-safe">
+                      <div className="flex justify-between items-center mb-4 px-1">
+                        <span className="text-muted-foreground text-sm font-bold">Grand Total:</span>
+                        <span className="font-black text-2xl text-green-400">${cartTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowCartModal(false)}
+                          className="flex-1 h-[54px] border-primary/40 bg-primary/5 text-primary text-sm font-extrabold rounded-xl hover:bg-primary/20 hover:text-primary transition-colors"
+                        >
+                          + Add More
+                        </Button>
+                        <Button
+                          disabled={cart.length === 0 || checkoutLoading}
+                          onClick={() => {
+                            setShowCartModal(false);
+                            handleCheckout();
+                          }}
+                          className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${cart.length === 0 || checkoutLoading
+                            ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
+                            : 'bg-[#468a35] hover:bg-[#3a7526] border border-white text-white shadow-sm'
+                            }`}
+                        >
+                          {checkoutLoading ? 'Processing...' : 'Place Bets'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

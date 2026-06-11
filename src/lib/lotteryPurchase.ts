@@ -19,8 +19,19 @@ interface SubmitLotteryPurchaseParams {
 }
 
 const cleanDrawTime = (drawTime: string) => {
-  const dateTimeMatch = drawTime.match(/(\d{2}:\d{2})(?::\d{2})?\s*(?:[AP]M)?\s*$/i)
-  if (dateTimeMatch) return dateTimeMatch[1]
+  if (!drawTime) return ''
+
+  // 1. Try to match HH:mm from a full ISO string like 2026-06-11T06:04:00-05:00
+  const isoMatch = drawTime.match(/T(\d{2}:\d{2})/)
+  if (isoMatch) return isoMatch[1]
+
+  // 2. Try to match HH:mm from a string with space like 2026-06-11 06:04:00
+  const spaceMatch = drawTime.match(/\s(\d{2}:\d{2})/)
+  if (spaceMatch) return spaceMatch[1]
+
+  // 3. Try to match HH:mm at the start or anywhere in a basic string
+  const basicMatch = drawTime.match(/(\d{2}:\d{2})/)
+  if (basicMatch) return basicMatch[1]
 
   return drawTime.replace(/\s*[AP]M\s*/gi, '').trim()
 }
