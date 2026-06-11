@@ -824,7 +824,7 @@ export function MoneyTimePage() {
                   <CardContent className="p-6">
                     <h3 className="font-extrabold text-lg text-foreground mb-4">Enter your Bet Amount</h3>
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }, index: number) => {
                         const amount = betAmounts[game.id] || ''
                         const warning = getBetAmountWarning(game.id, amount)
