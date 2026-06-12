@@ -21,6 +21,7 @@ import {
 import { Eye, Search, Calendar, Clock, Receipt, User, Phone, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchTickets, type ApiTicketOrder } from '@/lib/fortuneApi'
+import { GameBallGraphic } from '@/components/GameLogos'
 
 export function MyTicketsPage() {
   const { accessToken, walletBalance } = useAuth()
@@ -313,7 +314,7 @@ export function MyTicketsPage() {
                         {selectedTicket.games.map((game, index) => (
                           <TableRow key={`${game.ticket_number}-${index}`} className="border-b border-border/10 last:border-0 hover:bg-muted/10">
                             <TableCell className="p-3">
-                              <span className="font-black text-primary text-base">{game.ticket_number}</span>
+                              <GameBallGraphic gameName={game.game_name} value={game.ticket_number} />
                             </TableCell>
                             <TableCell className="p-3 text-xs font-medium text-zinc-300">{game.game_name}</TableCell>
                             <TableCell className="p-3 text-right text-xs font-bold text-zinc-200">${game.bet_amount.toFixed(2)}</TableCell>

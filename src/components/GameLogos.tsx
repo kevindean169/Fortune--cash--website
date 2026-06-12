@@ -1,4 +1,39 @@
-
+export function GameBallGraphic({ gameName, value, isResult = false }: { gameName: string, value: string, isResult?: boolean }) {
+  const normalizedName = (gameName || '').toLowerCase()
+  const sizeClasses = isResult ? "!w-5 !h-5 !text-[10px]" : "!w-6 !h-6 !text-[11px]"
+  
+  if (normalizedName.includes('cashpot')) {
+    return (
+      <div className={`number-ball number-ball-result ${sizeClasses}`}>
+        {value}
+      </div>
+    )
+  }
+  
+  if (normalizedName.includes('megaball')) {
+    return (
+      <div className={`number-ball number-ball-monsta ${sizeClasses}`}>
+      </div>
+    )
+  }
+  
+  if (normalizedName.includes('monsta')) {
+    return (
+      <div className={`number-ball number-ball-mega ${sizeClasses}`}>
+      </div>
+    )
+  }
+  
+  // Default fallback
+  if (isResult) {
+    return (
+      <span className="bg-green-500/10 text-green-400 font-extrabold text-xs px-2 py-0.5 rounded border border-green-500/20">
+        {value}
+      </span>
+    )
+  }
+  return <span className="font-black text-primary text-base">#{value}</span>
+}
 
 export function CashpotLogo({ className = 'size-6' }: { className?: string }) {
   return (
