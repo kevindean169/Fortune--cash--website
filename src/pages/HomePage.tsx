@@ -9,7 +9,7 @@ import {
   Download,
   User, Lock, EyeOff
 } from 'lucide-react'
-import { GAMES, RECENT_RESULTS, WINNERS } from '@/lib/fortune-data'
+import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 import { useNavigate } from 'react-router-dom'
 
@@ -95,16 +95,7 @@ export function HomePage() {
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('fortune_home_data');
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        setHomeData(parsed);
-        setLoading(false);
-      } catch (e) {
-        // parse error, proceed to fetch
-      }
-    }
+    let isActive = true
 
     const baseUrl = import.meta.env.VITE_API_URL || ''
     fetch(`${baseUrl}/api/home`)
@@ -115,23 +106,25 @@ export function HomePage() {
         return res.json()
       })
       .then((data) => {
+        if (!isActive) return
+
         if (data.status === 'success' && data.data) {
           console.log('API Home Response Data:', data.data);
           setHomeData(data.data);
-          try {
-            sessionStorage.setItem('fortune_home_data', JSON.stringify(data.data));
-          } catch (e) {
-            // cache save error
-          }
         } else {
           throw new Error(data.message || 'Invalid structure')
         }
         setLoading(false)
       })
       .catch((err) => {
+        if (!isActive) return
         console.error('Home API error:', err)
         setLoading(false)
       })
+
+    return () => {
+      isActive = false
+    }
   }, [])
 
   const parsePrizeNumber = (val: any, defaultVal: number): number => {
@@ -150,13 +143,14 @@ export function HomePage() {
   const cashpotPrizeObj = homeData?.tonights_prizes?.find((x: any) => x.type === 'Cashpot' || x.name === 'Cashpot')
   const cashpotPrize = cashpotPrizeObj ? parsePrizeNumber(cashpotPrizeObj.top_prize, 85000) : 85000
 
-  // 2) here latest result but at the top prize give bet no and draw date time
   const cashpotBetNo = cashpotPrizeObj?.bet_no
   const cashpotDrawTime = cashpotPrizeObj?.draw_time_human
-  
-  const topPrizeSubtitle = (cashpotBetNo && cashpotDrawTime)
-    ? `Cashpot · Bet No: ${cashpotBetNo} · ${cashpotDrawTime}`
-    : `Cashpot · Next Draw Soon`
+
+  const topPrizeSubtitle = cashpotPrizeObj?.subtitle || (
+    (cashpotBetNo && cashpotDrawTime)
+      ? `Cashpot � Bet No: ${cashpotBetNo} � ${cashpotDrawTime}`
+      : `Cashpot � Next Draw Soon`
+  )
 
   // secondary tonight prizes
   const secondaryPrizes = [
@@ -180,7 +174,7 @@ export function HomePage() {
           winners: r.winners_count || 0
         };
       })
-    : RECENT_RESULTS.map((r, idx) => ({ ...r, drawNo: 3 - idx }));
+    : [];
 
   // recent winners with initials/fallback to local mock data
   const winnersList = homeData?.recent_winners?.length
@@ -196,10 +190,18 @@ export function HomePage() {
           name: w.name || w.initials || 'Player'
         };
       })
-    : WINNERS.map((w: any) => ({
-        ...w,
-        name: w.name || w.initials || 'Player'
-      }));
+    : [];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-muted-foreground font-medium text-sm animate-pulse">Loading Fortune...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
@@ -794,3 +796,4 @@ export function HomePage() {
     </div>
   )
 }
+
