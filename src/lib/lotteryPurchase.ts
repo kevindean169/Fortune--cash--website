@@ -19,6 +19,16 @@ interface SubmitLotteryPurchaseParams {
   doubleNumber?: boolean
 }
 
+const normalizeTicketNumber = (value: string) => {
+  const raw = String(value || '').trim()
+  if (raw === '0' || raw === '00') return raw
+
+  const numeric = Number.parseInt(raw, 10)
+  if (!Number.isNaN(numeric)) return String(numeric)
+
+  return raw
+}
+
 const cleanDrawTime = (drawTime: string) => {
   if (!drawTime) return ''
 
@@ -107,10 +117,10 @@ export async function submitLotteryPurchase({
 
     if (doubleNumber) {
       group.number.split('-').map((num) => num.trim()).forEach((num) => {
-        formData.append(`result[${index}][number][]`, num)
+        formData.append(`result[${index}][number][]`, normalizeTicketNumber(num))
       })
     } else {
-      formData.append(`result[${index}][number]`, group.number)
+      formData.append(`result[${index}][number]`, normalizeTicketNumber(group.number))
     }
 
     formData.append(`result[${index}][lottery_id]`, lotteryId)
