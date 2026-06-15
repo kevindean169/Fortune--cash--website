@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, RefreshCw, ShieldCheck, Wallet } from 'lucide-react'
 import type { PageId } from '@/lib/fortune-data'
+import { formatUsd } from '@/lib/currency'
 
 interface TransactionsPageProps {
   navigate: (page: PageId) => void
@@ -66,7 +67,7 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Total Balance</p>
-                <p className="text-xl font-extrabold text-primary">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                <p className="text-xl font-extrabold text-primary">{formatUsd(totalBalance)}</p>
               </div>
               <Separator className="opacity-30" />
               <div>
@@ -74,7 +75,7 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
                   Winning Amount
                   <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-muted-foreground text-[10px]">?</span>
                 </p>
-                <p className="text-xl font-extrabold">${winningAmount.toFixed(2)}</p>
+                <p className="text-xl font-extrabold">{formatUsd(winningAmount)}</p>
               </div>
             </div>
           </CardContent>
@@ -113,7 +114,7 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
               onClick={() => handleAddAmount(amt)}
               className="px-4 py-2 rounded-lg border border-primary/40 text-sm font-bold text-primary hover:bg-primary/10 transition-colors"
             >
-              +${amt.toLocaleString()}
+              +{formatUsd(amt, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </button>
           ))}
         </div>

@@ -1,10 +1,11 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
-import { 
+import {
   User as UserIcon, Wallet, Trophy, Ticket, LogOut, 
   ChevronRight, LayoutDashboard, FileText
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { formatUsd } from '@/lib/currency'
 
 export function AccountLayout() {
   const { user, walletBalance, logout } = useAuth()
@@ -48,7 +49,7 @@ export function AccountLayout() {
                 </h2>
                 <div className="pt-4 mt-4 border-t border-border/50">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Wallet Balance</p>
-                  <p className="font-extrabold text-xl text-green-400">${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className="font-extrabold text-xl text-green-400">{formatUsd(walletBalance)}</p>
                 </div>
               </CardContent>
             </Card>

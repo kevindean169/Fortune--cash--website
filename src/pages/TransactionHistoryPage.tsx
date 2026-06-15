@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthContext'
 import { fetchTransactions, type ApiTransaction } from '@/lib/fortuneApi'
+import { formatUsd } from '@/lib/currency'
 
 export function TransactionHistoryPage() {
   const { accessToken } = useAuth()
@@ -120,7 +121,7 @@ export function TransactionHistoryPage() {
                       <td className="px-6 py-4 text-muted-foreground">{transaction.method}</td>
                       <td className="px-6 py-4 text-muted-foreground text-xs">{transaction.date}</td>
                       <td className={`px-6 py-4 text-right font-extrabold text-sm ${transaction.positive ? 'text-green-400' : 'text-red-400'}`}>
-                        {transaction.positive ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                        {transaction.positive ? '+' : '-'}{formatUsd(Math.abs(transaction.amount))}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className="px-2 py-0.5 bg-green-500/10 text-green-400 text-xs rounded-full">

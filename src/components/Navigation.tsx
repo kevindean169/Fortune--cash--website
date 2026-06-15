@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { formatUsd } from '@/lib/currency'
 
 const mainNav = [
   { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
@@ -77,7 +78,7 @@ export function Navigation() {
                       <Wallet className="size-4 text-primary" />
                     </div>
                     <span className="text-foreground font-bold tracking-wide text-sm">
-                      ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {formatUsd(walletBalance)}
                     </span>
                   </div>
                 </Link>
@@ -219,7 +220,7 @@ export function Navigation() {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Wallet Balance</span>
                         <span className="font-bold text-primary">
-                          ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatUsd(walletBalance)}
                         </span>
                       </div>
                       <Link to="/lotteries" onClick={handleNavigate} className="w-full">

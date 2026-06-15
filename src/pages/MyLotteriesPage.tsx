@@ -1,6 +1,7 @@
 import { Ticket, Calendar, DollarSign, Trophy } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatUsd } from '@/lib/currency'
 
 interface Lottery {
   id: string
@@ -102,7 +103,7 @@ export default function MyLotteriesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">Total Spent</p>
-                  <p className="text-3xl font-bold text-primary">${lotteries.reduce((sum, l) => sum + l.amount, 0).toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-primary">{formatUsd(lotteries.reduce((sum, l) => sum + l.amount, 0))}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-primary/50" />
               </div>
@@ -164,7 +165,7 @@ export default function MyLotteriesPage() {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-lg font-semibold text-primary">${lottery.amount.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-primary">{formatUsd(lottery.amount)}</p>
                     <p className="text-xs text-muted-foreground">{new Date(lottery.date).toLocaleDateString()}</p>
                   </div>
                 </div>

@@ -5,36 +5,18 @@ import { useNavigate } from 'react-router-dom'
 import { CreditCard, Trophy, ArrowDownLeft, Zap, Gift, Clock, Coins } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchCustomerDashboard } from '@/lib/fortuneApi'
-
-const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1'
-const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
+import { formatUsd } from '@/lib/currency'
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const { accessToken, walletBalance, user } = useAuth()
 
-  const [currency, setCurrency] = useState('USD')
   const [totalWon, setTotalWon] = useState(0)
   const [totalUnpayout, setTotalUnpayout] = useState(0)
   const [totalPayout, setTotalPayout] = useState(0)
 
   useEffect(() => {
     if (!accessToken) return
-
-    // Fetch currency from wallet details
-    fetch(`${BASE_URL}/wallet`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-App-Key': APP_KEY,
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data) {
-          setCurrency(data.data.currency || 'USD')
-        }
-      })
-      .catch(err => console.error('Error fetching wallet:', err))
 
     fetchCustomerDashboard(accessToken)
       .then((data) => {
@@ -45,19 +27,11 @@ export function DashboardPage() {
       .catch((err: Error) => console.error('Error fetching customer dashboard:', err))
   }, [accessToken])
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(val)
-  }
-
   const stats = [
-    { label: 'Wallet Balance', value: formatCurrency(walletBalance), color: 'text-foreground', icon: <CreditCard className="size-8 text-primary" /> },
-    { label: 'Total Won', value: formatCurrency(totalWon), color: 'text-foreground', icon: <Trophy className="size-8 text-primary" /> },
-    { label: 'Total Payout', value: formatCurrency(totalPayout), color: 'text-primary', icon: <Zap className="size-8 text-primary animate-pulse" /> },
-    { label: 'Total Unpayout', value: formatCurrency(totalUnpayout), color: 'text-primary', icon: <ArrowDownLeft className="size-8 text-primary" /> },
+    { label: 'Wallet Balance', value: formatUsd(walletBalance), color: 'text-foreground', icon: <CreditCard className="size-8 text-primary" /> },
+    { label: 'Total Won', value: formatUsd(totalWon), color: 'text-foreground', icon: <Trophy className="size-8 text-primary" /> },
+    { label: 'Total Payout', value: formatUsd(totalPayout), color: 'text-primary', icon: <Zap className="size-8 text-primary animate-pulse" /> },
+    { label: 'Total Unpayout', value: formatUsd(totalUnpayout), color: 'text-primary', icon: <ArrowDownLeft className="size-8 text-primary" /> },
   ]
 
   const quickLinks = [

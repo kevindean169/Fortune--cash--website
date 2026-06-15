@@ -19,10 +19,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { Trophy, Eye, Calendar, Clock, DollarSign, User, Phone, Receipt, Landmark } from 'lucide-react'
+import { Trophy, Eye, Calendar, Clock, User, Phone, Receipt, Landmark } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchCustomerWinnings, type ApiWinningOrder } from '@/lib/fortuneApi'
 import { GameBallGraphic } from '@/components/GameLogos'
+import { formatUsd } from '@/lib/currency'
 
 export function MyWinningsPage() {
   const { accessToken } = useAuth()
@@ -86,7 +87,7 @@ export function MyWinningsPage() {
         </div>
         <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
           <span className="text-muted-foreground text-xs uppercase font-medium">This Page Winnings:</span>
-          <span className="text-primary font-extrabold text-lg">${totalWinnings.toFixed(2)}</span>
+          <span className="text-primary font-extrabold text-lg">{formatUsd(totalWinnings)}</span>
         </div>
       </div>
 
@@ -145,10 +146,10 @@ export function MyWinningsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="p-4 text-right text-xs text-zinc-400 font-medium">
-                        ${winning.total_bet.toFixed(2)}
+                        {formatUsd(winning.total_bet)}
                       </TableCell>
                       <TableCell className="p-4 text-right font-black text-green-400 text-sm">
-                        ${winning.total_won.toFixed(2)}
+                        {formatUsd(winning.total_won)}
                       </TableCell>
                       <TableCell className="p-4">
                         {getStatusBadge(winning.status)}
@@ -182,7 +183,7 @@ export function MyWinningsPage() {
                       {getStatusBadge(winning.status)}
                       <div className="flex flex-col items-end">
                         <span className="text-[10px] text-zinc-400">Won</span>
-                        <span className="font-black text-green-400 text-sm">${winning.total_won.toFixed(2)}</span>
+                        <span className="font-black text-green-400 text-sm">{formatUsd(winning.total_won)}</span>
                       </div>
                     </div>
                   </div>
@@ -195,7 +196,7 @@ export function MyWinningsPage() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-xs text-zinc-500 pt-1">
-                    <span>Bet: ${winning.total_bet.toFixed(2)}</span>
+                    <span>Bet: {formatUsd(winning.total_bet)}</span>
                     <span>Win Date: {winning.created_at}</span>
                   </div>
                 </div>
@@ -303,10 +304,10 @@ export function MyWinningsPage() {
                               <GameBallGraphic gameName={game.game_name} value={game.result} isResult={true} />
                             </TableCell>
                             <TableCell className="p-3 text-right text-xs font-semibold text-zinc-300">
-                              ${game.bet_amount.toFixed(2)}
+                              {formatUsd(game.bet_amount)}
                             </TableCell>
                             <TableCell className="p-3 text-right text-xs font-black text-green-400">
-                              +${game.win_amount.toFixed(2)}
+                              +{formatUsd(game.win_amount)}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -318,12 +319,12 @@ export function MyWinningsPage() {
                           </TableCell>
                           <TableCell className="p-3 text-right">
                             <span className="text-xs font-bold text-zinc-200">
-                              ${selectedWinning.total_bet.toFixed(2)}
+                              {formatUsd(selectedWinning.total_bet)}
                             </span>
                           </TableCell>
                           <TableCell className="p-3 text-right">
-                            <span className="font-black text-base text-green-400 inline-flex items-center gap-0.5">
-                              <DollarSign className="size-4" />{selectedWinning.total_won.toFixed(2)}
+                            <span className="font-black text-base text-green-400">
+                              {formatUsd(selectedWinning.total_won)}
                             </span>
                           </TableCell>
                         </TableRow>

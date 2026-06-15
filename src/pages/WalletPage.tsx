@@ -10,6 +10,7 @@ import {
   AlertTriangle, Loader2
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { formatUsd } from '@/lib/currency'
 
 const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1'
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
@@ -60,8 +61,6 @@ export function WalletPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Wallet metadata from API
-  const [currency, setCurrency] = useState('USD')
   const [summary, setSummary] = useState<FinancialSummary>({
     total_deposited: 0,
     total_withdrawn: 0,
@@ -82,24 +81,10 @@ export function WalletPage() {
 
   const loadWalletData = async () => {
     try {
-      // 1. Fetch main wallet details (for currency, etc.)
-      const walletRes = await fetch(`${BASE_URL}/wallet`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-App-Key': APP_KEY,
-        },
-      })
-      if (walletRes.ok) {
-        const walletData = await walletRes.json()
-        if (walletData.success && walletData.data) {
-          setCurrency(walletData.data.currency || 'USD')
-        }
-      }
-
-      // 2. Fetch balance in AuthContext
+      // 1. Fetch balance in AuthContext
       await fetchWallet()
 
-      // 3. Fetch summary stats
+      // 2. Fetch summary stats
       const summaryRes = await fetch(`${BASE_URL}/wallet/summary`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -224,15 +209,6 @@ export function WalletPage() {
     }
   }
 
-  // Format currency output
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(val)
-  }
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
       {/* Header */}
@@ -253,7 +229,7 @@ export function WalletPage() {
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Available Balance</p>
                   <p className="text-4xl md:text-5xl font-extrabold text-primary tabular-nums">
-                    {formatCurrency(walletBalance)}
+                    {formatUsd(walletBalance)}
                   </p>
                 </div>
                 <div className="size-10 md:size-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -262,9 +238,9 @@ export function WalletPage() {
               </div>
               <div className="grid grid-cols-3 gap-2 md:gap-3">
                 {[
-                  { label: 'Total Deposited', value: formatCurrency(summary.total_deposited), icon: <Plus className="size-3" /> },
-                  { label: 'Total Won', value: formatCurrency(summary.total_won), icon: <Trophy className="size-3" /> },
-                  { label: 'Total Withdrawn', value: formatCurrency(summary.total_withdrawn), icon: <ArrowDownLeft className="size-3" /> },
+                  { label: 'Total Deposited', value: formatUsd(summary.total_deposited), icon: <Plus className="size-3" /> },
+                  { label: 'Total Won', value: formatUsd(summary.total_won), icon: <Trophy className="size-3" /> },
+                  { label: 'Total Withdrawn', value: formatUsd(summary.total_withdrawn), icon: <ArrowDownLeft className="size-3" /> },
                 ].map((stat, i) => (
                   <div key={i} className="text-center rounded-lg bg-muted/30 p-2 md:p-3">
                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1 mb-1 leading-tight">
@@ -321,7 +297,7 @@ export function WalletPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className={`text-sm font-bold ${isPositive ? 'text-emerald-400' : 'text-foreground'}`}>
-                          {isPositive ? '+' : '-'}{formatCurrency(tx.amount)}
+                          {isPositive ? '+' : '-'}{formatUsd(tx.amount)}
                         </p>
                         <Badge className={`text-xs border-0 mt-0.5 capitalize ${tx.status === 'completed' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>
                           {tx.status}
@@ -403,7 +379,7 @@ export function WalletPage() {
                           : 'bg-muted/30 text-muted-foreground border-border/40 hover:border-primary/30 hover:text-foreground'
                         }`}
                     >
-                      {formatCurrency(a)}
+                      {formatUsd(a)}
                     </button>
                   ))}
                 </div>
@@ -413,7 +389,7 @@ export function WalletPage() {
               <div className="mb-5">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Custom Amount</p>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currency}</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                   <Input
                     placeholder="0.00"
                     value={amount}
@@ -424,7 +400,7 @@ export function WalletPage() {
                   />
                 </div>
                 {activeTab === 'withdraw' && (
-                  <p className="text-xs text-muted-foreground mt-1">Min: 100 · Max: 50,000 · Available: {formatCurrency(walletBalance)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Min: $100.00 · Max: $50,000.00 · Available: {formatUsd(walletBalance)}</p>
                 )}
               </div>
 
@@ -456,7 +432,7 @@ export function WalletPage() {
                     <Loader2 className="size-4 animate-spin text-fortune-navy" />
                   ) : (
                     <>
-                      {activeTab === 'deposit' ? 'Deposit' : 'Withdraw'} {amount ? formatCurrency(parseFloat(amount)) : 'Funds'}
+                      {activeTab === 'deposit' ? 'Deposit' : 'Withdraw'} {amount ? formatUsd(parseFloat(amount)) : 'Funds'}
                       <ArrowRight className="size-4 ml-1" />
                     </>
                   )}
@@ -475,4 +451,3 @@ export function WalletPage() {
     </div>
   )
 }
-

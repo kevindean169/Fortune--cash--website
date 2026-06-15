@@ -22,6 +22,7 @@ import { Eye, Search, Calendar, Clock, Receipt, User, Phone, CheckCircle, AlertC
 import { useAuth } from '@/context/AuthContext'
 import { fetchTickets, type ApiTicketOrder } from '@/lib/fortuneApi'
 import { GameBallGraphic } from '@/components/GameLogos'
+import { formatUsd } from '@/lib/currency'
 
 export function MyTicketsPage() {
   const { accessToken, walletBalance } = useAuth()
@@ -116,7 +117,7 @@ export function MyTicketsPage() {
         <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
           <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
           <span className="text-green-400 font-extrabold text-lg">
-            ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatUsd(walletBalance)}
           </span>
         </div>
       </div>
@@ -199,7 +200,7 @@ export function MyTicketsPage() {
                           <Clock className="size-3 text-zinc-500" /> {ticket.draw_time}
                         </div>
                       </TableCell>
-                      <TableCell className="p-4 text-right font-bold text-zinc-200">${getOrderTotalBet(ticket).toFixed(2)}</TableCell>
+                      <TableCell className="p-4 text-right font-bold text-zinc-200">{formatUsd(getOrderTotalBet(ticket))}</TableCell>
                       <TableCell className="p-4">{getStatusBadge(ticket.status)}</TableCell>
                       <TableCell className="p-4 text-center">
                         <Button
@@ -228,7 +229,7 @@ export function MyTicketsPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       {getStatusBadge(ticket.status)}
-                      <span className="font-bold text-zinc-200">${getOrderTotalBet(ticket).toFixed(2)}</span>
+                      <span className="font-bold text-zinc-200">{formatUsd(getOrderTotalBet(ticket))}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between text-xs text-zinc-400 bg-background/50 p-2 rounded-lg border border-border/10">
@@ -317,12 +318,12 @@ export function MyTicketsPage() {
                               <GameBallGraphic gameName={game.game_name} value={game.ticket_number} />
                             </TableCell>
                             <TableCell className="p-3 text-xs font-medium text-zinc-300">{game.game_name}</TableCell>
-                            <TableCell className="p-3 text-right text-xs font-bold text-zinc-200">${game.bet_amount.toFixed(2)}</TableCell>
+                            <TableCell className="p-3 text-right text-xs font-bold text-zinc-200">{formatUsd(game.bet_amount)}</TableCell>
                             <TableCell className="p-3 text-right text-xs font-extrabold">
                               {game.status?.toLowerCase() === 'won' ? (
-                                <span className="text-green-400 font-bold">+${(game.payout || 0).toFixed(2)}</span>
+                                <span className="text-green-400 font-bold">+{formatUsd(game.payout || 0)}</span>
                               ) : game.status?.toLowerCase() === 'lost' ? (
-                                <span className="text-zinc-500">$0.00</span>
+                                <span className="text-zinc-500">{formatUsd(0)}</span>
                               ) : (
                                 <span className="text-primary font-bold">{game.status || 'Pending'}</span>
                               )}
@@ -342,7 +343,7 @@ export function MyTicketsPage() {
                   <div className="text-right">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold">Total Bet</span>
                     <div className="font-extrabold text-zinc-100">
-                      ${getOrderTotalBet(selectedTicket).toFixed(2)}
+                      {formatUsd(getOrderTotalBet(selectedTicket))}
                     </div>
                   </div>
                 </div>

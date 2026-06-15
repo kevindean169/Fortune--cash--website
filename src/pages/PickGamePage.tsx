@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { ArrowRight, Zap, RotateCcw, Clock, Trophy, Info, X, CheckCircle } from 'lucide-react'
 import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
+import { formatUsd } from '@/lib/currency'
 
 interface PickGamePageProps {
   gameId: string
@@ -238,7 +239,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                           : 'bg-muted/50 text-muted-foreground border-border/60 hover:border-primary/30'
                       }`}
                     >
-                      ${amt.toFixed(2)}
+                      {formatUsd(amt)}
                     </button>
                   ))}
                 </div>
@@ -331,7 +332,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Bet amount</span>
-                    <span>${betAmount.toFixed(2)}</span>
+                    <span>{formatUsd(betAmount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tickets</span>
@@ -344,7 +345,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                   <Separator className="opacity-50" />
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span className="text-primary">${totalCost.toFixed(2)}</span>
+                    <span className="text-primary">{formatUsd(totalCost)}</span>
                   </div>
                 </div>
 
@@ -371,7 +372,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
                     onClick={handlePurchase}
                   >
                     {isComplete
-                      ? `Buy ${quantity > 1 ? `${quantity} Tickets` : 'Ticket'} · $${totalCost.toFixed(2)}`
+                      ? `Buy ${quantity > 1 ? `${quantity} Tickets` : 'Ticket'} · ${formatUsd(totalCost)}`
                       : `Pick ${selections.filter(s => s === null).length} More Number(s)`
                     }
                     {isComplete && <ArrowRight className="size-4 ml-1" />}
