@@ -6,9 +6,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
+import { clampRemainingLimit, getCartHeldAmount } from '@/lib/betLimits'
 
 interface BetItem {
   id: number
+  gameId?: string
   number: string
   gameName: string
   drawTime: string
@@ -87,6 +89,7 @@ export function Pick2SinglePage() {
   const [selectedNumber, setSelectedNumber] = useState('')
   const [selectedDrawTimes, setSelectedDrawTimes] = useState<string[]>([])
   const [betAmounts, setBetAmounts] = useState<Record<string, string>>({}) // GameId -> Amount mapping
+  const [amountInputWarnings, setAmountInputWarnings] = useState<Record<string, string>>({})
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
@@ -272,11 +275,49 @@ export function Pick2SinglePage() {
     return null
   }
 
+  const getSelectedTicketNumber = () => {
+    if (!selectedNumber) return ''
+    return selectedNumber.toString().padStart(2, '0')
+  }
+
+  const getNumberSpecificLimit = (gameIdStr: string, time: string): number => {
+    const ticketNumber = getSelectedTicketNumber()
+    if (!ticketNumber) return Infinity
+
+    const entries = Array.isArray(lotteryData?.remainingBetLimit) ? lotteryData.remainingBetLimit : []
+    const matched = entries.filter((entry: any) =>
+      String(entry?.game_id) === gameIdStr &&
+      String(entry?.draw_time) === time &&
+      String(entry?.ticket_number).trim() === ticketNumber
+    )
+
+    if (matched.length === 0) return Infinity
+
+    const remaining = matched
+      .map((entry: any) => Number(entry?.remaining_bet))
+      .filter((value: number) => Number.isFinite(value))
+
+    return remaining.length > 0 ? Math.min(...remaining) : Infinity
+  }
+
   const getGameLimit = (gameIdStr: string, time: string): number => {
-    const detail = lotteryData?.betlimit?.find((d: any) => d.draw_time === time)
+    const drawLimitDetails = Array.isArray(lotteryData?.betlimit) && lotteryData.betlimit.length > 0
+      ? lotteryData.betlimit
+      : Array.isArray(lotteryData?.drawDetails)
+        ? lotteryData.drawDetails
+        : []
+    const detail = drawLimitDetails.find((d: any) => d.draw_time === time)
     if (!detail) return Infinity
-    if (gameIdStr === '4') return parseFloat(detail.pick2_bet_limit || 'Infinity')
-    return Infinity
+
+    let baseLimit = gameIdStr === '4' ? parseFloat(detail.pick2_bet_limit || 'Infinity') : Infinity
+    const numberSpecificLimit = getNumberSpecificLimit(gameIdStr, time)
+    if (Number.isFinite(numberSpecificLimit)) {
+      baseLimit = numberSpecificLimit
+    }
+    const gameName = config.games.find((game: { id: string; name: string }) => game.id === gameIdStr)?.name
+    const heldAmount = getCartHeldAmount(cart, gameIdStr, gameName, time)
+
+    return clampRemainingLimit(baseLimit - heldAmount)
   }
 
   const getMinLimitForGame = (gameIdStr: string): { limit: number; time?: string } => {
@@ -291,6 +332,23 @@ export function Pick2SinglePage() {
       }
     })
     return { limit: minLimit, time: minTime }
+  }
+
+  const updateBetAmount = (gameId: string, value: string) => {
+    if (value === '') {
+      setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
+      setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
+      return
+    }
+
+    const warning = getBetAmountWarning(gameId, value)
+    if (warning) {
+      setAmountInputWarnings(prev => ({ ...prev, [gameId]: warning }))
+      return
+    }
+
+    setBetAmounts(prev => ({ ...prev, [gameId]: value }))
+    setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
   }
 
 
@@ -335,6 +393,7 @@ export function Pick2SinglePage() {
           newBets.push({
             id: Date.now() + Math.random(),
             batchId,
+            gameId: game.id,
             number: numVal,
             gameName: game.name,
             drawTime: time,
@@ -349,7 +408,10 @@ export function Pick2SinglePage() {
       return
     }
 
-    setCart([...cart, ...newBets])
+    setCart(prev => [...prev, ...newBets])
+    setBetAmounts({})
+    setAmountInputWarnings({})
+    setEditingGameAmount(null)
 
   }
 
@@ -650,7 +712,7 @@ export function Pick2SinglePage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }) => {
                         const amount = betAmounts[game.id] || ''
-                        const warning = getBetAmountWarning(game.id, amount)
+                        const warning = amountInputWarnings[game.id] || getBetAmountWarning(game.id, amount)
                         return (
                           <div key={game.id} className="bg-background/40 border border-neutral-900 rounded-2xl p-4 flex flex-col justify-between min-h-[220px]">
                             <div>
@@ -666,7 +728,7 @@ export function Pick2SinglePage() {
                                   value={amount}
                                   onChange={(e) => {
                                     const val = e.target.value
-                                    setBetAmounts(prev => ({ ...prev, [game.id]: val }))
+                                    updateBetAmount(game.id, val)
                                   }}
                                   className="w-full bg-[#0d0d0d] border border-border/80 rounded-xl pl-8 pr-4 py-3 text-sm font-extrabold text-foreground focus:outline-none focus:border-primary"
                                 />
@@ -682,7 +744,7 @@ export function Pick2SinglePage() {
                                   <button
                                     key={val}
                                     type="button"
-                                    onClick={() => setBetAmounts(prev => ({ ...prev, [game.id]: val }))}
+                                    onClick={() => updateBetAmount(game.id, val)}
                                     className={`px-2 py-1 border text-[10px] font-extrabold rounded transition-all ${amount === val
                                       ? 'border-primary text-primary bg-primary/15'
                                       : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-neutral-700'
@@ -937,7 +999,7 @@ export function Pick2SinglePage() {
                               placeholder="0.00"
                               value={amount}
                               disabled={isDisabled}
-                              onChange={(e) => setBetAmounts(prev => ({ ...prev, [game.id]: e.target.value }))}
+                              onChange={(e) => updateBetAmount(game.id, e.target.value)}
                               className={`bg-transparent w-full outline-none text-sm font-bold ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
                             />
                           </div>
@@ -1001,7 +1063,7 @@ export function Pick2SinglePage() {
                         <button
                           key={val}
                           type="button"
-                          onClick={() => setBetAmounts(prev => ({ ...prev, [editingGameAmount]: val }))}
+                          onClick={() => updateBetAmount(editingGameAmount, val)}
                           className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
                         >
                           $ {val}
@@ -1010,21 +1072,21 @@ export function Pick2SinglePage() {
                     </div>
 
                     <div className="grid grid-cols-4 gap-1.5 mb-5">
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '1' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '2' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '3' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + (p[editingGameAmount]?.includes('.') ? '' : '.') }))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + (betAmounts[editingGameAmount]?.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '4' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '5' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '6' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '7' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '8' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '9' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: '' }))} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, '')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '0' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
                     </div>
 
                     <div className="flex justify-between items-center gap-3">

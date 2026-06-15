@@ -6,9 +6,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
+import { clampRemainingLimit } from '@/lib/betLimits'
 
 interface BetItem {
   id: number
+  gameId?: string
   number: string
   gameName: string
   drawTime: string
@@ -89,6 +91,7 @@ export function Pick2DoublePage() {
   const [showGrid2, setShowGrid2] = useState<boolean>(false)
   const [selectedDrawTimes, setSelectedDrawTimes] = useState<string[]>([])
   const [betAmounts, setBetAmounts] = useState<Record<string, string>>({}) // GameId -> Amount mapping
+  const [amountInputWarnings, setAmountInputWarnings] = useState<Record<string, string>>({})
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
@@ -267,39 +270,165 @@ export function Pick2DoublePage() {
     return null
   }
 
+  const getSelectedPickNumbers = () => {
+    if (!selectedNumber || !selectedNumber2) return null
+    return {
+      num1: selectedNumber.toString().padStart(2, '0'),
+      num2: selectedNumber2.toString().padStart(2, '0'),
+    }
+  }
+
+  const parseDoubleNumber = (value: string) => {
+    const parts = value.split('-').map(part => part.trim())
+    if (parts.length !== 2) return null
+    return {
+      num1: parts[0],
+      num2: parts[1],
+    }
+  }
+
+  const getPick2CartHeldAmount = (time: string, numberType: 1 | 2, ticketNumber: string): number => {
+    return cart.reduce((sum, item) => {
+      if (String(item.drawTime).trim().toLowerCase() !== String(time).trim().toLowerCase()) {
+        return sum
+      }
+
+      const parsedNumber = parseDoubleNumber(item.number)
+      if (!parsedNumber) return sum
+
+      const candidate = numberType === 1 ? parsedNumber.num1 : parsedNumber.num2
+      if (candidate !== ticketNumber) return sum
+
+      return sum + item.amount
+    }, 0)
+  }
+
+  const getNumberSpecificLimit = (
+    gameIdStr: string,
+    time: string,
+    ticketNumber: string,
+    numberType: 1 | 2,
+  ): number => {
+    if (!ticketNumber) return Infinity
+
+    const entries = Array.isArray(lotteryData?.remainingBetLimit) ? lotteryData.remainingBetLimit : []
+    const matched = entries.filter((entry: any) =>
+      String(entry?.game_id) === gameIdStr &&
+      String(entry?.draw_time) === time &&
+      String(entry?.ticket_number).trim().padStart(2, '0') === ticketNumber &&
+      Number(entry?.number_type) === numberType
+    )
+
+    if (matched.length === 0) return Infinity
+
+    const remaining = matched
+      .map((entry: any) => Number(entry?.remaining_bet))
+      .filter((value: number) => Number.isFinite(value))
+
+    return remaining.length > 0 ? Math.min(...remaining) : Infinity
+  }
+
+  const getGameLimitDetails = (gameIdStr: string, time: string) => {
+    const selectedPickNumbers = getSelectedPickNumbers()
+    if (!selectedPickNumbers) {
+      return {
+        effectiveLimit: Infinity,
+        number1Limit: Infinity,
+        number2Limit: Infinity,
+        limitingNumbers: [] as string[],
+      }
+    }
+
+    const drawLimitDetails = Array.isArray(lotteryData?.betlimit) && lotteryData.betlimit.length > 0
+      ? lotteryData.betlimit
+      : Array.isArray(lotteryData?.drawDetails)
+        ? lotteryData.drawDetails
+        : []
+    const detail = drawLimitDetails.find((d: any) => d.draw_time === time)
+    if (!detail) {
+      return {
+        effectiveLimit: Infinity,
+        number1Limit: Infinity,
+        number2Limit: Infinity,
+        limitingNumbers: [] as string[],
+      }
+    }
+
+    const num1BaseLimit = parseFloat(detail.pick2_num1_bet_limit || detail.pick2_bet_limit || 'Infinity')
+    const num2BaseLimit = parseFloat(detail.pick2_num2_bet_limit || detail.pick2_bet_limit || 'Infinity')
+
+    const number1SpecificLimit = getNumberSpecificLimit(gameIdStr, time, selectedPickNumbers.num1, 1)
+    const number2SpecificLimit = getNumberSpecificLimit(gameIdStr, time, selectedPickNumbers.num2, 2)
+
+    const number1Limit = Number.isFinite(number1SpecificLimit) ? number1SpecificLimit : num1BaseLimit
+    const number2Limit = Number.isFinite(number2SpecificLimit) ? number2SpecificLimit : num2BaseLimit
+
+    const heldForNumber1 = getPick2CartHeldAmount(time, 1, selectedPickNumbers.num1)
+    const heldForNumber2 = getPick2CartHeldAmount(time, 2, selectedPickNumbers.num2)
+
+    const finalNumber1Limit = clampRemainingLimit(number1Limit - heldForNumber1)
+    const finalNumber2Limit = clampRemainingLimit(number2Limit - heldForNumber2)
+    const effectiveLimit = Math.min(finalNumber1Limit, finalNumber2Limit)
+    const limitingNumbers: string[] = []
+
+    if (effectiveLimit === finalNumber1Limit) limitingNumbers.push('Bet No. 1')
+    if (effectiveLimit === finalNumber2Limit) limitingNumbers.push('Bet No. 2')
+
+    return {
+      effectiveLimit,
+      number1Limit: finalNumber1Limit,
+      number2Limit: finalNumber2Limit,
+      limitingNumbers,
+    }
+  }
+
+  const getMinLimitForGame = (gameIdStr: string): { limit: number; time?: string; limitingNumbers?: string[] } => {
+    if (selectedDrawTimes.length === 0) return { limit: Infinity }
+    let minLimit = Infinity
+    let minTime = ''
+    let minLimitingNumbers: string[] = []
+    selectedDrawTimes.forEach(time => {
+      const limitDetails = getGameLimitDetails(gameIdStr, time)
+      if (limitDetails.effectiveLimit < minLimit) {
+        minLimit = limitDetails.effectiveLimit
+        minTime = time
+        minLimitingNumbers = limitDetails.limitingNumbers
+      }
+    })
+    return { limit: minLimit, time: minTime, limitingNumbers: minLimitingNumbers }
+  }
+
   const getBetAmountWarning = (gameIdStr: string, amountStr: string): string | null => {
     if (!amountStr) return null
     const amountVal = parseFloat(amountStr)
     if (isNaN(amountVal) || amountVal <= 0) return 'Enter a valid amount.'
 
-    // Realtime Bet limit warning
     const limitInfo = getMinLimitForGame(gameIdStr)
     if (limitInfo.limit !== Infinity && amountVal > limitInfo.limit) {
-      return `Exceeds limit of $${limitInfo.limit}${limitInfo.time ? ` for ${limitInfo.time}` : ''}`
+      const labelText = limitInfo.limitingNumbers && limitInfo.limitingNumbers.length > 0
+        ? ` for ${limitInfo.limitingNumbers.join(' and ')}`
+        : ''
+      return `Exceeds limit of $${limitInfo.limit}${labelText}${limitInfo.time ? ` at ${limitInfo.time}` : ''}`
     }
 
     return null
   }
 
-  const getGameLimit = (gameIdStr: string, time: string): number => {
-    const detail = lotteryData?.betlimit?.find((d: any) => d.draw_time === time)
-    if (!detail) return Infinity
-    if (gameIdStr === '5') return parseFloat(detail.pick2_bet_limit || 'Infinity')
-    return Infinity
-  }
+  const updateBetAmount = (gameId: string, value: string) => {
+    if (value === '') {
+      setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
+      setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
+      return
+    }
 
-  const getMinLimitForGame = (gameIdStr: string): { limit: number; time?: string } => {
-    if (selectedDrawTimes.length === 0) return { limit: Infinity }
-    let minLimit = Infinity
-    let minTime = ''
-    selectedDrawTimes.forEach(time => {
-      const lim = getGameLimit(gameIdStr, time)
-      if (lim < minLimit) {
-        minLimit = lim
-        minTime = time
-      }
-    })
-    return { limit: minLimit, time: minTime }
+    const warning = getBetAmountWarning(gameId, value)
+    if (warning) {
+      setAmountInputWarnings(prev => ({ ...prev, [gameId]: warning }))
+      return
+    }
+
+    setBetAmounts(prev => ({ ...prev, [gameId]: value }))
+    setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
   }
 
 
@@ -326,9 +455,12 @@ export function Pick2DoublePage() {
       const amountVal = parseFloat(amountStr)
       if (amountStr !== '' && !isNaN(amountVal) && amountVal > 0) {
         for (const time of selectedDrawTimes) {
-          const limit = getGameLimit(game.id, time)
-          if (amountVal > limit) {
-            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+          const limitDetails = getGameLimitDetails(game.id, time)
+          if (amountVal > limitDetails.effectiveLimit) {
+            const labelText = limitDetails.limitingNumbers.length > 0
+              ? ` ${limitDetails.limitingNumbers.join(' and ')}`
+              : ''
+            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limitDetails.effectiveLimit} for draw time ${time}.${labelText ? ` Limit reached for${labelText}.` : ''}`)
             return
           }
         }
@@ -350,6 +482,7 @@ export function Pick2DoublePage() {
           newBets.push({
             id: Date.now() + Math.random(),
             batchId,
+            gameId: game.id,
             number: numVal,
             gameName: game.name,
             drawTime: time,
@@ -364,7 +497,10 @@ export function Pick2DoublePage() {
       return
     }
 
-    setCart([...cart, ...newBets])
+    setCart(prev => [...prev, ...newBets])
+    setBetAmounts({})
+    setAmountInputWarnings({})
+    setEditingGameAmount(null)
 
   }
 
@@ -733,7 +869,7 @@ export function Pick2DoublePage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }) => {
                         const amount = betAmounts[game.id] || ''
-                        const warning = getBetAmountWarning(game.id, amount)
+                        const warning = amountInputWarnings[game.id] || getBetAmountWarning(game.id, amount)
                         return (
                           <div key={game.id} className="bg-background/40 border border-neutral-900 rounded-2xl p-4 flex flex-col justify-between min-h-[220px]">
                             <div>
@@ -749,7 +885,7 @@ export function Pick2DoublePage() {
                                   value={amount}
                                   onChange={(e) => {
                                     const val = e.target.value
-                                    setBetAmounts(prev => ({ ...prev, [game.id]: val }))
+                                    updateBetAmount(game.id, val)
                                   }}
                                   className="w-full bg-[#0d0d0d] border border-border/80 rounded-xl pl-8 pr-4 py-3 text-sm font-extrabold text-foreground focus:outline-none focus:border-primary"
                                 />
@@ -765,7 +901,7 @@ export function Pick2DoublePage() {
                                   <button
                                     key={val}
                                     type="button"
-                                    onClick={() => setBetAmounts(prev => ({ ...prev, [game.id]: val }))}
+                                    onClick={() => updateBetAmount(game.id, val)}
                                     className={`px-2 py-1 border text-[10px] font-extrabold rounded transition-all ${amount === val
                                       ? 'border-primary text-primary bg-primary/15'
                                       : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-neutral-700'
@@ -1073,7 +1209,7 @@ export function Pick2DoublePage() {
                               placeholder="0.00"
                               value={amount}
                               disabled={isDisabled}
-                              onChange={(e) => setBetAmounts(prev => ({ ...prev, [game.id]: e.target.value }))}
+                              onChange={(e) => updateBetAmount(game.id, e.target.value)}
                               className={`bg-transparent w-full outline-none text-sm font-bold ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
                             />
                           </div>
@@ -1137,7 +1273,7 @@ export function Pick2DoublePage() {
                         <button
                           key={val}
                           type="button"
-                          onClick={() => setBetAmounts(prev => ({ ...prev, [editingGameAmount]: val }))}
+                          onClick={() => updateBetAmount(editingGameAmount, val)}
                           className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
                         >
                           $ {val}
@@ -1146,21 +1282,21 @@ export function Pick2DoublePage() {
                     </div>
 
                     <div className="grid grid-cols-4 gap-1.5 mb-5">
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '1' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '2' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '3' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + (p[editingGameAmount]?.includes('.') ? '' : '.') }))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + (betAmounts[editingGameAmount]?.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '4' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '5' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '6' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '7' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '8' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '9' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: '' }))} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, '')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                      <button onClick={() => setBetAmounts(p => ({ ...p, [editingGameAmount]: (p[editingGameAmount] || '') + '0' }))} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
                     </div>
 
                     <div className="flex justify-between items-center gap-3">

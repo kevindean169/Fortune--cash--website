@@ -4,6 +4,7 @@ export interface LotteryCartItem {
   drawTime: string
   apiDrawTime?: string
   amount: number
+  batchId?: string
 }
 
 interface SubmitLotteryPurchaseParams {
@@ -83,16 +84,18 @@ export async function submitLotteryPurchase({
   }> = {}
 
   cart.forEach((item) => {
-    if (!groups[item.number]) {
-      groups[item.number] = {
+    const groupKey = item.batchId || item.number
+
+    if (!groups[groupKey]) {
+      groups[groupKey] = {
         number: item.number,
         drawTimes: new Set(),
         games: new Map(),
       }
     }
 
-    groups[item.number].drawTimes.add(cleanDrawTime(item.apiDrawTime || item.drawTime))
-    groups[item.number].games.set(getGameId(item), item.amount)
+    groups[groupKey].drawTimes.add(cleanDrawTime(item.apiDrawTime || item.drawTime))
+    groups[groupKey].games.set(getGameId(item), item.amount)
   })
 
   const formData = new FormData()
