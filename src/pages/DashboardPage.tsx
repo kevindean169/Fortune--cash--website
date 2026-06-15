@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { CreditCard, Trophy, ArrowDownLeft, Zap, Gift, Clock, Coins } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { fetchCustomerDashboard } from '@/lib/fortuneApi'
 
 const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1'
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
@@ -14,8 +15,8 @@ export function DashboardPage() {
 
   const [currency, setCurrency] = useState('USD')
   const [totalWon, setTotalWon] = useState(0)
-  const [totalWithdrawal, setTotalWithdrawal] = useState(0)
-  const [totalPayout, setTotalPayout] = useState(0) // Simulated since Admin API is not created yet
+  const [totalUnpayout, setTotalUnpayout] = useState(0)
+  const [totalPayout, setTotalPayout] = useState(0)
 
   useEffect(() => {
     if (!accessToken) return
@@ -35,23 +36,13 @@ export function DashboardPage() {
       })
       .catch(err => console.error('Error fetching wallet:', err))
 
-    // Fetch financial summary stats
-    fetch(`${BASE_URL}/wallet/summary`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-App-Key': APP_KEY,
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data) {
-          setTotalWon(data.data.total_won || 0)
-          setTotalWithdrawal(data.data.total_withdrawn || 0)
-          // Fallback payout value based on won or default placeholder
-          setTotalPayout((data.data.total_won || 0) * 0.95)
-        }
+    fetchCustomerDashboard(accessToken)
+      .then((data) => {
+        setTotalWon(data.total_winnings)
+        setTotalPayout(data.total_payout)
+        setTotalUnpayout(data.total_unpayout)
       })
-      .catch(err => console.error('Error fetching summary stats:', err))
+      .catch((err: Error) => console.error('Error fetching customer dashboard:', err))
   }, [accessToken])
 
   const formatCurrency = (val: number) => {
@@ -65,8 +56,8 @@ export function DashboardPage() {
   const stats = [
     { label: 'Wallet Balance', value: formatCurrency(walletBalance), color: 'text-foreground', icon: <CreditCard className="size-8 text-primary" /> },
     { label: 'Total Won', value: formatCurrency(totalWon), color: 'text-foreground', icon: <Trophy className="size-8 text-primary" /> },
-    { label: 'Total Payout', value: formatCurrency(totalPayout), color: 'text-primary', icon: <Zap className="size-8 text-primary animate-pulse" />, isMock: true },
-    { label: 'Total Withdrawal', value: formatCurrency(totalWithdrawal), color: 'text-primary', icon: <ArrowDownLeft className="size-8 text-primary" /> },
+    { label: 'Total Payout', value: formatCurrency(totalPayout), color: 'text-primary', icon: <Zap className="size-8 text-primary animate-pulse" /> },
+    { label: 'Total Unpayout', value: formatCurrency(totalUnpayout), color: 'text-primary', icon: <ArrowDownLeft className="size-8 text-primary" /> },
   ]
 
   const quickLinks = [
@@ -104,9 +95,6 @@ export function DashboardPage() {
               <div className="flex justify-between items-start mb-2">
                 <span className="text-muted-foreground text-xs font-semibold leading-tight flex items-center gap-1">
                   {stat.label}
-                  {stat.isMock && (
-                    <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-1 rounded uppercase tracking-wider scale-90">Pending Admin API</span>
-                  )}
                 </span>
                 {stat.icon}
               </div>

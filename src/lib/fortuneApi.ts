@@ -85,6 +85,13 @@ export interface ApiWinningOrder {
   games: ApiWinningGame[]
 }
 
+export interface ApiCustomerDashboard {
+  total_winning_count: number
+  total_winnings: number
+  total_payout: number
+  total_unpayout: number
+}
+
 export interface AboutContent {
   title: string
   content: string
@@ -567,6 +574,17 @@ export async function fetchCustomerWinnings(token: string, page = 1, perPage = 1
   return {
     items,
     ...listMeta(body),
+  }
+}
+
+export async function fetchCustomerDashboard(token: string): Promise<ApiCustomerDashboard> {
+  const data = unwrapContent(await request('/api/customer/my-dashboard', token))
+
+  return {
+    total_winning_count: pickNumber(data, ['total_winning_count', 'winning_count', 'total_wins']),
+    total_winnings: pickNumber(data, ['total_winnings', 'total_won', 'winning_amount']),
+    total_payout: pickNumber(data, ['total_payout', 'payout']),
+    total_unpayout: pickNumber(data, ['total_unpayout', 'unpayout', 'pending_payout']),
   }
 }
 
