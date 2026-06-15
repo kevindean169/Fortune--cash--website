@@ -23,6 +23,7 @@ const getImageUrl = (imagePath: string) => {
   return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
+import './LotteryPurchase.css';
 export function MoneyTimePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
@@ -601,7 +602,7 @@ export function MoneyTimePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="lottery-purchase-wrapper min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     )
@@ -611,7 +612,7 @@ export function MoneyTimePage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
         <p className="text-red-400 font-semibold mb-4">{error}</p>
-        <Button onClick={() => navigate('lotteries')} className="gold-gradient text-white font-bold">
+        <Button onClick={() => navigate('lotteries')} className="bet-add-btn-green text-white font-bold">
           Back to Lotteries
         </Button>
       </div>
@@ -698,8 +699,8 @@ export function MoneyTimePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id
-                ? 'border-primary text-primary bg-primary/5'
+              className={`px-5 py-3 text-sm font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
+                ? 'lottery-tab-active-gold'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
             >
@@ -718,7 +719,7 @@ export function MoneyTimePage() {
               <div className="lg:col-span-2 space-y-6">
 
                 {/* Draw Selector Slots */}
-                <Card className="bg-fortune-card border border-border/60">
+                <Card className="lottery-card-container">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-center mb-4 border-b border-border/40 pb-3">
                       <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary font-extrabold text-xs rounded-lg uppercase tracking-wider">
@@ -729,7 +730,7 @@ export function MoneyTimePage() {
                       </span>
                     </div>
 
-                    <h3 className="font-extrabold text-lg text-foreground mb-4">Select your Next Draw Slots</h3>
+                    <h3 className="font-black text-2xl text-white mb-4">Select your Next Draw Slots</h3>
                     <div>
                       <Button
                         type="button"
@@ -767,11 +768,11 @@ export function MoneyTimePage() {
                 </Card>
 
                 {/* Pick Number Panel */}
-                <Card className="bg-fortune-card border border-border/60">
+                <Card className="lottery-card-container">
                   <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h3 className="font-extrabold text-lg text-foreground">Pick your Bet Number</h3>
+                        <h3 className="font-black text-2xl text-white">Pick your Bet Number</h3>
                         <p className="text-xs text-muted-foreground">Select a single lottery number to place bets on</p>
                       </div>
 
@@ -806,7 +807,7 @@ export function MoneyTimePage() {
                                 }}
                                 className={`aspect-square rounded-xl flex items-center justify-center font-bold text-sm border transition-all ${isSelected
                                   ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                  : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                  : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
                                   }`}
                               >
                                 {numStr}
@@ -820,9 +821,9 @@ export function MoneyTimePage() {
                 </Card>
 
                 {/* Enter Bet Amounts for Each Game Option */}
-                <Card className="bg-fortune-card border border-border/60">
+                <Card className="lottery-card-container">
                   <CardContent className="p-6">
-                    <h3 className="font-extrabold text-lg text-foreground mb-4">Enter your Bet Amount</h3>
+                    <h3 className="font-black text-2xl text-white mb-4">ENTER YOUR BET AMOUNT</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {config.games.map((game: { id: string; name: string; defaultAmount: any; defaultAmountMonsta: any; presets: string[] }, index: number) => {
@@ -888,14 +889,12 @@ export function MoneyTimePage() {
                         type="button"
                         variant="outline"
                         onClick={handleClearData}
-                        className="px-6 py-3 border-neutral-800 bg-transparent text-muted-foreground text-xs font-extrabold uppercase tracking-wider rounded-xl hover:bg-neutral-900"
-                      >
-                        Clear Data
-                      </Button>
+                        className="clear-data-btn w-1/3"
+                      >CLEAR DATA</Button>
                       <Button
                         type="button"
                         onClick={handleAddAllBets}
-                        className="px-6 py-3 bg-[#468a35] hover:bg-[#3a7526] border border-white text-white font-extrabold text-[15px] uppercase tracking-wider rounded-lg shadow-sm transition-all"
+                        className="bet-add-btn-green w-2/3"
                       >
                         ADD BET +
                       </Button>
@@ -909,7 +908,7 @@ export function MoneyTimePage() {
                 <Card className="bg-fortune-card border border-border/60 sticky top-24">
                   <CardContent className="p-6 flex flex-col justify-between min-h-[450px]">
                     <div>
-                      <h3 className="font-extrabold text-lg text-foreground border-b border-border pb-3 mb-4">
+                      <h3 className="font-black text-2xl text-white border-b border-border pb-3 mb-4">
                         Total Bets View ({groupedCart.length})
                       </h3>
 
@@ -995,10 +994,10 @@ export function MoneyTimePage() {
                         size="lg"
                         className={`w-full font-extrabold text-[15px] uppercase tracking-widest transition-all rounded-lg ${cart.length === 0 || checkoutLoading
                           ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
-                          : 'bg-[#468a35] hover:bg-[#3a7526] border border-white text-white shadow-sm'
+                          : 'bet-add-btn-green'
                           }`}
                       >
-                        {checkoutLoading ? 'Processing...' : 'Place Bets & Checkout'}
+                        {checkoutLoading ? 'Processing...' : 'PLACE BETS & CHECKOUT'}
                       </Button>
                     </div>
                   </CardContent>
@@ -1014,7 +1013,7 @@ export function MoneyTimePage() {
                 <CardContent className="px-3 py-1">
                   <div className="flex justify-between items-center mb-1 pb-1 border-b border-border/40">
                     <span className="text-xs text-primary font-black uppercase tracking-wider">Draw Schedule</span>
-                    <span className="text-xs text-muted-foreground font-bold">{selectedDrawTimes.length} Selected</span>
+                    <span className="text-base text-primary font-bold border border-primary px-2 py-0.5 rounded">{selectedDrawTimes.length} Selected</span>
                   </div>
                   <Button
                     type="button"
@@ -1053,11 +1052,11 @@ export function MoneyTimePage() {
               <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
                 <CardContent className="px-3 py-1">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-extrabold text-sm text-foreground shrink-0">Pick your Bet Number</h3>
+                    <h3 className="lottery-heading-white shrink-0 w-1/2">PICK YOUR BET<br/>NUMBER</h3>
                     <button
                       type="button"
                       onClick={() => setShowNumberGrid(!showNumberGrid)}
-                      className="flex-1 bg-background border border-border hover:border-primary/40 px-3 py-2.5 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all min-w-0"
+                      className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
                     >
                       <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
                         {selectedNumber ? `#${selectedNumber}` : 'Select Number'}
@@ -1069,7 +1068,7 @@ export function MoneyTimePage() {
                   {showNumberGrid && (
                     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
                       <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn">
-                        <h3 className="font-extrabold text-lg text-foreground mb-4">Pick your Bet Number</h3>
+                        <h3 className="font-black text-2xl text-white mb-4">Pick your Bet Number</h3>
                         <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
                           {['0', '00', ...Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0'))].map((numStr) => {
                             const isSelected = selectedNumber === numStr
@@ -1078,9 +1077,9 @@ export function MoneyTimePage() {
                                 key={numStr}
                                 type="button"
                                 onClick={() => setSelectedNumber(numStr)}
-                                className={`aspect-square rounded-lg flex items-center justify-center font-bold text-xs border transition-all ${isSelected
+                                className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${isSelected
                                   ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                  : 'border-neutral-800 bg-[#0d0d0d] text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                  : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
                                   }`}
                               >
                                 {numStr}
@@ -1090,7 +1089,7 @@ export function MoneyTimePage() {
                         </div>
                         <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
                           <Button variant="outline" onClick={() => setShowNumberGrid(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
-                          <Button onClick={() => setShowNumberGrid(false)} className="gold-gradient text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
+                          <Button onClick={() => setShowNumberGrid(false)} className="bet-add-btn-green text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
                         </div>
                       </div>
                     </div>
@@ -1101,7 +1100,7 @@ export function MoneyTimePage() {
               {/* Enter Bet Amounts */}
               <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
                 <CardContent className="px-3 py-1 space-y-1">
-                  <h3 className="font-extrabold text-sm text-foreground">Enter your Bet Amount</h3>
+                  <h3 className="font-extrabold text-sm text-foreground">ENTER YOUR BET AMOUNT</h3>
                   <div className="grid grid-cols-3 gap-2">
                     {config.games.map((game: { id: string; name: string; presets: string[] }, index: number) => {
                       const amount = betAmounts[game.id] || ''
@@ -1133,11 +1132,9 @@ export function MoneyTimePage() {
                             disabled={isDisabled}
                             onClick={() => setEditingGameAmount(game.id)}
                             className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
-                              ? 'bg-primary/5 border border-primary/20 text-primary/40 cursor-not-allowed'
-                              : 'bg-primary/10 border border-primary text-primary hover:bg-primary/20'}`}
-                          >
-                            + Add
-                          </button>
+                              ? 'add-sub-btn-disabled'
+                              : 'add-sub-btn-gold'}`}
+                          >+ ADD</button>
                         </div>
                       )
                     })}
@@ -1152,14 +1149,12 @@ export function MoneyTimePage() {
                     type="button"
                     variant="outline"
                     onClick={handleClearData}
-                    className="w-1/3 h-10 border-transparent bg-neutral-900/50 text-muted-foreground text-xs font-extrabold rounded-lg hover:bg-neutral-800 hover:text-white"
-                  >
-                    Clear Data
-                  </Button>
+                    className="clear-data-btn w-1/3"
+                  >CLEAR DATA</Button>
                   <Button
                     type="button"
                     onClick={handleAddAllBets}
-                    className="w-2/3 h-10 bg-[#468a35] hover:bg-[#3a7526] border border-white text-white font-extrabold text-[15px] uppercase tracking-wider rounded-lg shadow-sm transition-all"
+                    className="bet-add-btn-green w-2/3"
                   >
                     ADD BET +
                   </Button>
@@ -1167,7 +1162,7 @@ export function MoneyTimePage() {
 
                 <Button
                   onClick={() => setShowCartModal(true)}
-                  className="w-full h-[50px] bg-[#0d0d0d] border border-primary text-primary font-bold text-[15px] rounded-xl hover:bg-neutral-900 transition-all shadow-[0_0_10px_rgba(255,215,0,0.1)]"
+                  className="total-bets-btn-black w-full"
                 >
                   Total Bets View ({groupedCart.length})
                 </Button>
@@ -1220,7 +1215,7 @@ export function MoneyTimePage() {
 
                     <div className="flex justify-between items-center gap-3">
                       <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
-                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 gold-gradient text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
+                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
                     </div>
                   </div>
                 </div>
@@ -1332,10 +1327,10 @@ export function MoneyTimePage() {
                           }}
                           className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${cart.length === 0 || checkoutLoading
                             ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
-                            : 'bg-[#468a35] hover:bg-[#3a7526] border border-white text-white shadow-sm'
+                            : 'bet-add-btn-green'
                             }`}
                         >
-                          {checkoutLoading ? 'Processing...' : 'Place Bets'}
+                          {checkoutLoading ? 'Processing...' : 'PLACE BETS'}
                         </Button>
                       </div>
                     </div>
@@ -1348,7 +1343,7 @@ export function MoneyTimePage() {
 
         {/* PRIZE STRUCTURE */}
         {activeTab === 'prize' && (
-          <Card className="bg-fortune-card border border-border/60">
+          <Card className="lottery-card-container">
             <CardContent className="p-8">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">Prize Payout Structure</h2>
 
@@ -1402,7 +1397,7 @@ export function MoneyTimePage() {
 
         {/* HOW TO PLAY */}
         {activeTab === 'how' && (
-          <Card className="bg-fortune-card border border-border/60">
+          <Card className="lottery-card-container">
             <CardContent className="p-8 space-y-6">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground">How to Play {config.name}</h2>
               {howToPlayData ? (
@@ -1432,7 +1427,7 @@ export function MoneyTimePage() {
 
         {/* SOLD OUT */}
         {activeTab === 'soldout' && (
-          <Card className="bg-fortune-card border border-border/60">
+          <Card className="lottery-card-container">
             <CardContent className="p-8">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
               <p className="text-muted-foreground text-base mb-6">
