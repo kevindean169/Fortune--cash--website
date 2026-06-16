@@ -19,6 +19,11 @@ interface BetItem {
   batchId?: string
 }
 
+interface SoldOutDrawOption {
+  value: string
+  label: string
+}
+
 const getImageUrl = (imagePath: string) => {
   if (!imagePath) return '/favicon.png'
   if (imagePath.startsWith('http')) return imagePath
@@ -268,12 +273,17 @@ export function MoneyTimePage() {
     }
   }, [groups, activeHourTab])
 
-  // 3. Automatically pick first draw time for soldout page if none selected
+  // 3. Keep sold out draw selection aligned with the available schedule
   useEffect(() => {
-    if (activeTab === 'soldout' && !selectedSoldOutTime && config.drawTimes.length > 0) {
-      setSelectedSoldOutTime(config.drawTimes[0])
+    const availableSoldOutDrawOptions = getSoldOutDrawOptions()
+    if (
+      activeTab === 'soldout' &&
+      availableSoldOutDrawOptions.length > 0 &&
+      !availableSoldOutDrawOptions.some((option) => option.value === selectedSoldOutTime)
+    ) {
+      setSelectedSoldOutTime(availableSoldOutDrawOptions[0].value)
     }
-  }, [activeTab, config.drawTimes, selectedSoldOutTime])
+  }, [activeTab, selectedSoldOutTime, moneyTimeDraws, config.drawTimes])
 
   // 4. Fetch Sold Out Numbers when tab active or draw time changes
   useEffect(() => {
@@ -312,6 +322,25 @@ export function MoneyTimePage() {
       cleaned = cleaned.replace(' ', 'T');
     }
     return new Date(cleaned + '-05:00');
+  }
+
+  function formatSoldOutDrawTimeToLocal(timeStr: string): string {
+    const directDate = parseJamaicaDrawDate(timeStr)
+    if (!Number.isNaN(directDate.getTime())) {
+      const localTimeDisplay = directDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+      const localDateDisplay = directDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
+      return `${localTimeDisplay} (${localDateDisplay})`
+    }
+
+    const jamaicaDate = new Date().toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0]
+    const fallbackDate = parseJamaicaDrawDate(`${jamaicaDate} ${timeStr}`)
+    if (Number.isNaN(fallbackDate.getTime())) {
+      return timeStr
+    }
+
+    const localTimeDisplay = fallbackDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+    const localDateDisplay = fallbackDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
+    return `${localTimeDisplay} (${localDateDisplay})`
   }
 
   function getMoneyTimeGroups() {
@@ -420,6 +449,41 @@ export function MoneyTimePage() {
     });
 
     return groups;
+  }
+
+  function getSoldOutDrawOptions(): SoldOutDrawOption[] {
+    const groups = getMoneyTimeGroups()
+    if (groups.length > 0) {
+      const options: SoldOutDrawOption[] = []
+      const seen = new Set<string>()
+
+      groups.forEach((group: any) => {
+        group?.draws?.forEach((draw: any) => {
+          const value = String(draw?.apiDrawTime || '').trim()
+          if (!value || seen.has(value)) return
+
+          seen.add(value)
+          options.push({
+            value,
+            label: draw?.fullTime || formatSoldOutDrawTimeToLocal(value),
+          })
+        })
+      })
+
+      if (options.length > 0) return options
+    }
+
+    return config.drawTimes.map((time: string) => ({
+      value: time,
+      label: formatSoldOutDrawTimeToLocal(time),
+    }))
+  }
+
+  function getSelectedSoldOutLabel() {
+    return (
+      getSoldOutDrawOptions().find((option) => option.value === selectedSoldOutTime)?.label ||
+      formatSoldOutDrawTimeToLocal(selectedSoldOutTime)
+    )
   }
 
   // getNumberWarning intentionally removed (unused)
@@ -1609,8 +1673,8 @@ export function MoneyTimePage() {
                   className="bg-background border border-border rounded-xl px-4 py-2.5 text-foreground text-sm font-semibold focus:outline-none focus:border-primary"
                 >
                   <option value="">-- Choose Draw Time --</option>
-                  {config.drawTimes.map((time: string) => (
-                    <option key={time} value={time}>{time}</option>
+                  {getSoldOutDrawOptions().map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
               </div>
@@ -1626,7 +1690,7 @@ export function MoneyTimePage() {
                       key={num}
                       className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
                     >
-                      #{num} (Draw: {selectedSoldOutTime})
+                      #{num} (Draw: {getSelectedSoldOutLabel()})
                     </span>
                   ))}
                 </div>

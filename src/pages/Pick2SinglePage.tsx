@@ -219,9 +219,13 @@ export function Pick2SinglePage() {
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
 
-  // 3. Automatically pick first draw time for soldout page if none selected
+  // 3. Keep sold out draw selection aligned with the available schedule
   useEffect(() => {
-    if (activeTab === 'soldout' && !selectedSoldOutTime && config.drawTimes.length > 0) {
+    if (
+      activeTab === 'soldout' &&
+      config.drawTimes.length > 0 &&
+      !config.drawTimes.includes(selectedSoldOutTime)
+    ) {
       setSelectedSoldOutTime(config.drawTimes[0])
     }
   }, [activeTab, config.drawTimes, selectedSoldOutTime])
@@ -1314,7 +1318,7 @@ export function Pick2SinglePage() {
                 >
                   <option value="">-- Choose Draw Time --</option>
                   {config.drawTimes.map((time: string) => (
-                    <option key={time} value={time}>{time}</option>
+                    <option key={time} value={time}>{formatDrawTimeToLocal(time).display}</option>
                   ))}
                 </select>
               </div>
@@ -1330,7 +1334,7 @@ export function Pick2SinglePage() {
                       key={num}
                       className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
                     >
-                      #{num} (Draw: {selectedSoldOutTime})
+                      #{num} (Draw: {formatDrawTimeToLocal(selectedSoldOutTime).display})
                     </span>
                   ))}
                 </div>
