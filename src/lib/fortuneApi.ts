@@ -1,4 +1,6 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://staging.fortunescash.com').replace(/\/$/, '')
+const AUTH_API_BASE_URL = (import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1').replace(/\/$/, '')
+const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
 export interface ApiListResult<T> {
   items: T[]
@@ -41,6 +43,7 @@ export interface ApiTransaction {
   date: string
   status: string
   positive: boolean
+  details: string
 }
 
 export interface ApiDrawResult {
@@ -309,6 +312,24 @@ async function request(endpoint: string, token?: string): Promise<unknown> {
   return body
 }
 
+async function authRequest(endpoint: string, token?: string): Promise<unknown> {
+  const response = await fetch(`${AUTH_API_BASE_URL}${endpoint}`, {
+    headers: {
+      Accept: 'application/json',
+      'X-App-Key': APP_KEY,
+      ...authHeaders(token),
+    },
+  })
+
+  const body = await response.json().catch(() => null)
+  if (!response.ok) {
+    const message = pickString(body, ['message', 'error'], 'Unable to load data.')
+    throw new Error(message)
+  }
+
+  return body
+}
+
 function listMeta(body: unknown): Omit<ApiListResult<never>, 'items'> {
   const data = getRecord(body, 'data')
   const meta = getRecord(body, 'meta')
@@ -384,12 +405,20 @@ function mapTicket(raw: unknown): ApiTicketOrder {
 }
 
 function mapTransaction(raw: unknown): ApiTransaction {
-  const type = pickString(raw, ['type', 'transaction_type', 'category', 'reason'], 'Transaction')
+  const metadata = getRecord(raw, 'metadata')
+  const type = pickString(raw, ['type', 'transaction_type', 'category', 'reason', 'reference_type'], 'Transaction')
   const amount = pickNumber(raw, ['amount', 'total', 'value'])
   const normalizedType = type.toLowerCase()
   const debitType = ['withdrawal', 'withdraw', 'purchase', 'ticket', 'debit'].some((word) => normalizedType.includes(word))
   const creditType = ['deposit', 'payout', 'winning', 'credit'].some((word) => normalizedType.includes(word))
   const positive = creditType || (!debitType && amount >= 0)
+  const message = pickString(metadata, ['message'], pickString(raw, ['message', 'description', 'narration', 'note'], ''))
+  const orderId = pickString(metadata, ['order_id'], pickString(raw, ['order_id', 'order_no', 'reference_id'], ''))
+  const gameId = pickString(raw, ['gameId', 'game_id'], pickString(metadata, ['gameId', 'game_id'], ''))
+
+  const detailParts = [message, orderId ? `Order: ${orderId}` : '', gameId ? `Game: ${gameId}` : '']
+    .map((part) => part.trim())
+    .filter(Boolean)
 
   return {
     id: pickString(raw, ['transaction_id', 'txn_id', 'order_id', 'order_no', 'id'], '-'),
@@ -399,6 +428,7 @@ function mapTransaction(raw: unknown): ApiTransaction {
     date: normalizeDate(pickString(raw, ['created_at', 'createdAt', 'date', 'time'], '')),
     status: pickString(raw, ['status'], 'Completed'),
     positive,
+    details: detailParts.join(' · '),
   }
 }
 
@@ -548,7 +578,7 @@ export async function fetchTickets(token: string, page = 1, perPage = 10): Promi
 }
 
 export async function fetchTransactions(token: string, page = 1, perPage = 10): Promise<ApiListResult<ApiTransaction>> {
-  const body = await request(`/api/customer/transactions?per_page=${perPage}&page=${page}`, token)
+  const body = await authRequest(`/wallet/transactions?page=${page}&limit=${perPage}`, token)
   const items = getArray(body, ['transactions', 'items', 'records', 'data']).map(mapTransaction)
 
   return {

@@ -560,12 +560,14 @@ export function Pick2DoublePage() {
     try {
       await submitLotteryPurchase({
         baseUrl: import.meta.env.VITE_API_URL || '',
+        authBaseUrl: import.meta.env.VITE_AUTH_API_URL || '',
         accessToken,
         appKey: import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
         lotteryId,
         cart,
         purchasePath: `/api/customer/picktwodouble-purchase/${lotteryId}`,
         printStatusPath: '/api/customer/pickprintstatus',
+        walletGameId: config.type || config.name,
         getGameId: (item) => {
           const game = config.games.find((g: { id: string; name: string }) => g.name === item.gameName)
           return game?.id || '5'

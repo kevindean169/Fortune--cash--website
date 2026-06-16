@@ -102,7 +102,7 @@ export function TransactionHistoryPage() {
                 <thead>
                   <tr className="border-b border-border bg-white/[0.01]">
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Transaction ID</th>
-                    <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Type</th>
+                    <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Type & Details</th>
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Payment Method</th>
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Timestamp</th>
                     <th className="text-right text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Amount</th>
@@ -117,6 +117,11 @@ export function TransactionHistoryPage() {
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${typeBadge(transaction.type)}`}>
                           {transaction.type}
                         </span>
+                        {transaction.details && (
+                          <p className="mt-2 max-w-[280px] text-xs leading-relaxed text-muted-foreground">
+                            {transaction.details}
+                          </p>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">{transaction.method}</td>
                       <td className="px-6 py-4 text-muted-foreground text-xs">{transaction.date}</td>

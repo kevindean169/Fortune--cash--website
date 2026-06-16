@@ -9,6 +9,7 @@ export interface LotteryCartItem {
 
 interface SubmitLotteryPurchaseParams {
   baseUrl: string
+  authBaseUrl: string
   accessToken: string | null
   appKey: string
   lotteryId: string
@@ -16,6 +17,7 @@ interface SubmitLotteryPurchaseParams {
   purchasePath: string
   printStatusPath: string
   getGameId: (item: LotteryCartItem) => string
+  walletGameId: string
   doubleNumber?: boolean
 }
 
@@ -68,8 +70,17 @@ const extractOrderNo = (value: unknown): string | null => {
   return null
 }
 
+const normalizeWalletGameId = (value: string) =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'lottery'
+
 export async function submitLotteryPurchase({
   baseUrl,
+  authBaseUrl,
   accessToken,
   appKey,
   lotteryId,
@@ -77,6 +88,7 @@ export async function submitLotteryPurchase({
   purchasePath,
   printStatusPath,
   getGameId,
+  walletGameId,
   doubleNumber = false,
 }: SubmitLotteryPurchaseParams) {
   const headers: HeadersInit = {
@@ -163,5 +175,34 @@ export async function submitLotteryPurchase({
     throw new Error(printStatusData?.message || 'Print status update failed.')
   }
 
-  return { purchaseData, printStatusData, orderNo }
+  const totalAmount = cart.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+  const debitPayload = {
+    amount: Number(totalAmount.toFixed(2)),
+    gameId: normalizeWalletGameId(walletGameId),
+    idempotencyKey: `purchase-${Date.now()}`,
+    metadata: {
+      multiplier: 1.0,
+      type: 'purchase',
+      message: 'Purchased successfully',
+      order_id: orderNo,
+      lottery_id: lotteryId,
+    },
+  }
+
+  const debitResponse = await fetch(`${authBaseUrl.replace(/\/$/, '')}/games/wallet/debit`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: JSON.stringify(debitPayload),
+  })
+
+  const debitData = await debitResponse.json().catch(() => null)
+
+  if (!debitResponse.ok || debitData?.success === false) {
+    throw new Error(debitData?.message || 'Wallet debit failed after purchase.')
+  }
+
+  return { purchaseData, printStatusData, debitData, orderNo }
 }
