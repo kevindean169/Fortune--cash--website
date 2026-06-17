@@ -77,19 +77,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true
 
     const bootstrapAuth = async () => {
-      const storedUser = localStorage.getItem('fortune_user')
-      const storedToken = localStorage.getItem('fortune_access_token')
+      // Check query parameters for token or accessToken (e.g. from the app redirect)
+      const params = new URLSearchParams(window.location.search)
+      const urlToken = params.get('token') || params.get('accessToken')
 
-      if (storedUser && storedToken) {
+      let tokenToUse = urlToken
+      let userToUse = null
+
+      if (urlToken) {
         try {
-          const parsedUser = JSON.parse(storedUser)
-          if (!active) return
-          setUser(parsedUser)
-          setAccessToken(storedToken)
-          await fetchWallet(storedToken)
-        } catch (e) {
-          clearSession(false)
+          const res = await fetch(`${BASE_URL}/auth/me`, {
+            headers: {
+              'X-App-Key': APP_KEY,
+              'Authorization': `Bearer ${urlToken}`,
+            }
+          })
+          if (res.ok) {
+            const resData = await res.json()
+            if (resData.success && resData.data) {
+              userToUse = resData.data
+              localStorage.setItem('fortune_user', JSON.stringify(userToUse))
+              localStorage.setItem('fortune_access_token', urlToken)
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching user info using URL token:', err)
         }
+
+        // Clean URL parameter so token doesn't leak or stay in address bar
+        try {
+          const cleanSearch = window.location.search
+            .replace(/[?&](token|accessToken)=[^&]+/g, '')
+            .replace(/^&/, '?')
+          const cleanUrl = window.location.pathname + (cleanSearch === '?' ? '' : cleanSearch) + window.location.hash
+          window.history.replaceState({}, document.title, cleanUrl)
+        } catch (e) {
+          console.error('Failed to clean token from URL:', e)
+        }
+      }
+
+      // If no valid URL token was processed, fallback to localStorage
+      if (!userToUse || !tokenToUse) {
+        const storedUser = localStorage.getItem('fortune_user')
+        const storedToken = localStorage.getItem('fortune_access_token')
+        if (storedUser && storedToken) {
+          try {
+            userToUse = JSON.parse(storedUser)
+            tokenToUse = storedToken
+          } catch (e) {
+            clearSession(false)
+          }
+        }
+      }
+
+      if (active && userToUse && tokenToUse) {
+        setUser(userToUse)
+        setAccessToken(tokenToUse)
+        await fetchWallet(tokenToUse)
       }
 
       if (active) {
