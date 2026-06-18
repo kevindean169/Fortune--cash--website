@@ -114,7 +114,7 @@ export function Pick2DoublePage() {
   const [lotteryData, setLotteryData] = useState<any>(null)
   const [howToPlayData, setHowToPlayData] = useState<string>('')
   const [priceData, setPriceData] = useState<any>(null)
-  const [soldOutList, setSoldOutList] = useState<string[]>([])
+  const [soldOutData, setSoldOutData] = useState<{ num1: string[]; num2: string[] }>({ num1: [], num2: [] })
   const [selectedSoldOutTime, setSelectedSoldOutTime] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -283,18 +283,24 @@ export function Pick2DoublePage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/pick-sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      const cleanDrawTime = selectedSoldOutTime.includes(':')
+        ? selectedSoldOutTime.split(':').slice(0, 2).join(':')
+        : selectedSoldOutTime
+      fetch(`${baseUrl}/api/pick-sold-out-numbers/${lotteryId}?draw_time=${cleanDrawTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
-          if (resData.status === 'success' && Array.isArray(resData.data)) {
-            setSoldOutList(resData.data)
+          if (resData.status === 'success' && resData.data) {
+            const d = resData.data;
+            const num1 = Array.isArray(d.num1) ? d.num1 : [];
+            const num2 = Array.isArray(d.num2) ? d.num2 : [];
+            setSoldOutData({ num1, num2 });
           } else {
-            setSoldOutList([])
+            setSoldOutData({ num1: [], num2: [] });
           }
         })
         .catch(err => {
           console.error('Fetch sold out numbers error:', err)
-          setSoldOutList([])
+          setSoldOutData({ num1: [], num2: [] })
         })
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
@@ -481,6 +487,10 @@ export function Pick2DoublePage() {
   }
 
   const updateBetAmount = (gameId: string, value: string) => {
+    if (!selectedNumber || !selectedNumber2) {
+      alert('Please select draw time(s) and bet number(s) first.')
+      return
+    }
     if (value === '') {
       setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
       setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
@@ -841,7 +851,13 @@ export function Pick2DoublePage() {
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
-                                onClick={() => setShowGrid1(!showGrid1)}
+                                onClick={() => {
+                                  if (selectedDrawTimes.length === 0) {
+                                    alert('Please select draw time(s) first.')
+                                    return
+                                  }
+                                  setShowGrid1(!showGrid1)
+                                }}
                                 className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
                               >
                                 <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
@@ -852,6 +868,10 @@ export function Pick2DoublePage() {
                               <button
                                 type="button"
                                 onClick={() => {
+                                  if (selectedDrawTimes.length === 0) {
+                                    alert('Please select draw time(s) first.')
+                                    return
+                                  }
                                   setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                                 }}
                                 className="px-4 py-3 bg-background border border-border text-foreground text-xs font-bold rounded-xl hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
@@ -897,7 +917,13 @@ export function Pick2DoublePage() {
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
-                                onClick={() => setShowGrid2(!showGrid2)}
+                                onClick={() => {
+                                  if (selectedDrawTimes.length === 0) {
+                                    alert('Please select draw time(s) first.')
+                                    return
+                                  }
+                                  setShowGrid2(!showGrid2)
+                                }}
                                 className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
                               >
                                 <span className={selectedNumber2 ? 'text-primary' : 'text-muted-foreground'}>
@@ -908,6 +934,10 @@ export function Pick2DoublePage() {
                               <button
                                 type="button"
                                 onClick={() => {
+                                  if (selectedDrawTimes.length === 0) {
+                                    alert('Please select draw time(s) first.')
+                                    return
+                                  }
                                   setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                                 }}
                                 className="px-4 py-3 bg-background border border-border text-foreground text-xs font-bold rounded-xl hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
@@ -972,6 +1002,12 @@ export function Pick2DoublePage() {
                                   type="number"
                                   placeholder="0.00"
                                   value={amount}
+                                  onMouseDown={(e) => {
+                                    if (!selectedNumber || !selectedNumber2) {
+                                      e.preventDefault()
+                                      alert('Please select draw time(s) and bet number(s) first.')
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     const val = e.target.value
                                     updateBetAmount(game.id, val)
@@ -1178,6 +1214,10 @@ export function Pick2DoublePage() {
                       <button
                         type="button"
                         onClick={() => {
+                          if (selectedDrawTimes.length === 0) {
+                            alert('Please select draw time(s) first.')
+                            return
+                          }
                           setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                         }}
                         className="px-2 py-1 bg-neutral-900 border border-neutral-850 text-foreground text-[10px] font-bold rounded-md"
@@ -1187,7 +1227,13 @@ export function Pick2DoublePage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setShowGrid1(!showGrid1); setShowGrid2(false) }}
+                      onClick={() => {
+                        if (selectedDrawTimes.length === 0) {
+                          alert('Please select draw time(s) first.')
+                          return
+                        }
+                        setShowGrid1(!showGrid1); setShowGrid2(false)
+                      }}
                       className="w-full bg-background border border-border px-3 py-2.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
                     >
                       <span className={selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
@@ -1230,6 +1276,10 @@ export function Pick2DoublePage() {
                       <button
                         type="button"
                         onClick={() => {
+                          if (selectedDrawTimes.length === 0) {
+                            alert('Please select draw time(s) first.')
+                            return
+                          }
                           setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                         }}
                         className="px-2 py-1 bg-neutral-900 border border-neutral-850 text-foreground text-[10px] font-bold rounded-md"
@@ -1239,7 +1289,13 @@ export function Pick2DoublePage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setShowGrid2(!showGrid2); setShowGrid1(false) }}
+                      onClick={() => {
+                        if (selectedDrawTimes.length === 0) {
+                          alert('Please select draw time(s) first.')
+                          return
+                        }
+                        setShowGrid2(!showGrid2); setShowGrid1(false)
+                      }}
                       className="w-full bg-background border border-border px-3 py-2.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
                     >
                       <span className={selectedNumber2 ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
@@ -1310,7 +1366,13 @@ export function Pick2DoublePage() {
                           <button
                             type="button"
                             disabled={isDisabled}
-                            onClick={() => setEditingGameAmount(game.id)}
+                            onClick={() => {
+                              if (!selectedNumber || !selectedNumber2) {
+                                alert('Please select draw time(s) and bet number(s) first.')
+                                return
+                              }
+                              setEditingGameAmount(game.id)
+                            }}
                             className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
                               ? 'add-sub-btn-disabled'
                               : 'add-sub-btn-gold'}`}
@@ -1633,20 +1695,43 @@ export function Pick2DoublePage() {
                 </select>
               </div>
 
-              {soldOutList.length === 0 ? (
+              {soldOutData.num1.length === 0 && soldOutData.num2.length === 0 ? (
                 <p className="text-muted-foreground text-sm italic">
                   {selectedSoldOutTime ? 'No sold out numbers for this draw time.' : 'Please select a draw time to view sold out numbers.'}
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-3">
-                  {soldOutList.map((num) => (
-                    <span
-                      key={num}
-                      className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
-                    >
-                      #{num} (Draw: {formatDrawTimeToLocal(selectedSoldOutTime).display})
-                    </span>
-                  ))}
+                <div className="space-y-6">
+                  {soldOutData.num1.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-primary uppercase mb-3 tracking-wider">Number 1 Sold Out</h4>
+                      <div className="flex flex-wrap gap-3">
+                        {soldOutData.num1.map((num) => (
+                          <span
+                            key={num}
+                            className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
+                          >
+                            #{num}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {soldOutData.num2.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-primary uppercase mb-3 tracking-wider">Number 2 Sold Out</h4>
+                      <div className="flex flex-wrap gap-3">
+                        {soldOutData.num2.map((num) => (
+                          <span
+                            key={num}
+                            className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
+                          >
+                            #{num}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

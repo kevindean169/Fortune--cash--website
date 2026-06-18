@@ -282,7 +282,10 @@ export function CashpotPage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      const cleanDrawTime = selectedSoldOutTime.includes(':')
+        ? selectedSoldOutTime.split(':').slice(0, 2).join(':')
+        : selectedSoldOutTime
+      fetch(`${baseUrl}/api/sold-out-numbers/${lotteryId}?draw_time=${cleanDrawTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
@@ -442,6 +445,10 @@ export function CashpotPage() {
   }
 
   const updateBetAmount = (gameId: string, value: string) => {
+    if (!selectedNumber) {
+      alert('Please select draw time(s) and bet number first.')
+      return
+    }
     if (value === '') {
       setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
       setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
@@ -806,7 +813,13 @@ export function CashpotPage() {
                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bet No.</span>
                         <button
                           type="button"
-                          onClick={() => setShowNumberGrid(!showNumberGrid)}
+                          onClick={() => {
+                            if (selectedDrawTimes.length === 0) {
+                              alert('Please select draw time(s) first.')
+                              return
+                            }
+                            setShowNumberGrid(!showNumberGrid)
+                          }}
                           className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
                         >
                           <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
@@ -874,6 +887,12 @@ export function CashpotPage() {
                                   type="number"
                                   placeholder="0.00"
                                   value={amount}
+                                  onMouseDown={(e) => {
+                                    if (!selectedNumber) {
+                                      e.preventDefault()
+                                      alert('Please select draw time(s) and bet number first.')
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     const val = e.target.value
                                     updateBetAmount(game.id, val)
@@ -1073,7 +1092,13 @@ export function CashpotPage() {
                     <h3 className="lottery-heading-white shrink-0 w-1/2">PICK YOUR BET<br/>NUMBER</h3>
                     <button
                       type="button"
-                      onClick={() => setShowNumberGrid(!showNumberGrid)}
+                      onClick={() => {
+                        if (selectedDrawTimes.length === 0) {
+                          alert('Please select draw time(s) first.')
+                          return
+                        }
+                        setShowNumberGrid(!showNumberGrid)
+                      }}
                       className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
                     >
                       <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
@@ -1148,7 +1173,13 @@ export function CashpotPage() {
                           <button
                             type="button"
                             disabled={isDisabled}
-                            onClick={() => setEditingGameAmount(game.id)}
+                            onClick={() => {
+                              if (!selectedNumber) {
+                                alert('Please select draw time(s) and bet number first.')
+                                return
+                              }
+                              setEditingGameAmount(game.id)
+                            }}
                             className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
                               ? 'add-sub-btn-disabled'
                               : 'add-sub-btn-gold'}`}

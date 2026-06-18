@@ -303,7 +303,10 @@ export function MoneyTimePage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      fetch(`${baseUrl}/api/cashpotMoney-sold-out-numbers/${lotteryId}?draw_time=${selectedSoldOutTime}`, { headers })
+      const cleanDrawTime = selectedSoldOutTime.includes(':')
+        ? selectedSoldOutTime.split(':').slice(0, 2).join(':')
+        : selectedSoldOutTime
+      fetch(`${baseUrl}/api/cashpotMoney-sold-out-numbers/${lotteryId}?draw_time=${cleanDrawTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
@@ -364,11 +367,8 @@ export function MoneyTimePage() {
     const groups = getMoneyTimeGroups();
     for (const group of groups) {
       const found = group?.draws?.find((draw: any) => draw.fullTime === timeStr || draw.time === timeStr);
-      if (found) {
-        const drawDate = parseJamaicaDrawDate(found.raw.datetime || `${found.raw.draw_date}T${found.raw.draw_time}`);
-        if (!isNaN(drawDate.getTime())) {
-          return Date.now() > drawDate.getTime();
-        }
+      if (found && found.timestamp) {
+        return Date.now() > found.timestamp;
       }
     }
     const date = parseJamaicaDrawDate(timeStr);
@@ -419,7 +419,7 @@ export function MoneyTimePage() {
         const label = `${localSlotDateLabel}, ${localSlotHour}`;
         const key = slot.datetime;
 
-        const parsedDraws = slot.draws.map((d: any) => {
+         const parsedDraws = slot.draws.map((d: any) => {
           let drawDateTimeStr = d.draw_time;
           if (!drawDateTimeStr.includes('-') && !drawDateTimeStr.includes('T')) {
             drawDateTimeStr = `${datePart}T${drawDateTimeStr}`;
@@ -434,6 +434,7 @@ export function MoneyTimePage() {
             time: drawDisplayTime,
             fullTime: fullTime,
             apiDrawTime: d.draw_time,
+            timestamp: drawDate.getTime(),
             raw: d
           };
         });
@@ -477,6 +478,7 @@ export function MoneyTimePage() {
             time: displayTime,
             fullTime: `${dateLabel}, ${displayTime}`,
             apiDrawTime: draw.draw_time,
+            timestamp: drawMs,
             raw: draw
           });
         }
@@ -496,6 +498,7 @@ export function MoneyTimePage() {
             time: displayTime,
             fullTime: `${dateLabel}, ${displayTime}`,
             apiDrawTime: draw.draw_time,
+            timestamp: drawMs,
             raw: draw
           }]
         });
@@ -693,6 +696,10 @@ export function MoneyTimePage() {
   }
 
   const updateBetAmount = (gameId: string, value: string) => {
+    if (!selectedNumber) {
+      alert('Please select draw time(s) and bet number first.')
+      return
+    }
     if (value === '') {
       setBetAmounts(prev => ({ ...prev, [gameId]: '' }))
       setAmountInputWarnings(prev => ({ ...prev, [gameId]: '' }))
@@ -1078,7 +1085,13 @@ export function MoneyTimePage() {
                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bet No.</span>
                         <button
                           type="button"
-                          onClick={() => setShowNumberGrid(!showNumberGrid)}
+                          onClick={() => {
+                            if (selectedDrawTimes.length === 0) {
+                              alert('Please select draw time(s) first.')
+                              return
+                            }
+                            setShowNumberGrid(!showNumberGrid)
+                          }}
                           className="min-w-[160px] bg-background border border-border hover:border-primary/40 px-4 py-3 rounded-xl flex items-center justify-between font-bold text-sm text-foreground transition-all"
                         >
                           <span className={selectedNumber ? 'text-primary' : 'text-muted-foreground'}>
@@ -1147,6 +1160,12 @@ export function MoneyTimePage() {
                                   type="number"
                                   placeholder="0.00"
                                   value={amount}
+                                  onMouseDown={(e) => {
+                                    if (!selectedNumber) {
+                                      e.preventDefault()
+                                      alert('Please select draw time(s) and bet number first.')
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     const val = e.target.value
                                     updateBetAmount(game.id, val)
@@ -1353,7 +1372,13 @@ export function MoneyTimePage() {
                     <h3 className="lottery-heading-white shrink-0 w-1/2">PICK YOUR BET<br/>NUMBER</h3>
                     <button
                       type="button"
-                      onClick={() => setShowNumberGrid(!showNumberGrid)}
+                      onClick={() => {
+                        if (selectedDrawTimes.length === 0) {
+                          alert('Please select draw time(s) first.')
+                          return
+                        }
+                        setShowNumberGrid(!showNumberGrid)
+                      }}
                       className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
                     >
                       <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
@@ -1429,7 +1454,13 @@ export function MoneyTimePage() {
                           <button
                             type="button"
                             disabled={isDisabled}
-                            onClick={() => setEditingGameAmount(game.id)}
+                            onClick={() => {
+                              if (!selectedNumber) {
+                                alert('Please select draw time(s) and bet number first.')
+                                return
+                              }
+                              setEditingGameAmount(game.id)
+                            }}
                             className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
                               ? 'add-sub-btn-disabled'
                               : 'add-sub-btn-gold'}`}
