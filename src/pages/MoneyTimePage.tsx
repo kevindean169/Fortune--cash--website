@@ -205,9 +205,11 @@ export function MoneyTimePage() {
       }))
   }
 
+  const isNotStarted = lotteryData?.startDateTime ? new Date().getTime() < new Date(lotteryData.startDateTime).getTime() : false;
   // Live countdown to next draw
   // For MoneyTime, derive next draw from moneyTimeDraws (slot API) since singlelottery.currentDraw is not accurate for this type
   const nextMoneyTimeDrawUtc = (() => {
+    if (isNotStarted) return lotteryData?.startDateTime;
     if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) {
       return lotteryData?.currentDrawUtc || lotteryData?.currentDraw || ''
     }
@@ -262,6 +264,8 @@ export function MoneyTimePage() {
     return lotteryData?.currentDrawUtc || lotteryData?.currentDraw || ''
   })()
   const [d, h, m, s] = useDateTimeCountdown(nextMoneyTimeDrawUtc)
+  const isExpired = !isNotStarted && (d === '00' && h === '00' && m === '00' && s === '00') && lotteryData !== null;
+  const showCross = isNotStarted || isExpired;
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
@@ -930,8 +934,24 @@ export function MoneyTimePage() {
         {/* BUY TICKETS */}
         {activeTab === 'buy' && (
           <div>
-            {/* Desktop View */}
-            <div className="hidden lg:grid grid-cols-3 gap-8">
+            {showCross ? (
+              <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
+                <div className="w-24 h-24 rounded-full border-2 border-red-500/50 flex items-center justify-center mb-6 bg-red-500/10">
+                  <X className="size-12 text-red-500" />
+                </div>
+                <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">
+                  {isNotStarted ? 'Lottery Not Started' : 'Lottery Closed'}
+                </h2>
+                <p className="text-muted-foreground text-sm max-w-sm text-center">
+                  {isNotStarted 
+                    ? 'This lottery is not open for purchase yet. Please check back later.' 
+                    : 'This lottery has ended and is no longer available for purchase.'}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Desktop View */}
+                <div className="hidden lg:grid grid-cols-3 gap-8">
 
               {/* Play Area */}
               <div className="lg:col-span-2 space-y-6">
@@ -1571,6 +1591,8 @@ export function MoneyTimePage() {
                 </div>
               )}
             </div>
+          </>
+          )}
           </div>
         )}
 
