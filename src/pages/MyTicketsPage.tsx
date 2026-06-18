@@ -261,37 +261,37 @@ export function MyTicketsPage() {
       </div>
 
       <Dialog open={selectedTicket !== null} onOpenChange={(open) => !open && setSelectedTicket(null)}>
-        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-lg shadow-2xl p-0 overflow-hidden">
+        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-md shadow-2xl p-0 overflow-hidden">
           {selectedTicket && (
             <div>
-              <div className="relative p-6 border-b border-border/20 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+              <div className="relative p-4 border-b border-border/20 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-xl font-extrabold flex items-center gap-2 text-zinc-100">
+                  <DialogTitle className="text-lg font-extrabold flex items-center gap-2 text-zinc-100">
                     Ticket Details <span className="text-primary font-black">#{selectedTicket.order_no}</span>
                   </DialogTitle>
-                  <DialogDescription className="text-zinc-400 text-xs mt-1">
+                  <DialogDescription className="text-zinc-400 text-[11px] mt-0.5">
                     Receipt ID: {selectedTicket.transaction_id || 'N/A'} - Created {selectedTicket.created_at}
                   </DialogDescription>
                 </DialogHeader>
               </div>
 
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
+              <div className="p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-3 text-[11px]">
+                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><User className="size-3 text-primary/80" /> Customer Name</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.customer_name}</p>
                   </div>
                   {selectedTicket.customer_contact && (
-                    <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
+                    <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
                       <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Contact</span>
                       <p className="font-semibold text-zinc-200">{selectedTicket.customer_contact}</p>
                     </div>
                   )}
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
+                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Calendar className="size-3 text-primary/80" /> Draw Date</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.draw_date}</p>
                   </div>
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
+                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Clock className="size-3 text-primary/80" /> Draw Time & No</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.draw_time} ({selectedTicket.draw_no ? `#${selectedTicket.draw_no}` : '-'})</p>
                   </div>

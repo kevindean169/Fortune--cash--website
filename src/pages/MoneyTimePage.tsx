@@ -264,8 +264,11 @@ export function MoneyTimePage() {
     return lotteryData?.currentDrawUtc || lotteryData?.currentDraw || ''
   })()
   const [d, h, m, s] = useDateTimeCountdown(nextMoneyTimeDrawUtc)
-  const isExpired = !isNotStarted && (d === '00' && h === '00' && m === '00' && s === '00') && lotteryData !== null;
+
+  const isExpired = lotteryData?.stopDateTime ? new Date().getTime() > new Date(lotteryData.stopDateTime).getTime() : false;
   const showCross = isNotStarted || isExpired;
+
+
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
@@ -316,6 +319,34 @@ export function MoneyTimePage() {
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
 
+  // Monitor draw times and remove passed ones
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const passedSelected = selectedDrawTimes.filter(time => isMoneyTimeDrawPassed(time))
+      const passedInCart = Array.from(new Set(
+        cart.map(item => item.drawTime).filter(time => isMoneyTimeDrawPassed(time))
+      ))
+
+      const allPassed = Array.from(new Set([...passedSelected, ...passedInCart]))
+
+      if (allPassed.length > 0) {
+        const displays = allPassed.map(t => {
+          // If it contains a date/time formatted string, clean it up for display
+          if (t.includes(',')) {
+            return t.split(',')[1].trim();
+          }
+          return t;
+        }).join(', ')
+        alert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
+
+        setSelectedDrawTimes(prev => prev.filter(t => !allPassed.includes(t)))
+        setCart(prev => prev.filter(item => !allPassed.includes(item.drawTime)))
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedDrawTimes, cart, moneyTimeDraws])
+
   function parseJamaicaDrawDate(dateTimeStr: string): Date {
     if (!dateTimeStr) return new Date(NaN);
     let cleaned = dateTimeStr.trim();
@@ -326,6 +357,25 @@ export function MoneyTimePage() {
       cleaned = cleaned.replace(' ', 'T');
     }
     return new Date(cleaned + '-05:00');
+  }
+
+  function isMoneyTimeDrawPassed(timeStr: string): boolean {
+    if (!timeStr) return false;
+    const groups = getMoneyTimeGroups();
+    for (const group of groups) {
+      const found = group?.draws?.find((draw: any) => draw.fullTime === timeStr || draw.time === timeStr);
+      if (found) {
+        const drawDate = parseJamaicaDrawDate(found.raw.datetime || `${found.raw.draw_date}T${found.raw.draw_time}`);
+        if (!isNaN(drawDate.getTime())) {
+          return Date.now() > drawDate.getTime();
+        }
+      }
+    }
+    const date = parseJamaicaDrawDate(timeStr);
+    if (!isNaN(date.getTime())) {
+      return Date.now() > date.getTime();
+    }
+    return false;
   }
 
   function formatSoldOutDrawTimeToLocal(timeStr: string): string {
@@ -553,8 +603,14 @@ export function MoneyTimePage() {
     if (gameIdStr === gameIds.megaball && amountVal > cashpotVal) {
       return 'Cannot be greater than Cashpot bet.'
     }
-    if (gameIdStr === gameIds.monstaball && amountVal > cashpotVal) {
-      return 'Cannot be greater than Cashpot bet.'
+    if (gameIdStr === gameIds.monstaball) {
+      if (amountVal > cashpotVal) {
+        return 'Cannot be greater than Cashpot bet.'
+      }
+      const megaVal = parseFloat(betAmounts[gameIds.megaball || ''] || '0')
+      if (amountVal > megaVal) {
+        return 'Cannot be greater than Megaball bet.'
+      }
     }
 
     // Realtime Bet limit warning
@@ -679,6 +735,10 @@ export function MoneyTimePage() {
     }
     if (monstaVal > cashpotVal) {
       alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
+      return
+    }
+    if (monstaVal > megaVal) {
+      alert('Monstaball bet amount cannot be greater than the Megaball bet amount.')
       return
     }
 
@@ -1802,10 +1862,12 @@ export function MoneyTimePage() {
                 <div className="grid grid-cols-4 gap-2">
                   {(groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: any[] } | undefined)?.draws.map((draw: any) => {
                     const isSelected = tempSelectedDrawTimes.includes(draw.fullTime);
+                    const isPassed = isMoneyTimeDrawPassed(draw.fullTime);
                     return (
                       <button
                         key={draw.id}
                         type="button"
+                        disabled={isPassed}
                         onClick={() => {
                           if (isSelected) {
                             setTempSelectedDrawTimes(prev => prev.filter(ft => ft !== draw.fullTime));
@@ -1813,10 +1875,13 @@ export function MoneyTimePage() {
                             setTempSelectedDrawTimes(prev => [...prev, draw.fullTime]);
                           }
                         }}
-                        className={`py-2.5 text-xs font-bold rounded-xl border transition-all ${isSelected
-                          ? 'bg-primary/20 border-primary text-primary'
-                          : 'bg-[#0d0d0d] border-neutral-800 text-muted-foreground hover:border-primary/50 hover:text-foreground'
-                          }`}
+                        className={`py-2.5 text-xs font-bold rounded-xl border transition-all ${
+                          isPassed
+                            ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                            : isSelected
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'bg-[#0d0d0d] border-neutral-800 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                        }`}
                       >
                         {draw.time}
                       </button>

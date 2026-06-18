@@ -65,6 +65,41 @@ function formatDrawTimeToLocal(timeStr: string): { display: string; original: st
   };
 }
 
+function isDrawTimePassed(timeStr: string): boolean {
+  if (!timeStr) return false
+
+  let cleanTime = timeStr.trim();
+  if (/[AP]M/i.test(cleanTime)) {
+    const parts = cleanTime.match(/(\d{1,2}):(\d{2})\s*([AP]M)/i);
+    if (parts) {
+      let hrs = parseInt(parts[1], 10);
+      const mins = parts[2];
+      const ampm = parts[3].toUpperCase();
+      if (ampm === 'PM' && hrs < 12) hrs += 12;
+      if (ampm === 'AM' && hrs === 12) hrs = 0;
+      cleanTime = `${String(hrs).padStart(2, '0')}:${mins}:00`;
+    }
+  }
+
+  if (cleanTime.split(':').length === 2) {
+    cleanTime += ':00';
+  }
+
+  const today = new Date();
+  const jDateStr = today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0];
+  const [m, d, y] = jDateStr.split('/');
+  const dateIso = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+
+  const dateStr = `${dateIso}T${cleanTime}-05:00`;
+  const localDate = new Date(dateStr);
+
+  if (isNaN(localDate.getTime())) {
+    return false;
+  }
+
+  return new Date().getTime() > localDate.getTime();
+}
+
 import './LotteryPurchase.css';
 export function Pick2DoublePage() {
   const routerNavigate = useNavigate()
@@ -216,10 +251,12 @@ export function Pick2DoublePage() {
 
   // Live countdown to next draw
   const isNotStarted = lotteryData?.startDateTime ? new Date().getTime() < new Date(lotteryData.startDateTime).getTime() : false;
+  const isExpired = lotteryData?.stopDateTime ? new Date().getTime() > new Date(lotteryData.stopDateTime).getTime() : false;
   const targetDate = isNotStarted ? lotteryData?.startDateTime : (lotteryData?.currentDrawUtc || lotteryData?.currentDraw);
   const [d, h, m, s] = useDateTimeCountdown(targetDate || '')
-  const isExpired = !isNotStarted && (d === '00' && h === '00' && m === '00' && s === '00') && lotteryData !== null;
   const showCross = isNotStarted || isExpired;
+
+
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
@@ -261,6 +298,28 @@ export function Pick2DoublePage() {
         })
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
+
+  // Monitor draw times and remove passed ones
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const passedSelected = selectedDrawTimes.filter(time => isDrawTimePassed(time))
+      const passedInCart = Array.from(new Set(
+        cart.map(item => item.drawTime).filter(time => isDrawTimePassed(time))
+      ))
+
+      const allPassed = Array.from(new Set([...passedSelected, ...passedInCart]))
+
+      if (allPassed.length > 0) {
+        const displays = allPassed.map(t => formatDrawTimeToLocal(t).display.split(' ')[0]).join(', ')
+        alert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
+
+        setSelectedDrawTimes(prev => prev.filter(t => !allPassed.includes(t)))
+        setCart(prev => prev.filter(item => !allPassed.includes(item.drawTime)))
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedDrawTimes, cart])
 
   const toggleDrawTime = (time: string) => {
     setSelectedDrawTimes((prev) =>
@@ -742,17 +801,22 @@ export function Pick2DoublePage() {
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                       {config.drawTimes.map((time: string) => {
                         const isSelected = selectedDrawTimes.includes(time)
+                        const isPassed = isDrawTimePassed(time)
                         return (
                           <button
                             key={time}
                             type="button"
+                            disabled={isPassed}
                             onClick={() => toggleDrawTime(time)}
-                            className={`py-3.5 px-2 text-base font-bold rounded-xl border transition-all ${isSelected
-                              ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
-                              : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
-                              }`}
+                            className={`py-3.5 px-2 text-base font-bold rounded-xl border transition-all ${
+                              isPassed
+                                ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                                : isSelected
+                                ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
+                                : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
+                            }`}
                           >
-                            {formatDrawTimeToLocal(time).display}
+                            {formatDrawTimeToLocal(time).display.split(' ')[0]}
                           </button>
                         )
                       })}
@@ -1079,15 +1143,20 @@ export function Pick2DoublePage() {
                   <div className="grid grid-cols-4 gap-1.5">
                     {config.drawTimes.map((time: string) => {
                       const isSelected = selectedDrawTimes.includes(time)
+                      const isPassed = isDrawTimePassed(time)
                       return (
                         <button
                           key={time}
                           type="button"
+                          disabled={isPassed}
                           onClick={() => toggleDrawTime(time)}
-                          className={`py-2 px-1 text-base font-bold rounded-lg border text-center transition-all ${isSelected
-                            ? 'border-primary bg-primary/15 text-primary'
-                            : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
-                            }`}
+                          className={`py-2 px-1 text-base font-bold rounded-lg border text-center transition-all ${
+                            isPassed
+                              ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                              : isSelected
+                              ? 'border-primary bg-primary/15 text-primary'
+                              : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
+                          }`}
                         >
                           {formatDrawTimeToLocal(time).display.split(' ')[0]}
                         </button>
