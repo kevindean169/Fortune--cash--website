@@ -55,7 +55,10 @@ export function ResultsPage() {
         setError(err.message)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          window.scrollTo(0, 0)
+        }
       })
 
     return () => {
@@ -86,11 +89,10 @@ export function ResultsPage() {
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${
-                activeTab === tab.id
+              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${activeTab === tab.id
                   ? 'gold-gradient shadow-md'
                   : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-              }`}
+                }`}
             >
               {getTabIcon(tab.id)}
               <span>{tab.name}</span>
@@ -120,7 +122,7 @@ export function ResultsPage() {
                     <CardContent className="p-5">
                       <div className="flex justify-between items-start mb-4 gap-3">
                         <div>
-                          <span className="font-extrabold text-lg text-foreground">{result.draw_no ? `#${result.draw_no}` : 'Draw Result'}</span>
+                          <span className="font-extrabold text-lg text-foreground">{result.draw_no ? `${result.draw_no}` : 'Draw Result'}</span>
                           <p className="text-[13px] text-muted-foreground mt-1">{result.draw_time}</p>
                           <p className="text-[12px] text-primary/80 font-bold mt-1">{result.lottery_name}</p>
                         </div>

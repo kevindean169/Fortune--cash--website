@@ -12,8 +12,6 @@ export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [ageConfirmed, setAgeConfirmed] = useState(false)
-  const [termsAccepted, setTermsAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -41,10 +39,6 @@ export function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (!ageConfirmed || !termsAccepted) {
-      alert('Please confirm your age and accept the Terms & Conditions')
-      return
-    }
     setSubmitting(true)
     const success = await login(username, password)
     setSubmitting(false)
@@ -132,36 +126,6 @@ export function LoginPage() {
                   <button type="button" className="text-xs text-muted-foreground hover:text-primary transition-colors">
                     Forgot Password?
                   </button>
-                </div>
-              </div>
-
-              {/* Checkboxes */}
-              <div className="space-y-3 mt-4 text-left">
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    required
-                    id="login-age"
-                    checked={ageConfirmed}
-                    onChange={(e) => setAgeConfirmed(e.target.checked)}
-                    className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-background size-4 cursor-pointer focus:ring-0 focus:outline-none"
-                  />
-                  <label htmlFor="login-age" className="text-sm text-muted-foreground cursor-pointer select-none leading-normal">
-                    I confirm that I am 18 years of age or older.
-                  </label>
-                </div>
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    required
-                    id="login-terms"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-0.5 rounded border-primary/30 accent-primary text-primary bg-background size-4 cursor-pointer focus:ring-0 focus:outline-none"
-                  />
-                  <label htmlFor="login-terms" className="text-sm text-muted-foreground cursor-pointer select-none leading-normal">
-                    I have read and agree to the <span className="text-primary hover:underline cursor-pointer" onClick={() => navigate('terms')}>Terms & Conditions</span> and <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>.
-                  </label>
                 </div>
               </div>
 

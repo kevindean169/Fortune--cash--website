@@ -58,6 +58,8 @@ export function MoneyTimePage() {
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string; isLoginRedirect?: boolean }>({ isOpen: false, message: '', isLoginRedirect: false })
+  const showAlert = (message: string, isLoginRedirect = false) => setAlertModal({ isOpen: true, message, isLoginRedirect })
   const [showCartModal, setShowCartModal] = useState(false)
   const [editingGameAmount, setEditingGameAmount] = useState<string | null>(null)
 
@@ -340,7 +342,7 @@ export function MoneyTimePage() {
           }
           return t;
         }).join(', ')
-        alert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
+        showAlert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
 
         setSelectedDrawTimes(prev => prev.filter(t => !allPassed.includes(t)))
         setCart(prev => prev.filter(item => !allPassed.includes(item.drawTime)))
@@ -697,7 +699,7 @@ export function MoneyTimePage() {
 
   const updateBetAmount = (gameId: string, value: string) => {
     if (!selectedNumber) {
-      alert('Please select draw time(s) and bet number first.')
+      showAlert('Please select draw time(s) and bet number first.')
       return
     }
     if (value === '') {
@@ -718,14 +720,14 @@ export function MoneyTimePage() {
 
 
   const handleAddAllBets = () => {
-    if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
+    if (!selectedNumber) { showAlert('Please select or enter Bet No. 1'); return }
     const valid = selectedNumber === '0' || selectedNumber === '00' || (parseInt(selectedNumber, 10) >= 1 && parseInt(selectedNumber, 10) <= 36)
     if (!valid) {
-      alert('For Money Time, number must be 0, 00, or between 01 and 36.')
+      showAlert('For Money Time, number must be 0, 00, or between 01 and 36.')
       return
     }
 
-    if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
+    if (selectedDrawTimes.length === 0) { showAlert('Please select at least one draw time'); return }
 
     const gameIds = getMoneyTimeGameIds()
     const cashpotVal = parseFloat(betAmounts[gameIds.cashpot || ''] || '0')
@@ -733,19 +735,19 @@ export function MoneyTimePage() {
     const monstaVal = parseFloat(betAmounts[gameIds.monstaball || ''] || '0')
 
     if ((megaVal > 0 || monstaVal > 0) && cashpotVal <= 0) {
-      alert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
+      showAlert('You cannot place bets on Megaball or Monstaball without placing a Cashpot bet first.')
       return
     }
     if (megaVal > cashpotVal) {
-      alert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
+      showAlert('Megaball bet amount cannot be greater than the Cashpot bet amount.')
       return
     }
     if (monstaVal > cashpotVal) {
-      alert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
+      showAlert('Monstaball bet amount cannot be greater than the Cashpot bet amount.')
       return
     }
     if (monstaVal > megaVal) {
-      alert('Monstaball bet amount cannot be greater than the Megaball bet amount.')
+      showAlert('Monstaball bet amount cannot be greater than the Megaball bet amount.')
       return
     }
 
@@ -758,7 +760,7 @@ export function MoneyTimePage() {
           const limit = getGameLimit(game.id, time)
           if (amountVal > limit) {
             const ticketNumber = getSelectedTicketNumber()
-            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name}${ticketNumber ? ` on #${ticketNumber}` : ''} exceeds the remaining limit of $${limit} for draw time ${time}.`)
+            showAlert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name}${ticketNumber ? ` on #${ticketNumber}` : ''} exceeds the remaining limit of $${limit} for draw time ${time}.`)
             return
           }
         }
@@ -802,7 +804,7 @@ export function MoneyTimePage() {
     })
 
     if (!hasValidBet) {
-      alert('Please enter a bet amount for at least one of the options');
+      showAlert('Please enter a bet amount for at least one of the options');
       return
     }
 
@@ -857,6 +859,11 @@ export function MoneyTimePage() {
   const handleCheckout = async () => {
     if (cart.length === 0 || !lotteryId || checkoutLoading) return
 
+    if (!accessToken) {
+      showAlert('You need to log in first to place your bets.', true)
+      return
+    }
+
     setCheckoutLoading(true)
     try {
       await submitLotteryPurchase({
@@ -883,7 +890,12 @@ export function MoneyTimePage() {
       }, 3000)
     } catch (err: any) {
       console.error('Purchase error:', err)
-      alert(err.message || 'An error occurred while submitting purchase request.')
+      const errMsg = err.message || 'An error occurred while submitting purchase request.'
+      if (errMsg.toLowerCase().includes('token is required') || errMsg.toLowerCase().includes('unauthorized')) {
+        showAlert('You need to log in first to place your bets.', true)
+      } else {
+        showAlert(errMsg)
+      }
     } finally {
       setCheckoutLoading(false)
     }
@@ -1087,7 +1099,7 @@ export function MoneyTimePage() {
                           type="button"
                           onClick={() => {
                             if (selectedDrawTimes.length === 0) {
-                              alert('Please select draw time(s) first.')
+                              showAlert('Please select draw time(s) first.')
                               return
                             }
                             setShowNumberGrid(!showNumberGrid)
@@ -1163,7 +1175,7 @@ export function MoneyTimePage() {
                                   onMouseDown={(e) => {
                                     if (!selectedNumber) {
                                       e.preventDefault()
-                                      alert('Please select draw time(s) and bet number first.')
+                                      showAlert('Please select draw time(s) and bet number first.')
                                     }
                                   }}
                                   onChange={(e) => {
@@ -1374,7 +1386,7 @@ export function MoneyTimePage() {
                       type="button"
                       onClick={() => {
                         if (selectedDrawTimes.length === 0) {
-                          alert('Please select draw time(s) first.')
+                          showAlert('Please select draw time(s) first.')
                           return
                         }
                         setShowNumberGrid(!showNumberGrid)
@@ -1456,7 +1468,7 @@ export function MoneyTimePage() {
                             disabled={isDisabled}
                             onClick={() => {
                               if (!selectedNumber) {
-                                alert('Please select draw time(s) and bet number first.')
+                                showAlert('Please select draw time(s) and bet number first.')
                                 return
                               }
                               setEditingGameAmount(game.id)
@@ -1908,7 +1920,7 @@ export function MoneyTimePage() {
                         }}
                         className={`py-2.5 text-xs font-bold rounded-xl border transition-all ${
                           isPassed
-                            ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                            ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
                             : isSelected
                             ? 'bg-primary/20 border-primary text-primary'
                             : 'bg-[#0d0d0d] border-neutral-800 text-muted-foreground hover:border-primary/50 hover:text-foreground'
@@ -1946,6 +1958,51 @@ export function MoneyTimePage() {
           </Card>
         </div>
       )}
-    </div>
+    
+      {alertModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+          <Card className="max-w-sm w-full bg-fortune-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl animate-fadeIn">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mx-auto text-primary text-xl">
+                ℹ
+              </div>
+              <p className="text-foreground text-sm font-semibold leading-relaxed">
+                {alertModal.message}
+              </p>
+              {alertModal.isLoginRedirect ? (
+                <div className="flex gap-3 w-full">
+                  <Button
+                    type="button"
+                    onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                    variant="outline"
+                    className="flex-1 py-2.5 border-neutral-800 text-muted-foreground font-bold rounded-xl hover:bg-neutral-900"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setAlertModal({ isOpen: false, message: '', isLoginRedirect: false });
+                      navigate('login');
+                    }}
+                    className="flex-1 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                  >
+                    Login
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                  className="w-full py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                >
+                  OK
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      </div>
   )
 }

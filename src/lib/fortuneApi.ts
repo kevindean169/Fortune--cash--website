@@ -41,6 +41,7 @@ export interface ApiTransaction {
   amount: number
   method: string
   date: string
+  localDate: string
   status: string
   positive: boolean
   details: string
@@ -225,6 +226,17 @@ function normalizeDate(value: string): string {
     hour: 'numeric',
     minute: '2-digit',
   })
+}
+
+function getLocalYmd(value: string): string {
+  if (!value) return ''
+  const parsed = parseJamaicaDate(value)
+  if (Number.isNaN(parsed.getTime())) return ''
+
+  const year = parsed.getFullYear()
+  const month = String(parsed.getMonth() + 1).padStart(2, '0')
+  const day = String(parsed.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 
@@ -420,12 +432,15 @@ function mapTransaction(raw: unknown): ApiTransaction {
     .map((part) => part.trim())
     .filter(Boolean)
 
+  const rawDateStr = pickString(raw, ['created_at', 'createdAt', 'date', 'time'], '')
+
   return {
     id: pickString(raw, ['transaction_id', 'txn_id', 'order_id', 'order_no', 'id'], '-'),
     type,
     amount,
     method: pickString(raw, ['method', 'payment_method', 'mode'], 'Wallet Balance'),
-    date: normalizeDate(pickString(raw, ['created_at', 'createdAt', 'date', 'time'], '')),
+    date: normalizeDate(rawDateStr),
+    localDate: getLocalYmd(rawDateStr),
     status: pickString(raw, ['status'], 'Completed'),
     positive,
     details: detailParts.join(' · '),

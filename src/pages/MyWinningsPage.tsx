@@ -17,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Trophy, Eye, Calendar, Clock, User, Phone, Receipt, Landmark } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -54,7 +53,10 @@ export function MyWinningsPage() {
         setError(err.message)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          window.scrollTo(0, 0)
+        }
       })
 
     return () => {
@@ -219,58 +221,58 @@ export function MyWinningsPage() {
       </div>
 
       <Dialog open={selectedWinning !== null} onOpenChange={(open) => !open && setSelectedWinning(null)}>
-        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-lg shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-md shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
           {selectedWinning && (
             <div className="flex flex-col max-h-[90vh] overflow-hidden">
-              <div className="relative p-6 border-b border-border/20 bg-gradient-to-r from-green-500/10 via-transparent to-transparent shrink-0">
+              <div className="relative p-3 border-b border-border/20 bg-gradient-to-r from-green-500/10 via-transparent to-transparent shrink-0">
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-xl font-extrabold flex items-center gap-2 text-zinc-100">
+                  <DialogTitle className="text-base font-extrabold flex items-center gap-2 text-zinc-100">
                     Winning Receipt <span className="text-primary font-black">#{selectedWinning.order_no}</span>
                   </DialogTitle>
-                  <DialogDescription className="text-zinc-400 text-xs mt-1">
+                  <DialogDescription className="text-zinc-400 text-[10px] mt-0.5">
                     Card ID: {selectedWinning.card_id || 'N/A'} • Calculated {selectedWinning.created_at}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="absolute right-12 top-6 bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">
+                <div className="absolute right-12 top-3 bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest">
                   WON
                 </div>
               </div>
 
-              <div className="p-6 space-y-6 overflow-y-auto flex-1">
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><User className="size-3 text-primary/80" /> Winner Name</span>
+              <div className="p-3.5 space-y-3.5 overflow-y-auto flex-1">
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><User className="size-3 text-primary/80" /> Winner Name</span>
                     <p className="font-semibold text-zinc-200">{selectedWinning.customer_name}</p>
                   </div>
                   {selectedWinning.customer_contact && (
-                    <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
-                      <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Winner Contact</span>
+                    <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                      <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Winner Contact</span>
                       <p className="font-semibold text-zinc-200">{selectedWinning.customer_contact}</p>
                     </div>
                   )}
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Calendar className="size-3 text-primary/80" /> Draw Date</span>
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Calendar className="size-3 text-primary/80" /> Draw Date</span>
                     <p className="font-semibold text-zinc-200">{selectedWinning.draw_date}</p>
                   </div>
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-3 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Clock className="size-3 text-primary/80" /> Draw Time & No</span>
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Clock className="size-3 text-primary/80" /> Draw Time & No</span>
                     <p className="font-semibold text-zinc-200">{selectedWinning.draw_time} ({selectedWinning.draw_no ? `#${selectedWinning.draw_no}` : '-'})</p>
                   </div>
                 </div>
 
                 {selectedWinning.status.toLowerCase() === 'paid' && (
-                  <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-xl flex flex-col gap-1 text-xs">
+                  <div className="p-2.5 bg-green-500/5 border border-green-500/10 rounded-xl flex flex-col gap-0.5 text-[11px]">
                     <div className="flex justify-between items-center text-green-400 font-bold">
                       <span className="flex items-center gap-1"><Landmark className="size-3.5" /> Payout Settled Successfully</span>
                       <span>Paid by {selectedWinning.paid_by || 'Agent'}</span>
                     </div>
                     {selectedWinning.paid_at && selectedWinning.paid_at !== '-' && (
-                      <div className="text-[10px] text-zinc-400">
+                      <div className="text-[9px] text-zinc-400">
                         Settled at: {selectedWinning.paid_at}
                       </div>
                     )}
                     {selectedWinning.agent_name && (
-                      <div className="text-[10px] text-zinc-400">
+                      <div className="text-[9px] text-zinc-400">
                         Agent: {selectedWinning.agent_name}
                       </div>
                     )}
@@ -278,35 +280,35 @@ export function MyWinningsPage() {
                 )}
 
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-1">
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-1">
                     <Receipt className="size-3.5 text-primary/80" /> Winning Bets
                   </h3>
-                  <div className="bg-background/40 border border-border/20 rounded-xl overflow-hidden">
+                  <div className="bg-background/40 border border-border/20 rounded-xl overflow-hidden max-h-[160px] overflow-y-auto">
                     <Table>
                       <TableHeader className="bg-muted/10 border-b border-border/25">
                         <TableRow>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3">Lucky Bet</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3">Winning Result</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3 text-right">Bet Amt</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3 text-right">Prize Won</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/4">Bet</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/4">Winning Result</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/4 text-right">Bet Amt</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/4 text-right">Prize Won</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {selectedWinning.games.map((game, i) => (
                           <TableRow key={`${game.bet}-${i}`} className="border-b border-border/10 last:border-0 hover:bg-muted/10">
-                            <TableCell className="p-3">
+                            <TableCell className="p-2">
                               <div className="flex flex-col gap-0.5">
                                 <GameBallGraphic gameName={game.game_name} value={game.bet} />
-                                <span className="text-[10px] text-zinc-400 block font-medium">{game.game_name}</span>
+                                <span className="text-[9px] text-zinc-400 block font-medium">{game.game_name}</span>
                               </div>
                             </TableCell>
-                            <TableCell className="p-3">
+                            <TableCell className="p-2">
                               <GameBallGraphic gameName={game.game_name} value={game.result} isResult={true} />
                             </TableCell>
-                            <TableCell className="p-3 text-right text-xs font-semibold text-zinc-300">
+                            <TableCell className="p-2 text-right text-xs font-semibold text-zinc-300">
                               {formatUsd(game.bet_amount)}
                             </TableCell>
-                            <TableCell className="p-3 text-right text-xs font-black text-green-400">
+                            <TableCell className="p-2 text-right text-xs font-black text-green-400">
                               +{formatUsd(game.win_amount)}
                             </TableCell>
                           </TableRow>
@@ -314,16 +316,16 @@ export function MyWinningsPage() {
                       </TableBody>
                       <TableFooter className="bg-muted/15">
                         <TableRow className="border-t border-border/25">
-                          <TableCell colSpan={2} className="p-3">
-                            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Total Net Winnings</span>
+                          <TableCell colSpan={2} className="p-2">
+                            <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Total Net Winnings</span>
                           </TableCell>
-                          <TableCell className="p-3 text-right">
+                          <TableCell className="p-2 text-right">
                             <span className="text-xs font-bold text-zinc-200">
                               {formatUsd(selectedWinning.total_bet)}
                             </span>
                           </TableCell>
-                          <TableCell className="p-3 text-right">
-                            <span className="font-black text-base text-green-400">
+                          <TableCell className="p-2 text-right">
+                            <span className="font-black text-sm text-green-400">
                               {formatUsd(selectedWinning.total_won)}
                             </span>
                           </TableCell>
@@ -333,16 +335,6 @@ export function MyWinningsPage() {
                   </div>
                 </div>
               </div>
-
-              <DialogFooter className="p-4 border-t border-border/20 bg-background/50 flex justify-end gap-2 shrink-0">
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedWinning(null)}
-                  className="bg-background border-border text-zinc-300 hover:bg-muted font-bold h-9 cursor-pointer"
-                >
-                  Close Receipt
-                </Button>
-              </DialogFooter>
             </div>
           )}
         </DialogContent>

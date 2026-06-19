@@ -4,15 +4,20 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthContext'
 import { fetchTransactions, type ApiTransaction } from '@/lib/fortuneApi'
 import { formatUsd } from '@/lib/currency'
+import { Search, Calendar } from 'lucide-react'
 
 export function TransactionHistoryPage() {
   const { accessToken } = useAuth()
-  const [activeTab, setActiveTab] = useState('all')
   const [transactions, setTransactions] = useState<ApiTransaction[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('')
+  const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
+  const [selectedDate, setSelectedDate] = useState('')
 
   useEffect(() => {
     if (!accessToken) return
@@ -33,7 +38,10 @@ export function TransactionHistoryPage() {
         setError(err.message)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          window.scrollTo(0, 0)
+        }
       })
 
     return () => {
@@ -42,11 +50,35 @@ export function TransactionHistoryPage() {
   }, [accessToken, page])
 
   const filteredTransactions = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
+
     return transactions.filter((transaction) => {
-      if (activeTab === 'all') return true
-      return transaction.type.toLowerCase().includes(activeTab)
+      // 1. Search Query Filter (checks ID, details/Order ID, and type)
+      if (query !== '') {
+        const matchesTxId = transaction.id.toLowerCase().includes(query)
+        const matchesDetails = transaction.details.toLowerCase().includes(query)
+        const matchesType = transaction.type.toLowerCase().includes(query)
+        if (!matchesTxId && !matchesDetails && !matchesType) {
+          return false
+        }
+      }
+
+      // 2. Date Filter
+      if (timeFilter === 'today' || timeFilter === 'specific') {
+        const targetDate = timeFilter === 'today' ? todayStr : selectedDate
+        if (transaction.localDate !== targetDate) {
+          return false
+        }
+      }
+
+      return true
     })
-  }, [activeTab, transactions])
+  }, [searchQuery, timeFilter, selectedDate, transactions])
+
+  const isFiltered = searchQuery.trim() !== '' || timeFilter !== 'all'
+  const displayPage = isFiltered ? 1 : page
+  const displayLastPage = isFiltered ? 1 : lastPage
 
   const typeBadge = (type: string) => {
     const normalized = type.toLowerCase()
@@ -67,25 +99,68 @@ export function TransactionHistoryPage() {
         </div>
       </div>
 
-      <div className="flex gap-0 border-b border-border/50 mb-8 overflow-x-auto scrollbar-hide">
-        {[
-          { id: 'all', label: 'All Transactions' },
-          { id: 'deposit', label: 'Deposits' },
-          { id: 'withdrawal', label: 'Withdrawals' },
-          { id: 'purchase', label: 'Purchases' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'border-primary text-primary bg-primary/5'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Filter Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between mb-6 bg-fortune-card border border-border/60 p-4 rounded-xl">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
+          <input
+            type="text"
+            placeholder="Search by Transaction ID or Order ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
+          />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Quick Filters */}
+          <div className="flex bg-background border border-border rounded-xl p-1">
+            <button
+              onClick={() => {
+                setTimeFilter('all')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All Records
+            </button>
+            <button
+              onClick={() => {
+                setTimeFilter('today')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'today'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Today
+            </button>
+          </div>
+
+          {/* Specific Date Picker */}
+          <div className="relative flex items-center bg-background border border-border rounded-xl px-3 py-1">
+            <Calendar className="text-muted-foreground size-4 mr-2" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                setSelectedDate(e.target.value)
+                if (e.target.value) {
+                  setTimeFilter('specific')
+                } else {
+                  setTimeFilter('all')
+                }
+              }}
+              className="bg-transparent border-0 text-xs text-foreground focus:outline-none cursor-pointer [color-scheme:dark]"
+            />
+          </div>
+        </div>
       </div>
 
       <Card className="bg-fortune-card border border-border/60 overflow-hidden">
@@ -103,7 +178,6 @@ export function TransactionHistoryPage() {
                   <tr className="border-b border-border bg-white/[0.01]">
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Transaction ID</th>
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Type & Details</th>
-                    <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Payment Method</th>
                     <th className="text-left text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Timestamp</th>
                     <th className="text-right text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Amount</th>
                     <th className="text-right text-muted-foreground font-medium px-6 py-4 text-xs uppercase tracking-wider">Status</th>
@@ -119,11 +193,10 @@ export function TransactionHistoryPage() {
                         </span>
                         {transaction.details && (
                           <p className="mt-2 max-w-[280px] text-xs leading-relaxed text-muted-foreground">
-                            {transaction.details}
+                             {transaction.details}
                           </p>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-muted-foreground">{transaction.method}</td>
                       <td className="px-6 py-4 text-muted-foreground text-xs">{transaction.date}</td>
                       <td className={`px-6 py-4 text-right font-extrabold text-sm ${transaction.positive ? 'text-green-400' : 'text-red-400'}`}>
                         {transaction.positive ? '+' : '-'}{formatUsd(Math.abs(transaction.amount))}
@@ -143,13 +216,13 @@ export function TransactionHistoryPage() {
       </Card>
 
       <div className="flex justify-center gap-2">
-        <Button variant="outline" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(current - 1, 1))}>
+        <Button variant="outline" size="sm" disabled={displayPage <= 1 || loading} onClick={() => setPage((current) => Math.max(current - 1, 1))}>
           Previous
         </Button>
         <div className="h-9 px-4 rounded-md border border-border bg-background flex items-center text-sm font-bold">
-          {page} / {lastPage}
+          {displayPage} / {displayLastPage}
         </div>
-        <Button variant="outline" size="sm" disabled={page >= lastPage || loading} onClick={() => setPage((current) => current + 1)}>
+        <Button variant="outline" size="sm" disabled={displayPage >= displayLastPage || loading} onClick={() => setPage((current) => current + 1)}>
           Next
         </Button>
       </div>

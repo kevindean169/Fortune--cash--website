@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Eye, Search, Calendar, Clock, Receipt, User, Phone, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -26,7 +25,6 @@ import { formatUsd } from '@/lib/currency'
 
 export function MyTicketsPage() {
   const { accessToken, walletBalance } = useAuth()
-  const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [selectedTicket, setSelectedTicket] = useState<ApiTicketOrder | null>(null)
   const [tickets, setTickets] = useState<ApiTicketOrder[]>([])
@@ -54,7 +52,10 @@ export function MyTicketsPage() {
         setError(err.message)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          window.scrollTo(0, 0)
+        }
       })
 
     return () => {
@@ -66,16 +67,30 @@ export function MyTicketsPage() {
     const normalizedSearch = search.trim().toLowerCase()
 
     return tickets.filter((ticket) => {
-      const matchesStatus = filter === 'all' || ticket.status.toLowerCase() === filter.toLowerCase()
+      const matchesOrderNo = ticket.order_no.toLowerCase().includes(normalizedSearch)
+      const matchesLottery = ticket.lottery_name.toLowerCase().includes(normalizedSearch)
+      const matchesDrawNo = Boolean(ticket.draw_no && ticket.draw_no.toLowerCase().includes(normalizedSearch))
+      const matchesGame = normalizedSearch.length <= 2 && ticket.games.some((game) => game.ticket_number.toLowerCase() === normalizedSearch)
+
       const matchesSearch =
         normalizedSearch === '' ||
-        ticket.order_no.toLowerCase().includes(normalizedSearch) ||
-        ticket.lottery_name.toLowerCase().includes(normalizedSearch) ||
-        ticket.games.some((game) => game.ticket_number.toLowerCase().includes(normalizedSearch))
+        matchesOrderNo ||
+        matchesLottery ||
+        matchesDrawNo ||
+        matchesGame
 
-      return matchesStatus && matchesSearch
+      console.log(`[Search Debug] Ticket #${ticket.order_no}:`, {
+        searchVal: normalizedSearch,
+        matchesOrderNo,
+        matchesLottery,
+        matchesDrawNo,
+        matchesGame,
+        matchesSearch
+      })
+
+      return matchesSearch
     })
-  }, [filter, search, tickets])
+  }, [search, tickets])
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
@@ -107,55 +122,32 @@ export function MyTicketsPage() {
   const getOrderTotalBet = (ticket: ApiTicketOrder) => ticket.games.reduce((sum, game) => sum + game.bet_amount, 0)
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-extrabold text-foreground">
             My <span className="gold-text">Tickets</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">View, search, and verify all your bet slip transactions</p>
         </div>
-        <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
-          <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
-          <span className="text-green-400 font-extrabold text-lg">
-            {formatUsd(walletBalance)}
-          </span>
-        </div>
-      </div>
-
-      <Card className="bg-fortune-card border border-border/60 mb-6">
-        <CardContent className="p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="flex gap-2 w-full md:w-auto overflow-x-auto scrollbar-hide">
-            {[
-              { id: 'all', label: 'All' },
-              { id: 'purchase', label: 'Purchase' },
-              { id: 'void', label: 'Void' },
-            ].map((status) => (
-              <button
-                key={status.id}
-                onClick={() => setFilter(status.id)}
-                className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
-                  filter === status.id
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-background border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-                }`}
-              >
-                {status.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative w-full md:w-80">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
             <input
               type="text"
               placeholder="Search by Order ID or Number..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
+              className="w-full bg-fortune-card border border-border/60 rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary focus:border-primary/80 transition-colors"
             />
           </div>
-        </CardContent>
-      </Card>
+          <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-2.5 flex items-center gap-3 shrink-0 justify-center">
+            <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
+            <span className="text-green-400 font-extrabold text-lg">
+              {formatUsd(walletBalance)}
+            </span>
+          </div>
+        </div>
+      </div>
 
       <Card className="bg-fortune-card border border-border/60 overflow-hidden">
         {loading ? (
@@ -264,70 +256,60 @@ export function MyTicketsPage() {
         <DialogContent className="bg-fortune-card border border-primary/30 text-zinc-200 max-w-md shadow-2xl p-0 overflow-hidden">
           {selectedTicket && (
             <div>
-              <div className="relative p-4 border-b border-border/20 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+              <div className="relative p-3 border-b border-border/20 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-lg font-extrabold flex items-center gap-2 text-zinc-100">
+                  <DialogTitle className="text-base font-extrabold flex items-center gap-2 text-zinc-100">
                     Ticket Details <span className="text-primary font-black">#{selectedTicket.order_no}</span>
                   </DialogTitle>
-                  <DialogDescription className="text-zinc-400 text-[11px] mt-0.5">
+                  <DialogDescription className="text-zinc-400 text-[10px] mt-0.5">
                     Receipt ID: {selectedTicket.transaction_id || 'N/A'} - Created {selectedTicket.created_at}
                   </DialogDescription>
                 </DialogHeader>
               </div>
 
-              <div className="p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-3 text-[11px]">
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><User className="size-3 text-primary/80" /> Customer Name</span>
+              <div className="p-3.5 space-y-3.5">
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><User className="size-3 text-primary/80" /> Customer Name</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.customer_name}</p>
                   </div>
                   {selectedTicket.customer_contact && (
-                    <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
-                      <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Contact</span>
+                    <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                      <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Phone className="size-3 text-primary/80" /> Contact</span>
                       <p className="font-semibold text-zinc-200">{selectedTicket.customer_contact}</p>
                     </div>
                   )}
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Calendar className="size-3 text-primary/80" /> Draw Date</span>
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Calendar className="size-3 text-primary/80" /> Draw Date</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.draw_date}</p>
                   </div>
-                  <div className="space-y-1 bg-background/50 border border-border/10 p-2.5 rounded-xl">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Clock className="size-3 text-primary/80" /> Draw Time & No</span>
+                  <div className="space-y-0.5 bg-background/50 border border-border/10 p-2 rounded-xl">
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider flex items-center gap-1"><Clock className="size-3 text-primary/80" /> Draw Time & No</span>
                     <p className="font-semibold text-zinc-200">{selectedTicket.draw_time} ({selectedTicket.draw_no ? `#${selectedTicket.draw_no}` : '-'})</p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-1">
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-1">
                     <Receipt className="size-3.5 text-primary/80" /> Placed Bets ({selectedTicket.games.length})
                   </h3>
-                  <div className="bg-background/40 border border-border/20 rounded-xl overflow-hidden">
+                  <div className="bg-background/40 border border-border/20 rounded-xl overflow-hidden max-h-[160px] overflow-y-auto">
                     <Table>
                       <TableHeader className="bg-muted/10 border-b border-border/25">
                         <TableRow>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3">Bet</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3">Game</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3 text-right">Amount</TableHead>
-                          <TableHead className="font-bold text-[10px] uppercase text-primary/80 p-3 text-right">Payout</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/3">Bet</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/3">Game</TableHead>
+                          <TableHead className="font-bold text-[9px] uppercase text-primary/80 p-2 w-1/3 text-right">Amount</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {selectedTicket.games.map((game, index) => (
                           <TableRow key={`${game.ticket_number}-${index}`} className="border-b border-border/10 last:border-0 hover:bg-muted/10">
-                            <TableCell className="p-3">
+                            <TableCell className="p-2">
                               <GameBallGraphic gameName={game.game_name} value={game.ticket_number} />
                             </TableCell>
-                            <TableCell className="p-3 text-xs font-medium text-zinc-300">{game.game_name}</TableCell>
-                            <TableCell className="p-3 text-right text-xs font-bold text-zinc-200">{formatUsd(game.bet_amount)}</TableCell>
-                            <TableCell className="p-3 text-right text-xs font-extrabold">
-                              {game.status?.toLowerCase() === 'won' ? (
-                                <span className="text-green-400 font-bold">+{formatUsd(game.payout || 0)}</span>
-                              ) : game.status?.toLowerCase() === 'lost' ? (
-                                <span className="text-zinc-500">{formatUsd(0)}</span>
-                              ) : (
-                                <span className="text-primary font-bold">{game.status || 'Pending'}</span>
-                              )}
-                            </TableCell>
+                            <TableCell className="p-2 text-xs font-medium text-zinc-300">{game.game_name}</TableCell>
+                            <TableCell className="p-2 text-right text-xs font-bold text-zinc-200">{formatUsd(game.bet_amount)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -335,25 +317,19 @@ export function MyTicketsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-muted/15 border border-border/15 rounded-xl flex items-center justify-between text-sm">
+                <div className="p-3 bg-muted/15 border border-border/15 rounded-xl flex items-center justify-between text-xs">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold">Overall Ticket Status</span>
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold">Overall Ticket Status</span>
                     <div>{getStatusBadge(selectedTicket.status)}</div>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold">Total Bet</span>
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold">Total Bet</span>
                     <div className="font-extrabold text-zinc-100">
                       {formatUsd(getOrderTotalBet(selectedTicket))}
                     </div>
                   </div>
                 </div>
               </div>
-
-              <DialogFooter className="p-4 border-t border-border/20 bg-background/50 flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setSelectedTicket(null)} className="bg-background border-border text-zinc-300 hover:bg-muted font-bold h-9 cursor-pointer">
-                  Close Receipt
-                </Button>
-              </DialogFooter>
             </div>
           )}
         </DialogContent>

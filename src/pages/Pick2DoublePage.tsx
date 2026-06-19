@@ -45,9 +45,10 @@ function formatDrawTimeToLocal(timeStr: string): { display: string; original: st
   }
 
   const today = new Date();
-  const jDateStr = today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0];
-  const [m, d, y] = jDateStr.split('/');
-  const dateIso = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  const dateIso = `${y}-${m}-${d}`;
 
   const dateStr = `${dateIso}T${cleanTime}-05:00`;
   const localDate = new Date(dateStr);
@@ -86,9 +87,10 @@ function isDrawTimePassed(timeStr: string): boolean {
   }
 
   const today = new Date();
-  const jDateStr = today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }).split(',')[0];
-  const [m, d, y] = jDateStr.split('/');
-  const dateIso = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  const dateIso = `${y}-${m}-${d}`;
 
   const dateStr = `${dateIso}T${cleanTime}-05:00`;
   const localDate = new Date(dateStr);
@@ -130,6 +132,8 @@ export function Pick2DoublePage() {
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string; isLoginRedirect?: boolean }>({ isOpen: false, message: '', isLoginRedirect: false })
+  const showAlert = (message: string, isLoginRedirect = false) => setAlertModal({ isOpen: true, message, isLoginRedirect })
   const [showCartModal, setShowCartModal] = useState(false)
   const [editingGameAmount, setEditingGameAmount] = useState<string | null>(null)
 
@@ -317,7 +321,7 @@ export function Pick2DoublePage() {
 
       if (allPassed.length > 0) {
         const displays = allPassed.map(t => formatDrawTimeToLocal(t).display.split(' ')[0]).join(', ')
-        alert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
+        showAlert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
 
         setSelectedDrawTimes(prev => prev.filter(t => !allPassed.includes(t)))
         setCart(prev => prev.filter(item => !allPassed.includes(item.drawTime)))
@@ -488,7 +492,7 @@ export function Pick2DoublePage() {
 
   const updateBetAmount = (gameId: string, value: string) => {
     if (!selectedNumber || !selectedNumber2) {
-      alert('Please select draw time(s) and bet number(s) first.')
+      showAlert('Please select draw time(s) and bet number(s) first.')
       return
     }
     if (value === '') {
@@ -510,20 +514,20 @@ export function Pick2DoublePage() {
 
 
   const handleAddAllBets = () => {
-    if (!selectedNumber) { alert('Please select or enter Bet No. 1'); return }
-    if (!selectedNumber2) { alert('Please select or enter Bet No. 2'); return }
+    if (!selectedNumber) { showAlert('Please select or enter Bet No. 1'); return }
+    if (!selectedNumber2) { showAlert('Please select or enter Bet No. 2'); return }
     const val1 = parseInt(selectedNumber, 10)
     const val2 = parseInt(selectedNumber2, 10)
     if (isNaN(val1) || val1 < 1 || val1 > 36 || selectedNumber === '0' || selectedNumber === '00') {
-      alert('Bet No. 1 must be between 01 and 36.')
+      showAlert('Bet No. 1 must be between 01 and 36.')
       return
     }
     if (isNaN(val2) || val2 < 1 || val2 > 36 || selectedNumber2 === '0' || selectedNumber2 === '00') {
-      alert('Bet No. 2 must be between 01 and 36.')
+      showAlert('Bet No. 2 must be between 01 and 36.')
       return
     }
 
-    if (selectedDrawTimes.length === 0) { alert('Please select at least one draw time'); return }
+    if (selectedDrawTimes.length === 0) { showAlert('Please select at least one draw time'); return }
 
     // Validate limits
     for (const game of config.games) {
@@ -536,7 +540,7 @@ export function Pick2DoublePage() {
             const labelText = limitDetails.limitingNumbers.length > 0
               ? ` ${limitDetails.limitingNumbers.join(' and ')}`
               : ''
-            alert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limitDetails.effectiveLimit} for draw time ${time}.${labelText ? ` Limit reached for${labelText}.` : ''}`)
+            showAlert(`Cannot place bet. Bet amount of $${amountVal} for ${game.name} exceeds the remaining limit of $${limitDetails.effectiveLimit} for draw time ${time}.${labelText ? ` Limit reached for${labelText}.` : ''}`)
             return
           }
         }
@@ -569,7 +573,7 @@ export function Pick2DoublePage() {
     })
 
     if (!hasValidBet) {
-      alert('Please enter a bet amount for at least one of the options');
+      showAlert('Please enter a bet amount for at least one of the options');
       return
     }
 
@@ -628,6 +632,11 @@ export function Pick2DoublePage() {
   const handleCheckout = async () => {
     if (cart.length === 0 || !lotteryId || checkoutLoading) return
 
+    if (!accessToken) {
+      showAlert('You need to log in first to place your bets.', true)
+      return
+    }
+
     setCheckoutLoading(true)
     try {
       await submitLotteryPurchase({
@@ -655,7 +664,12 @@ export function Pick2DoublePage() {
       }, 3000)
     } catch (err: any) {
       console.error('Purchase error:', err)
-      alert(err.message || 'An error occurred while submitting purchase request.')
+      const errMsg = err.message || 'An error occurred while submitting purchase request.'
+      if (errMsg.toLowerCase().includes('token is required') || errMsg.toLowerCase().includes('unauthorized')) {
+        showAlert('You need to log in first to place your bets.', true)
+      } else {
+        showAlert(errMsg)
+      }
     } finally {
       setCheckoutLoading(false)
     }
@@ -820,7 +834,7 @@ export function Pick2DoublePage() {
                             onClick={() => toggleDrawTime(time)}
                             className={`py-3.5 px-2 text-base font-bold rounded-xl border transition-all ${
                               isPassed
-                                ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                                ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
                                 : isSelected
                                 ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
                                 : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
@@ -853,7 +867,7 @@ export function Pick2DoublePage() {
                                 type="button"
                                 onClick={() => {
                                   if (selectedDrawTimes.length === 0) {
-                                    alert('Please select draw time(s) first.')
+                                    showAlert('Please select draw time(s) first.')
                                     return
                                   }
                                   setShowGrid1(!showGrid1)
@@ -869,7 +883,7 @@ export function Pick2DoublePage() {
                                 type="button"
                                 onClick={() => {
                                   if (selectedDrawTimes.length === 0) {
-                                    alert('Please select draw time(s) first.')
+                                    showAlert('Please select draw time(s) first.')
                                     return
                                   }
                                   setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
@@ -919,7 +933,7 @@ export function Pick2DoublePage() {
                                 type="button"
                                 onClick={() => {
                                   if (selectedDrawTimes.length === 0) {
-                                    alert('Please select draw time(s) first.')
+                                    showAlert('Please select draw time(s) first.')
                                     return
                                   }
                                   setShowGrid2(!showGrid2)
@@ -935,7 +949,7 @@ export function Pick2DoublePage() {
                                 type="button"
                                 onClick={() => {
                                   if (selectedDrawTimes.length === 0) {
-                                    alert('Please select draw time(s) first.')
+                                    showAlert('Please select draw time(s) first.')
                                     return
                                   }
                                   setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
@@ -1005,7 +1019,7 @@ export function Pick2DoublePage() {
                                   onMouseDown={(e) => {
                                     if (!selectedNumber || !selectedNumber2) {
                                       e.preventDefault()
-                                      alert('Please select draw time(s) and bet number(s) first.')
+                                      showAlert('Please select draw time(s) and bet number(s) first.')
                                     }
                                   }}
                                   onChange={(e) => {
@@ -1188,7 +1202,7 @@ export function Pick2DoublePage() {
                           onClick={() => toggleDrawTime(time)}
                           className={`py-2 px-1 text-base font-bold rounded-lg border text-center transition-all ${
                             isPassed
-                              ? 'border-neutral-900 bg-neutral-950 text-muted-foreground/30 cursor-not-allowed opacity-40'
+                              ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
                               : isSelected
                               ? 'border-primary bg-primary/15 text-primary'
                               : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
@@ -1215,7 +1229,7 @@ export function Pick2DoublePage() {
                         type="button"
                         onClick={() => {
                           if (selectedDrawTimes.length === 0) {
-                            alert('Please select draw time(s) first.')
+                            showAlert('Please select draw time(s) first.')
                             return
                           }
                           setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
@@ -1229,7 +1243,7 @@ export function Pick2DoublePage() {
                       type="button"
                       onClick={() => {
                         if (selectedDrawTimes.length === 0) {
-                          alert('Please select draw time(s) first.')
+                          showAlert('Please select draw time(s) first.')
                           return
                         }
                         setShowGrid1(!showGrid1); setShowGrid2(false)
@@ -1277,7 +1291,7 @@ export function Pick2DoublePage() {
                         type="button"
                         onClick={() => {
                           if (selectedDrawTimes.length === 0) {
-                            alert('Please select draw time(s) first.')
+                            showAlert('Please select draw time(s) first.')
                             return
                           }
                           setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
@@ -1291,7 +1305,7 @@ export function Pick2DoublePage() {
                       type="button"
                       onClick={() => {
                         if (selectedDrawTimes.length === 0) {
-                          alert('Please select draw time(s) first.')
+                          showAlert('Please select draw time(s) first.')
                           return
                         }
                         setShowGrid2(!showGrid2); setShowGrid1(false)
@@ -1368,7 +1382,7 @@ export function Pick2DoublePage() {
                             disabled={isDisabled}
                             onClick={() => {
                               if (!selectedNumber || !selectedNumber2) {
-                                alert('Please select draw time(s) and bet number(s) first.')
+                                showAlert('Please select draw time(s) and bet number(s) first.')
                                 return
                               }
                               setEditingGameAmount(game.id)
@@ -1739,6 +1753,51 @@ export function Pick2DoublePage() {
         )}
 
       </div>
-    </div>
+    
+      {alertModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+          <Card className="max-w-sm w-full bg-fortune-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl animate-fadeIn">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mx-auto text-primary text-xl">
+                ℹ
+              </div>
+              <p className="text-foreground text-sm font-semibold leading-relaxed">
+                {alertModal.message}
+              </p>
+              {alertModal.isLoginRedirect ? (
+                <div className="flex gap-3 w-full">
+                  <Button
+                    type="button"
+                    onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                    variant="outline"
+                    className="flex-1 py-2.5 border-neutral-800 text-muted-foreground font-bold rounded-xl hover:bg-neutral-900"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setAlertModal({ isOpen: false, message: '', isLoginRedirect: false });
+                      navigate('login');
+                    }}
+                    className="flex-1 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                  >
+                    Login
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                  className="w-full py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                >
+                  OK
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      </div>
   )
 }
