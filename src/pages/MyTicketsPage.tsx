@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,15 @@ export function MyTicketsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Filter States
+  const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
+  const [selectedDate, setSelectedDate] = useState('')
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [search, timeFilter, selectedDate])
+
   useEffect(() => {
     if (!accessToken) return
 
@@ -40,57 +49,42 @@ export function MyTicketsPage() {
     setLoading(true)
     setError(null)
 
-    fetchTickets(accessToken, page, 10)
-      .then((result) => {
-        if (cancelled) return
-        setTickets(result.items)
-        setLastPage(Math.max(result.lastPage || 1, 1))
-      })
-      .catch((err: Error) => {
-        if (cancelled) return
-        setTickets([])
-        setError(err.message)
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-          window.scrollTo(0, 0)
-        }
-      })
+    const delayDebounce = setTimeout(() => {
+      const options: any = {}
+      if (search.trim() !== '') {
+        options.search = search.trim()
+      }
+      if (timeFilter === 'today') {
+        options.filter = 'today'
+      } else if (timeFilter === 'specific' && selectedDate) {
+        options.startdate = selectedDate
+        options.enddate = selectedDate
+      }
+
+      fetchTickets(accessToken, page, 10, options)
+        .then((result) => {
+          if (cancelled) return
+          setTickets(result.items)
+          setLastPage(Math.max(result.lastPage || 1, 1))
+        })
+        .catch((err: Error) => {
+          if (cancelled) return
+          setTickets([])
+          setError(err.message)
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false)
+            window.scrollTo(0, 0)
+          }
+        })
+    }, search ? 300 : 0)
 
     return () => {
       cancelled = true
+      clearTimeout(delayDebounce)
     }
-  }, [accessToken, page])
-
-  const filteredTickets = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase()
-
-    return tickets.filter((ticket) => {
-      const matchesOrderNo = ticket.order_no.toLowerCase().includes(normalizedSearch)
-      const matchesLottery = ticket.lottery_name.toLowerCase().includes(normalizedSearch)
-      const matchesDrawNo = Boolean(ticket.draw_no && ticket.draw_no.toLowerCase().includes(normalizedSearch))
-      const matchesGame = normalizedSearch.length <= 2 && ticket.games.some((game) => game.ticket_number.toLowerCase() === normalizedSearch)
-
-      const matchesSearch =
-        normalizedSearch === '' ||
-        matchesOrderNo ||
-        matchesLottery ||
-        matchesDrawNo ||
-        matchesGame
-
-      console.log(`[Search Debug] Ticket #${ticket.order_no}:`, {
-        searchVal: normalizedSearch,
-        matchesOrderNo,
-        matchesLottery,
-        matchesDrawNo,
-        matchesGame,
-        matchesSearch
-      })
-
-      return matchesSearch
-    })
-  }, [search, tickets])
+  }, [accessToken, page, search, timeFilter, selectedDate])
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
@@ -129,22 +123,74 @@ export function MyTicketsPage() {
           </h1>
           <p className="text-muted-foreground text-sm mt-1">View, search, and verify all your bet slip transactions</p>
         </div>
+        <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-2.5 flex items-center gap-3 shrink-0 justify-center">
+          <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
+          <span className="text-green-400 font-extrabold text-lg">
+            {formatUsd(walletBalance)}
+          </span>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between mb-6 bg-fortune-card border border-border/60 p-4 rounded-xl">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
+          <input
+            type="text"
+            placeholder="Search by Order ID or Number..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
+          />
+        </div>
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
-            <input
-              type="text"
-              placeholder="Search by Order ID or Number..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="w-full bg-fortune-card border border-border/60 rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary focus:border-primary/80 transition-colors"
-            />
+          {/* Quick Filters */}
+          <div className="flex bg-background border border-border rounded-xl p-1">
+            <button
+              onClick={() => {
+                setTimeFilter('all')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All Records
+            </button>
+            <button
+              onClick={() => {
+                setTimeFilter('today')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'today'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Today
+            </button>
           </div>
-          <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-2.5 flex items-center gap-3 shrink-0 justify-center">
-            <span className="text-muted-foreground text-xs uppercase font-medium">Betting Wallet:</span>
-            <span className="text-green-400 font-extrabold text-lg">
-              {formatUsd(walletBalance)}
-            </span>
+
+          {/* Specific Date Picker */}
+          <div className="relative flex items-center bg-background border border-border rounded-xl px-3 py-1">
+            <Calendar className="text-muted-foreground size-4 mr-2" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                setSelectedDate(e.target.value)
+                if (e.target.value) {
+                  setTimeFilter('specific')
+                } else {
+                  setTimeFilter('all')
+                }
+              }}
+              className="bg-transparent border-0 text-xs text-foreground focus:outline-none cursor-pointer [color-scheme:dark]"
+            />
           </div>
         </div>
       </div>
@@ -154,7 +200,7 @@ export function MyTicketsPage() {
           <div className="p-12 text-center text-muted-foreground">Loading tickets...</div>
         ) : error ? (
           <div className="p-12 text-center text-red-400">{error}</div>
-        ) : filteredTickets.length === 0 ? (
+        ) : tickets.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">No tickets found matching criteria.</div>
         ) : (
           <>
@@ -173,7 +219,7 @@ export function MyTicketsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTickets.map((ticket) => (
+                  {tickets.map((ticket) => (
                     <TableRow key={ticket.order_no} className="border-b border-border/20 hover:bg-muted/10 transition-colors">
                       <TableCell onClick={() => setSelectedTicket(ticket)} className="p-4 font-bold text-sm text-primary cursor-pointer hover:underline">
                         #{ticket.order_no}
@@ -211,7 +257,7 @@ export function MyTicketsPage() {
             </div>
 
             <div className="md:hidden flex flex-col divide-y divide-border/20">
-              {filteredTickets.map((ticket) => (
+              {tickets.map((ticket) => (
                 <div key={ticket.order_no} className="p-4 space-y-3 hover:bg-muted/5 active:bg-muted/10 transition-colors cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
                   <div className="flex justify-between items-start gap-2">
                     <div>

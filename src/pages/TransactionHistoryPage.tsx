@@ -19,6 +19,36 @@ export function TransactionHistoryPage() {
   const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
   const [selectedDate, setSelectedDate] = useState('')
 
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((tx) => {
+      // 1. Search Query filter
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase().trim()
+        const idMatches = tx.id.toLowerCase().includes(query)
+        const typeMatches = tx.type.toLowerCase().includes(query)
+        const detailsMatches = tx.details.toLowerCase().includes(query)
+        if (!idMatches && !typeMatches && !detailsMatches) {
+          return false
+        }
+      }
+
+      // 2. Date filter
+      if (timeFilter === 'today') {
+        const todayStr = new Date().toLocaleDateString('en-CA')
+        return tx.localDate === todayStr
+      } else if (timeFilter === 'specific' && selectedDate) {
+        return tx.localDate === selectedDate
+      }
+
+      return true
+    })
+  }, [transactions, searchQuery, timeFilter, selectedDate])
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [searchQuery, timeFilter, selectedDate])
+
   useEffect(() => {
     if (!accessToken) return
 
@@ -26,59 +56,42 @@ export function TransactionHistoryPage() {
     setLoading(true)
     setError(null)
 
-    fetchTransactions(accessToken, page, 10)
-      .then((result) => {
-        if (cancelled) return
-        setTransactions(result.items)
-        setLastPage(Math.max(result.lastPage || 1, 1))
-      })
-      .catch((err: Error) => {
-        if (cancelled) return
-        setTransactions([])
-        setError(err.message)
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-          window.scrollTo(0, 0)
-        }
-      })
+    const delayDebounce = setTimeout(() => {
+      const options: any = {}
+      if (searchQuery.trim() !== '') {
+        options.search = searchQuery.trim()
+      }
+      if (timeFilter === 'today') {
+        options.filter = 'today'
+      } else if (timeFilter === 'specific' && selectedDate) {
+        options.startdate = selectedDate
+        options.enddate = selectedDate
+      }
+
+      fetchTransactions(accessToken, page, 10, options)
+        .then((result) => {
+          if (cancelled) return
+          setTransactions(result.items)
+          setLastPage(Math.max(result.lastPage || 1, 1))
+        })
+        .catch((err: Error) => {
+          if (cancelled) return
+          setTransactions([])
+          setError(err.message)
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false)
+            window.scrollTo(0, 0)
+          }
+        })
+    }, searchQuery ? 300 : 0)
 
     return () => {
       cancelled = true
+      clearTimeout(delayDebounce)
     }
-  }, [accessToken, page])
-
-  const filteredTransactions = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
-
-    return transactions.filter((transaction) => {
-      // 1. Search Query Filter (checks ID, details/Order ID, and type)
-      if (query !== '') {
-        const matchesTxId = transaction.id.toLowerCase().includes(query)
-        const matchesDetails = transaction.details.toLowerCase().includes(query)
-        const matchesType = transaction.type.toLowerCase().includes(query)
-        if (!matchesTxId && !matchesDetails && !matchesType) {
-          return false
-        }
-      }
-
-      // 2. Date Filter
-      if (timeFilter === 'today' || timeFilter === 'specific') {
-        const targetDate = timeFilter === 'today' ? todayStr : selectedDate
-        if (transaction.localDate !== targetDate) {
-          return false
-        }
-      }
-
-      return true
-    })
-  }, [searchQuery, timeFilter, selectedDate, transactions])
-
-  const isFiltered = searchQuery.trim() !== '' || timeFilter !== 'all'
-  const displayPage = isFiltered ? 1 : page
-  const displayLastPage = isFiltered ? 1 : lastPage
+  }, [accessToken, page, searchQuery, timeFilter, selectedDate])
 
   const typeBadge = (type: string) => {
     const normalized = type.toLowerCase()
@@ -216,13 +229,13 @@ export function TransactionHistoryPage() {
       </Card>
 
       <div className="flex justify-center gap-2">
-        <Button variant="outline" size="sm" disabled={displayPage <= 1 || loading} onClick={() => setPage((current) => Math.max(current - 1, 1))}>
+        <Button variant="outline" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(current - 1, 1))}>
           Previous
         </Button>
         <div className="h-9 px-4 rounded-md border border-border bg-background flex items-center text-sm font-bold">
-          {displayPage} / {displayLastPage}
+          {page} / {lastPage}
         </div>
-        <Button variant="outline" size="sm" disabled={displayPage >= displayLastPage || loading} onClick={() => setPage((current) => current + 1)}>
+        <Button variant="outline" size="sm" disabled={page >= lastPage || loading} onClick={() => setPage((current) => current + 1)}>
           Next
         </Button>
       </div>

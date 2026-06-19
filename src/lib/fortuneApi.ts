@@ -324,7 +324,7 @@ async function request(endpoint: string, token?: string): Promise<unknown> {
   return body
 }
 
-async function authRequest(endpoint: string, token?: string): Promise<unknown> {
+export async function authRequest(endpoint: string, token?: string): Promise<unknown> {
   const response = await fetch(`${AUTH_API_BASE_URL}${endpoint}`, {
     headers: {
       Accept: 'application/json',
@@ -432,7 +432,7 @@ function mapTransaction(raw: unknown): ApiTransaction {
     .map((part) => part.trim())
     .filter(Boolean)
 
-  const rawDateStr = pickString(raw, ['created_at', 'createdAt', 'date', 'time'], '')
+  const rawDateStr = pickString(raw, ['utc_created_at', 'created_at', 'createdAt', 'date', 'time'], '')
 
   return {
     id: pickString(raw, ['transaction_id', 'txn_id', 'order_id', 'order_no', 'id'], '-'),
@@ -582,8 +582,33 @@ function mapWinning(raw: unknown): ApiWinningOrder {
   }
 }
 
-export async function fetchTickets(token: string, page = 1, perPage = 10): Promise<ApiListResult<ApiTicketOrder>> {
-  const body = await request(`/api/customer/tickets?per_page=${perPage}&page=${page}`, token)
+export interface FetchFilterOptions {
+  search?: string
+  startdate?: string
+  enddate?: string
+  filter?: string
+  status?: string
+  timezone?: string
+}
+
+export async function fetchTickets(
+  token: string,
+  page = 1,
+  perPage = 10,
+  options?: FetchFilterOptions
+): Promise<ApiListResult<ApiTicketOrder>> {
+  let url = `/api/customer/tickets?per_page=${perPage}&page=${page}`
+  const tz = options?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  url += `&timezone=${encodeURIComponent(tz)}`
+  
+  if (options) {
+    if (options.search) url += `&search=${encodeURIComponent(options.search)}`
+    if (options.startdate) url += `&startdate=${encodeURIComponent(options.startdate)}`
+    if (options.enddate) url += `&enddate=${encodeURIComponent(options.enddate)}`
+    if (options.filter) url += `&filter=${encodeURIComponent(options.filter)}`
+    if (options.status) url += `&status=${encodeURIComponent(options.status)}`
+  }
+  const body = await request(url, token)
   const items = getArray(body, ['tickets', 'items', 'records', 'data']).map(mapTicket)
 
   return {
@@ -592,8 +617,23 @@ export async function fetchTickets(token: string, page = 1, perPage = 10): Promi
   }
 }
 
-export async function fetchTransactions(token: string, page = 1, perPage = 10): Promise<ApiListResult<ApiTransaction>> {
-  const body = await authRequest(`/wallet/transactions?page=${page}&limit=${perPage}`, token)
+export async function fetchTransactions(
+  token: string,
+  page = 1,
+  perPage = 10,
+  options?: FetchFilterOptions
+): Promise<ApiListResult<ApiTransaction>> {
+  let url = `/api/customer/transactions?per_page=${perPage}&page=${page}`
+  const tz = options?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  url += `&timezone=${encodeURIComponent(tz)}`
+
+  if (options) {
+    if (options.search) url += `&search=${encodeURIComponent(options.search)}`
+    if (options.startdate) url += `&startdate=${encodeURIComponent(options.startdate)}`
+    if (options.enddate) url += `&enddate=${encodeURIComponent(options.enddate)}`
+    if (options.filter) url += `&filter=${encodeURIComponent(options.filter)}`
+  }
+  const body = await request(url, token)
   const items = getArray(body, ['transactions', 'items', 'records', 'data']).map(mapTransaction)
 
   return {
@@ -612,8 +652,24 @@ export async function fetchResults(type: string, page = 1, perPage = 10): Promis
   }
 }
 
-export async function fetchCustomerWinnings(token: string, page = 1, perPage = 10): Promise<ApiListResult<ApiWinningOrder>> {
-  const body = await request(`/api/customer/winnings?per_page=${perPage}&page=${page}`, token)
+export async function fetchCustomerWinnings(
+  token: string,
+  page = 1,
+  perPage = 10,
+  options?: FetchFilterOptions
+): Promise<ApiListResult<ApiWinningOrder>> {
+  let url = `/api/customer/winnings?per_page=${perPage}&page=${page}`
+  const tz = options?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  url += `&timezone=${encodeURIComponent(tz)}`
+
+  if (options) {
+    if (options.search) url += `&search=${encodeURIComponent(options.search)}`
+    if (options.startdate) url += `&startdate=${encodeURIComponent(options.startdate)}`
+    if (options.enddate) url += `&enddate=${encodeURIComponent(options.enddate)}`
+    if (options.filter) url += `&filter=${encodeURIComponent(options.filter)}`
+    if (options.status) url += `&status=${encodeURIComponent(options.status)}`
+  }
+  const body = await request(url, token)
   const items = getArray(body, ['winnings', 'items', 'records', 'data']).map(mapWinning)
 
   return {

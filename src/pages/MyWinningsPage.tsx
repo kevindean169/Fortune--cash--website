@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { Trophy, Eye, Calendar, Clock, User, Phone, Receipt, Landmark } from 'lucide-react'
+import { Trophy, Eye, Calendar, Clock, User, Phone, Receipt, Landmark, Search } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchCustomerWinnings, type ApiWinningOrder } from '@/lib/fortuneApi'
 import { GameBallGraphic } from '@/components/GameLogos'
@@ -33,6 +33,16 @@ export function MyWinningsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [search, setSearch] = useState('')
+  // Filter States
+  const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
+  const [selectedDate, setSelectedDate] = useState('')
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [search, timeFilter, selectedDate])
+
   useEffect(() => {
     if (!accessToken) return
 
@@ -40,29 +50,43 @@ export function MyWinningsPage() {
     setLoading(true)
     setError(null)
 
-    fetchCustomerWinnings(accessToken, page, 10)
-      .then((result) => {
-        if (cancelled) return
-        setWinnings(result.items)
-        setLastPage(Math.max(result.lastPage || 1, 1))
-      })
-      .catch((err: Error) => {
-        if (cancelled) return
-        setWinnings([])
-        setLastPage(1)
-        setError(err.message)
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-          window.scrollTo(0, 0)
-        }
-      })
+    const delayDebounce = setTimeout(() => {
+      const options: any = {}
+      if (search.trim() !== '') {
+        options.search = search.trim()
+      }
+      if (timeFilter === 'today') {
+        options.filter = 'today'
+      } else if (timeFilter === 'specific' && selectedDate) {
+        options.startdate = selectedDate
+        options.enddate = selectedDate
+      }
+
+      fetchCustomerWinnings(accessToken, page, 10, options)
+        .then((result) => {
+          if (cancelled) return
+          setWinnings(result.items)
+          setLastPage(Math.max(result.lastPage || 1, 1))
+        })
+        .catch((err: Error) => {
+          if (cancelled) return
+          setWinnings([])
+          setLastPage(1)
+          setError(err.message)
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false)
+            window.scrollTo(0, 0)
+          }
+        })
+    }, search ? 300 : 0)
 
     return () => {
       cancelled = true
+      clearTimeout(delayDebounce)
     }
-  }, [accessToken, page])
+  }, [accessToken, page, search, timeFilter, selectedDate])
 
   const totalWinnings = winnings.reduce((acc, item) => acc + item.total_won, 0)
 
@@ -90,6 +114,70 @@ export function MyWinningsPage() {
         <div className="bg-fortune-card border border-border/60 rounded-xl px-5 py-3 flex items-center gap-3">
           <span className="text-muted-foreground text-xs uppercase font-medium">This Page Winnings:</span>
           <span className="text-primary font-extrabold text-lg">{formatUsd(totalWinnings)}</span>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between mb-6 bg-fortune-card border border-border/60 p-4 rounded-xl">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
+          <input
+            type="text"
+            placeholder="Search by Order ID or Name..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Quick Filters */}
+          <div className="flex bg-background border border-border rounded-xl p-1">
+            <button
+              onClick={() => {
+                setTimeFilter('all')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All Records
+            </button>
+            <button
+              onClick={() => {
+                setTimeFilter('today')
+                setSelectedDate('')
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                timeFilter === 'today'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Today
+            </button>
+          </div>
+
+          {/* Specific Date Picker */}
+          <div className="relative flex items-center bg-background border border-border rounded-xl px-3 py-1">
+            <Calendar className="text-muted-foreground size-4 mr-2" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                setSelectedDate(e.target.value)
+                if (e.target.value) {
+                  setTimeFilter('specific')
+                } else {
+                  setTimeFilter('all')
+                }
+              }}
+              className="bg-transparent border-0 text-xs text-foreground focus:outline-none cursor-pointer [color-scheme:dark]"
+            />
+          </div>
         </div>
       </div>
 
