@@ -333,7 +333,7 @@ export function HomePage() {
               return (
                 <button
                   key={game.id}
-                  onClick={() => navigate(game.id)}
+                  onClick={() => navigate(`lottery-info?type=${game.id}`)}
                   className="group text-left"
                 >
                   <Card className="bg-[#050505] border border-primary/20 hover:border-primary/60 transition-all h-full overflow-hidden group/card relative rounded-2xl">

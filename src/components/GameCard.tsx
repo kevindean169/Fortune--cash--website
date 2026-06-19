@@ -32,9 +32,13 @@ export function GameCard({ game }: { game: APILottery }) {
 
   const [d, h, m, s] = useDateTimeCountdown(targetDate)
   const path = mapTypeToPath(game.type, game.name)
+  const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
 
   return (
-    <div className="bg-fortune-card border border-border/60 rounded-xl flex overflow-hidden shadow-[0_0_10px_rgba(224,172,44,0.05)] hover:shadow-[0_0_20px_rgba(224,172,44,0.15)] hover:-translate-y-1 transition-all duration-300 group">
+    <div
+      className="bg-fortune-card border border-border/60 rounded-xl flex overflow-hidden shadow-[0_0_10px_rgba(224,172,44,0.05)] hover:shadow-[0_0_20px_rgba(224,172,44,0.15)] hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+      onClick={() => routerNavigate(infoPath)}
+    >
       {/* Left: Image */}
       <div className="w-[38%] sm:w-[32%] relative shrink-0 bg-background overflow-hidden">
         <img
@@ -54,9 +58,14 @@ export function GameCard({ game }: { game: APILottery }) {
         {/* Badge & Title */}
         <div className="flex justify-between items-start mb-3">
           <div className="flex flex-col gap-1 items-start">
-            <span className="px-2.5 py-0.5 bg-[#e0ac2c]/10 border border-[#e0ac2c]/20 text-[#e0ac2c] rounded text-[10px] font-bold whitespace-nowrap uppercase tracking-wider">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); routerNavigate(infoPath) }}
+              className="px-2.5 py-0.5 bg-[#e0ac2c]/10 border border-[#e0ac2c]/20 text-[#e0ac2c] rounded text-[10px] font-bold whitespace-nowrap uppercase tracking-wider hover:bg-[#e0ac2c]/20 hover:border-[#e0ac2c]/40 transition-all cursor-pointer"
+              title={`Learn about ${game.type}`}
+            >
               {game.type}
-            </span>
+            </button>
             {game.schedule && (
               <span className="text-[9px] text-[#e0ac2c]/70 font-bold uppercase tracking-wider pl-0.5">
                 {game.schedule}
@@ -88,7 +97,7 @@ export function GameCard({ game }: { game: APILottery }) {
         {/* Bet Button */}
         <Button
           size="sm"
-          onClick={() => navigate(`${path}?id=${game.id}`)}
+          onClick={(e) => { e.stopPropagation(); navigate(`${path}?id=${game.id}`) }}
           className="w-[80%] self-end gold-gradient text-white font-bold rounded-lg h-9 hover:opacity-90 transition-all text-xs tracking-wide shadow-md"
         >
           Bet Now

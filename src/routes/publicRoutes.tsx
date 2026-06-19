@@ -13,10 +13,12 @@ import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { TermsPage } from '@/pages/TermsPage'
 import { AboutPage } from '@/pages/AboutPage'
+import { LotteryInfoPage } from '@/pages/LotteryInfoPage'
 
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
   { path: 'lotteries', element: <LotteriesPage /> },
+  { path: 'lottery-info', element: <LotteryInfoPage /> },
   { path: 'cashpot', element: <CashpotPage /> },
   { path: 'money-time', element: <MoneyTimePage /> },
   { path: 'pick-2-single', element: <Pick2SinglePage /> },

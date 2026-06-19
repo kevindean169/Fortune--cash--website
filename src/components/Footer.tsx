@@ -39,10 +39,13 @@ export function Footer() {
                 { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_logo.png?v=5' },
               ].map(g => (
                 <li key={g.id}>
-                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground select-none">
+                  <Link 
+                    to={`/lottery-info?type=${g.id}`}
+                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                  >
                     <img src={g.logo} alt={g.label} className="w-8 h-8 object-contain" />
                     <span>{g.label}</span>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>
