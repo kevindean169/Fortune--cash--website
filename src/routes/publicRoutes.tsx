@@ -14,6 +14,7 @@ import { RegisterPage } from '@/pages/RegisterPage'
 import { TermsPage } from '@/pages/TermsPage'
 import { AboutPage } from '@/pages/AboutPage'
 import { LotteryInfoPage } from '@/pages/LotteryInfoPage'
+import { LogoutPage } from '@/pages/LogoutPage'
 
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
@@ -29,6 +30,7 @@ export const publicRoutes: RouteObject[] = [
   { path: 'about', element: <AboutPage /> },
   { path: 'contact', element: <ContactPage /> },
   { path: 'login', element: <LoginPage /> },
+  { path: 'logout', element: <LogoutPage /> },
   { path: 'register', element: <RegisterPage /> },
   { path: 'terms', element: <TermsPage /> },
 ]
