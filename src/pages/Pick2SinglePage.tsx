@@ -116,7 +116,7 @@ export function Pick2SinglePage() {
   const [lotteryData, setLotteryData] = useState<any>(null)
   const [howToPlayData, setHowToPlayData] = useState<string>('')
   const [priceData, setPriceData] = useState<any>(null)
-  const [soldOutList, setSoldOutList] = useState<string[]>([])
+  const [soldOutList, setSoldOutList] = useState<any[]>([])
   const [selectedSoldOutTime, setSelectedSoldOutTime] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -738,10 +738,10 @@ export function Pick2SinglePage() {
                                 disabled={isPassed}
                                 onClick={() => toggleDrawTime(time)}
                                 className={`py-3.5 px-2 text-base font-bold rounded-xl border transition-all ${isPassed
-                                    ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                    : isSelected
-                                      ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
-                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
+                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : isSelected
+                                    ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
                                   }`}
                               >
                                 {formatDrawTimeToLocal(time).display.split(' ')[0]}
@@ -1030,10 +1030,10 @@ export function Pick2SinglePage() {
                               disabled={isPassed}
                               onClick={() => toggleDrawTime(time)}
                               className={`py-2 px-1 text-base font-bold rounded-lg border text-center transition-all ${isPassed
-                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                  : isSelected
-                                    ? 'border-primary bg-primary/15 text-primary'
-                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
+                                ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                : isSelected
+                                  ? 'border-primary bg-primary/15 text-primary'
+                                  : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
                                 }`}
                             >
                               {formatDrawTimeToLocal(time).display.split(' ')[0]}
@@ -1449,12 +1449,12 @@ export function Pick2SinglePage() {
         {activeTab === 'soldout' && (
           <Card className="lottery-card-container">
             <CardContent className="p-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Number Limits</h2>
               <p className="text-muted-foreground text-base mb-6">
-                The following numbers have reached their limit for today and cannot accept any more bets.
+                View the remaining bet limits for each number for the selected draw time.
               </p>
 
-              <div className="mb-6 flex items-center gap-4">
+              <div className="mb-8 flex items-center gap-4">
                 <span className="text-sm font-bold text-muted-foreground uppercase">Select Draw Time:</span>
                 <select
                   value={selectedSoldOutTime}
@@ -1468,20 +1468,39 @@ export function Pick2SinglePage() {
                 </select>
               </div>
 
-              {soldOutList.length === 0 ? (
+              {!selectedSoldOutTime ? (
                 <p className="text-muted-foreground text-sm italic">
-                  {selectedSoldOutTime ? 'No sold out numbers for this draw time.' : 'Please select a draw time to view sold out numbers.'}
+                  Please select a draw time to view number limits.
+                </p>
+              ) : soldOutList.length === 0 ? (
+                <p className="text-muted-foreground text-sm italic">
+                  No limit data found for this draw time.
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-3">
-                  {soldOutList.map((num) => (
-                    <span
-                      key={num}
-                      className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
-                    >
-                      #{num} (Draw: {formatDrawTimeToLocal(selectedSoldOutTime).display})
-                    </span>
-                  ))}
+                <div className="space-y-4 animate-fadeIn">
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Number Bet Limits</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-800">
+                    {soldOutList.map((item: any) => {
+                      const isSoldOut = item.remaining_bet === 'Sold Out' || Number(item.remaining_bet) <= 0;
+                      return (
+                        <div
+                          key={item.ticket_number}
+                          className={`p-3 border rounded-xl flex flex-col items-center justify-between text-center transition-all bg-[#0a0a0a] ${isSoldOut
+                              ? 'border-red-500/30 hover:border-red-500/50'
+                              : 'border-border/60 hover:border-primary/40'
+                            }`}
+                        >
+                          <span className={`text-base font-black ${isSoldOut ? 'text-red-400' : 'text-foreground'}`}>
+                            #{item.ticket_number}
+                          </span>
+                          <span className={`text-xs font-bold mt-1.5 ${isSoldOut ? 'text-red-400/90' : 'text-primary'
+                            }`}>
+                            {isSoldOut ? 'SOLD OUT' : `$${item.remaining_bet}`}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -1489,7 +1508,7 @@ export function Pick2SinglePage() {
         )}
 
       </div>
-    
+
       {alertModal.isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-4">
           <Card className="max-w-sm w-full bg-fortune-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl animate-fadeIn">
@@ -1534,6 +1553,6 @@ export function Pick2SinglePage() {
           </Card>
         </div>
       )}
-      </div>
+    </div>
   )
 }

@@ -44,7 +44,9 @@ export function MoneyTimePage() {
   const [lotteryData, setLotteryData] = useState<any>(null)
   const [howToPlayData, setHowToPlayData] = useState<string>('')
   const [priceData, setPriceData] = useState<any>(null)
-  const [soldOutList, setSoldOutList] = useState<string[]>([])
+  const [soldOutList, setSoldOutList] = useState<any[]>([])
+  const [megaballLimit, setMegaballLimit] = useState<any>(null)
+  const [monstaballLimit, setMonstaballLimit] = useState<any>(null)
   const [selectedSoldOutTime, setSelectedSoldOutTime] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -305,21 +307,36 @@ export function MoneyTimePage() {
       }
 
       const baseUrl = import.meta.env.VITE_API_URL || ''
-      const cleanDrawTime = selectedSoldOutTime.includes(':')
-        ? selectedSoldOutTime.split(':').slice(0, 2).join(':')
-        : selectedSoldOutTime
+      let cleanDrawTime = selectedSoldOutTime
+      if (cleanDrawTime.includes('T')) {
+        cleanDrawTime = cleanDrawTime.split('T')[1]
+      } else if (cleanDrawTime.includes(' ')) {
+        const parts = cleanDrawTime.split(' ')
+        if (parts[0].includes('-')) {
+          cleanDrawTime = parts[1]
+        }
+      }
+      if (cleanDrawTime.includes(':')) {
+        cleanDrawTime = cleanDrawTime.split(':').slice(0, 2).join(':')
+      }
       fetch(`${baseUrl}/api/cashpotMoney-sold-out-numbers/${lotteryId}?draw_time=${cleanDrawTime}`, { headers })
         .then(res => res.json())
         .then(resData => {
           if (resData.status === 'success' && Array.isArray(resData.data)) {
             setSoldOutList(resData.data)
+            setMegaballLimit(resData.megaball !== undefined ? resData.megaball : null)
+            setMonstaballLimit(resData.monstaball !== undefined ? resData.monstaball : null)
           } else {
             setSoldOutList([])
+            setMegaballLimit(null)
+            setMonstaballLimit(null)
           }
         })
         .catch(err => {
           console.error('Fetch sold out numbers error:', err)
           setSoldOutList([])
+          setMegaballLimit(null)
+          setMonstaballLimit(null)
         })
     }
   }, [activeTab, selectedSoldOutTime, lotteryId, accessToken])
@@ -536,13 +553,6 @@ export function MoneyTimePage() {
       value: time,
       label: formatSoldOutDrawTimeToLocal(time),
     }))
-  }
-
-  function getSelectedSoldOutLabel() {
-    return (
-      getSoldOutDrawOptions().find((option) => option.value === selectedSoldOutTime)?.label ||
-      formatSoldOutDrawTimeToLocal(selectedSoldOutTime)
-    )
   }
 
   // getNumberWarning intentionally removed (unused)
@@ -1787,12 +1797,12 @@ export function MoneyTimePage() {
         {activeTab === 'soldout' && (
           <Card className="lottery-card-container">
             <CardContent className="p-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Sold Out Numbers</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">Number & Game Limits</h2>
               <p className="text-muted-foreground text-base mb-6">
-                The following numbers have reached their draw limit and cannot accept bets.
+                View the remaining bet limits for each number and game mode for the selected draw time.
               </p>
 
-              <div className="mb-6 flex items-center gap-4">
+              <div className="mb-8 flex items-center gap-4">
                 <span className="text-sm font-bold text-muted-foreground uppercase">Select Draw Time:</span>
                 <select
                   value={selectedSoldOutTime}
@@ -1806,20 +1816,83 @@ export function MoneyTimePage() {
                 </select>
               </div>
 
-              {soldOutList.length === 0 ? (
+              {!selectedSoldOutTime ? (
                 <p className="text-muted-foreground text-sm italic">
-                  {selectedSoldOutTime ? 'No sold out numbers for this draw time.' : 'Please select a draw time to view sold out numbers.'}
+                  Please select a draw time to view number and game limits.
+                </p>
+              ) : soldOutList.length === 0 ? (
+                <p className="text-muted-foreground text-sm italic">
+                  No limit data found for this draw time.
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-3">
-                  {soldOutList.map((num) => (
-                    <span
-                      key={num}
-                      className="px-4 py-2 border border-red-500/30 bg-red-500/5 text-red-400 font-bold rounded-xl text-sm"
-                    >
-                      #{num} (Draw: {getSelectedSoldOutLabel()})
-                    </span>
-                  ))}
+                <div className="space-y-8 animate-fadeIn">
+                  {/* Game Mode Limits */}
+                  {((megaballLimit !== undefined && megaballLimit !== null) || (monstaballLimit !== undefined && monstaballLimit !== null)) && (
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Special Bet Limits</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {megaballLimit !== undefined && megaballLimit !== null && (
+                          <div className="p-4 border border-border rounded-xl bg-white/[0.02] flex justify-between items-center">
+                            <div>
+                              <h4 className="font-bold text-sm text-foreground">Megaball Bet Limit</h4>
+                              <p className="text-[10px] text-muted-foreground">Remaining amount allowed</p>
+                            </div>
+                            <span className={`px-3 py-1 font-bold rounded-lg text-xs border ${
+                              megaballLimit === 'Sold Out' || Number(megaballLimit) <= 0
+                                ? 'border-red-500/30 bg-red-500/10 text-red-400'
+                                : 'border-green-500/30 bg-green-500/10 text-green-400'
+                            }`}>
+                              {megaballLimit === 'Sold Out' || Number(megaballLimit) <= 0 ? 'SOLD OUT' : `$${megaballLimit}`}
+                            </span>
+                          </div>
+                        )}
+                        {monstaballLimit !== undefined && monstaballLimit !== null && (
+                          <div className="p-4 border border-border rounded-xl bg-white/[0.02] flex justify-between items-center">
+                            <div>
+                              <h4 className="font-bold text-sm text-foreground">Monstaball Bet Limit</h4>
+                              <p className="text-[10px] text-muted-foreground">Remaining amount allowed</p>
+                            </div>
+                            <span className={`px-3 py-1 font-bold rounded-lg text-xs border ${
+                              monstaballLimit === 'Sold Out' || Number(monstaballLimit) <= 0
+                                ? 'border-red-500/30 bg-red-500/10 text-red-400'
+                                : 'border-green-500/30 bg-green-500/10 text-green-400'
+                            }`}>
+                              {monstaballLimit === 'Sold Out' || Number(monstaballLimit) <= 0 ? 'SOLD OUT' : `$${monstaballLimit}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Numbers Grid */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Number Bet Limits</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                      {soldOutList.map((item: any) => {
+                        const isSoldOut = item.remaining_bet === 'Sold Out' || Number(item.remaining_bet) <= 0;
+                        return (
+                          <div
+                            key={item.ticket_number}
+                            className={`p-3 border rounded-xl flex flex-col items-center justify-between text-center transition-all bg-[#0a0a0a] ${
+                              isSoldOut
+                                ? 'border-red-500/30 hover:border-red-500/50'
+                                : 'border-border/60 hover:border-primary/40'
+                            }`}
+                          >
+                            <span className={`text-base font-black ${isSoldOut ? 'text-red-400' : 'text-foreground'}`}>
+                              #{item.ticket_number}
+                            </span>
+                            <span className={`text-xs font-bold mt-1.5 ${
+                              isSoldOut ? 'text-red-400/90' : 'text-primary'
+                            }`}>
+                              {isSoldOut ? 'SOLD OUT' : `$${item.remaining_bet}`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>
