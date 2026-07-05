@@ -1,0 +1,27 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/www/fortune-new-client
+            git pull origin main
+            npm ci
+            npm run build
+            sudo rm -rf /var/www/fortune-new-client/*
+            sudo cp -r dist/* /var/www/fortune-new-client/
+            sudo chown -R www-data:www-data /var/www/fortune-new-client
+            echo "Deployment complete!"
