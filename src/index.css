@@ -1,0 +1,415 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* Fortune Lottery Brand */
+  --color-fortune-gold: var(--fortune-gold);
+  --color-fortune-gold-dim: var(--fortune-gold-dim);
+  --color-fortune-gold-muted: var(--fortune-gold-muted);
+  --color-fortune-navy: var(--fortune-navy);
+  --color-fortune-card: var(--fortune-card);
+  --color-fortune-card-hover: var(--fortune-card-hover);
+  --color-fortune-blue: var(--fortune-blue);
+  --color-fortune-blue-muted: var(--fortune-blue-muted);
+}
+
+/* Fortune Lottery — Modern Light Theme */
+:root {
+  --radius: 0.5rem;
+
+  /* Fortune Brand Tokens */
+  --fortune-gold: oklch(0.83 0.17 84);
+  --fortune-gold-dim: oklch(0.92 0.12 84);
+  --fortune-gold-muted: oklch(0.95 0.07 84);
+  --fortune-navy: oklch(0.20 0.04 252);
+  --fortune-card: oklch(1 0 0);
+  --fortune-card-hover: oklch(0.98 0.008 219);
+  --fortune-blue: oklch(0.55 0.18 262);
+  --fortune-blue-muted: oklch(0.90 0.08 262);
+
+  /* Shadcn Token Overrides - Light Theme */
+  --background: oklch(0.99 0.005 219);
+  --foreground: oklch(0.20 0.04 252);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.04 252);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.04 252);
+  --primary: oklch(0.83 0.17 84);
+  --primary-foreground: oklch(0.20 0.04 252);
+  --secondary: oklch(0.55 0.18 262);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.93 0.008 219);
+  --muted-foreground: oklch(0.56 0.04 252);
+  --accent: oklch(0.55 0.18 262);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.60 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.90 0.01 219);
+  --input: oklch(0.97 0.008 219);
+  --ring: oklch(0.83 0.17 84);
+  --chart-1: oklch(0.83 0.17 84);
+  --chart-2: oklch(0.55 0.21 262);
+  --chart-3: oklch(0.65 0.17 150);
+  --chart-4: oklch(0.70 0.18 45);
+  --chart-5: oklch(0.65 0.19 10);
+  --sidebar: oklch(0.98 0.008 219);
+  --sidebar-foreground: oklch(0.20 0.04 252);
+  --sidebar-primary: oklch(0.83 0.17 84);
+  --sidebar-primary-foreground: oklch(0.20 0.04 252);
+  --sidebar-accent: oklch(0.55 0.18 262);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.90 0.01 219);
+  --sidebar-ring: oklch(0.83 0.17 84);
+}
+
+/* Fortune Lottery — Dark Theme (Screenshot Match: Pure Black + Gold + Green) */
+.dark {
+  --radius: 0.625rem;
+
+  /* Fortune Brand Tokens - Dark */
+  --fortune-gold: #e0ac2c;
+  --fortune-gold-dim: #c99820;
+  --fortune-gold-muted: #a07818;
+  --fortune-navy: #ffffff;
+  --fortune-card: #111111;
+  --fortune-card-hover: #1a1a1a;
+  --fortune-blue: #e0ac2c;
+  --fortune-blue-muted: rgba(224, 172, 44, 0.15);
+
+  /* Shadcn Token Overrides - Dark Theme (Pure Black) */
+  --background: #050505;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #e0ac2c;
+  --primary-foreground: #050505;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #1a1a1a;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(224, 172, 44, 0.2);
+  --input: #111111;
+  --ring: #e0ac2c;
+  --chart-1: #e0ac2c;
+  --chart-2: #4CAF50;
+  --chart-3: #4CAF50;
+  --chart-4: #e0ac2c;
+  --chart-5: #ef4444;
+  --sidebar: #111111;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #e0ac2c;
+  --sidebar-primary-foreground: #050505;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(224, 172, 44, 0.2);
+  --sidebar-ring: #e0ac2c;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button,
+  [type="button"],
+  [type="submit"] {
+    cursor: pointer !important;
+  }
+}
+
+@layer utilities {
+  .gold-text {
+    background: linear-gradient(135deg, #f3ca20, #e0ac2c, #f3ca20);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-gradient {
+    background: linear-gradient(to bottom, #5cb85c, #449d44) !important;
+    border-style: solid !important;
+    border-color: #d8b846 !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 
+      inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+      inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+      0 8px 16px rgba(0, 0, 0, 0.6) !important;
+    transition: all 0.15s ease;
+  }
+
+  .gold-gradient:hover {
+    background: linear-gradient(to bottom, #68c368, #4ba84b) !important;
+    border-color: #e5c755 !important;
+    box-shadow: 
+      inset 2px 2px 5px rgba(255, 255, 255, 0.4),
+      inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+      0 12px 24px rgba(0, 0, 0, 0.7) !important;
+    transform: translateY(-2px);
+  }
+
+  .gold-gradient:active {
+    background: linear-gradient(to bottom, #449d44, #398439) !important;
+    border-width: 2px !important; /* flattens on click */
+    border-color: #c4a438 !important;
+    box-shadow: 
+      inset 2px 2px 6px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(2px);
+  }
+
+  .gold-border {
+    border-color: rgba(224, 172, 44, 0.4);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 24px rgba(224, 172, 44, 0.3), 0 0 48px rgba(224, 172, 44, 0.1);
+  }
+
+  .blue-glow {
+    box-shadow: 0 0 24px oklch(0.47 0.22 262 / 0.3), 0 0 48px oklch(0.47 0.22 262 / 0.1);
+  }
+
+  .card-hover {
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-hover:hover {
+    background-color: var(--fortune-card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px oklch(0.83 0.17 84 / 0.15);
+  }
+
+  .fortune-hero-bg {
+    background:
+      radial-gradient(ellipse at 15% 50%, rgba(224, 172, 44, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, rgba(224, 172, 44, 0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, rgba(76, 175, 80, 0.06) 0%, transparent 55%),
+      #050505;
+  }
+
+  .dark .fortune-hero-bg {
+    background:
+      radial-gradient(ellipse at 15% 50%, rgba(224, 172, 44, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, rgba(224, 172, 44, 0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, rgba(76, 175, 80, 0.06) 0%, transparent 55%),
+      #050505;
+  }
+
+  .number-ball {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 0.875rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* 3D idle ball — dark grey sphere */
+  .number-ball-idle {
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.55) 0%, transparent 55%),
+      radial-gradient(circle at 65% 72%, rgba(0,0,0,0.35) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #3a3a3a 0%, #1a1a1a 100%);
+    color: #ffffff;
+    box-shadow:
+      inset 0 -3px 6px rgba(0,0,0,0.5),
+      inset 0 2px 4px rgba(255,255,255,0.15),
+      0 4px 10px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .number-ball-idle:hover {
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.65) 0%, transparent 55%),
+      radial-gradient(circle at 65% 72%, rgba(0,0,0,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #e0ac2c 0%, #a07818 100%);
+    color: #050505;
+    box-shadow:
+      inset 0 -3px 6px rgba(0,0,0,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.4),
+      0 4px 16px rgba(224,172,44,0.5);
+    border-color: rgba(224,172,44,0.5);
+    transform: scale(1.08);
+  }
+
+  .dark .number-ball-idle {
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.5) 0%, transparent 55%),
+      radial-gradient(circle at 65% 72%, rgba(0,0,0,0.4) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #2e2e2e 0%, #111111 100%);
+    color: #ffffff;
+    box-shadow:
+      inset 0 -3px 6px rgba(0,0,0,0.6),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      0 4px 10px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .dark .number-ball-idle:hover {
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.65) 0%, transparent 55%),
+      radial-gradient(circle at 65% 72%, rgba(0,0,0,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #e0ac2c 0%, #a07818 100%);
+    color: #050505;
+    box-shadow:
+      inset 0 -3px 6px rgba(0,0,0,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.4),
+      0 4px 16px rgba(224,172,44,0.5);
+    border-color: rgba(224,172,44,0.5);
+    transform: scale(1.08);
+  }
+
+  /* 3D selected ball — gold sphere */
+  .number-ball-selected {
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255,255,255,0.7) 0%, transparent 50%),
+      radial-gradient(circle at 65% 72%, rgba(0,0,0,0.3) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #f5d060 0%, #c08a10 100%);
+    color: #1a0e00;
+    box-shadow:
+      inset 0 -4px 8px rgba(0,0,0,0.35),
+      inset 0 3px 6px rgba(255,255,255,0.5),
+      0 0 18px rgba(224,172,44,0.55),
+      0 5px 12px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  /* 3D result ball — white/pearl sphere (vivid like mega/monsta) */
+  .number-ball-result {
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.6) 30%, transparent 60%),
+      radial-gradient(circle at 68% 76%, rgba(140,140,160,0.55) 0%, transparent 52%),
+      radial-gradient(circle at 50% 50%, #e8e8f0 0%, #a8a8b8 100%);
+    color: #111111;
+    font-weight: 900;
+    box-shadow:
+      inset 0 -5px 10px rgba(0,0,0,0.28),
+      inset 0 4px 8px rgba(255,255,255,1),
+      0 0 18px rgba(220,220,255,0.35),
+      0 6px 14px rgba(0,0,0,0.55);
+    border: 1.5px solid rgba(255,255,255,0.85);
+  }
+
+  /* 3D megaball — red sphere */
+  .number-ball-mega {
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255,200,200,0.85) 0%, transparent 50%),
+      radial-gradient(circle at 65% 72%, rgba(80,0,0,0.5) 0%, transparent 55%),
+      radial-gradient(circle at 50% 50%, #e03030 0%, #7a0000 100%);
+    color: #ffffff;
+    box-shadow:
+      inset 0 -4px 8px rgba(0,0,0,0.45),
+      inset 0 3px 6px rgba(255,120,120,0.5),
+      0 0 18px rgba(220,50,50,0.5),
+      0 5px 12px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,150,150,0.3);
+    cursor: default;
+  }
+
+  /* 3D monstaball — deep gold/amber sphere */
+  .number-ball-monsta {
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255,240,160,0.9) 0%, transparent 50%),
+      radial-gradient(circle at 65% 72%, rgba(80,50,0,0.5) 0%, transparent 55%),
+      radial-gradient(circle at 50% 50%, #d4a017 0%, #7a5500 100%);
+    color: #ffffff;
+    box-shadow:
+      inset 0 -4px 8px rgba(0,0,0,0.4),
+      inset 0 3px 6px rgba(255,220,80,0.55),
+      0 0 18px rgba(212,160,23,0.55),
+      0 5px 12px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,220,80,0.35);
+    cursor: default;
+  }
+
+  /* Sleek custom scrollbars matching dark/gold theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(197, 160, 89, 0.25);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(197, 160, 89, 0.5);
+  }
+
+  /* Firefox Scrollbar Support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 160, 89, 0.25) rgba(0, 0, 0, 0.3);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
