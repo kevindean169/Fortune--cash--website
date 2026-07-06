@@ -44,6 +44,23 @@ export function TransactionHistoryPage() {
     })
   }, [transactions, searchQuery, timeFilter, selectedDate])
 
+  const hasActiveFilters = searchQuery.trim() !== '' || timeFilter !== 'all'
+
+  const displayLastPage = useMemo(() => {
+    if (hasActiveFilters) {
+      return Math.max(Math.ceil(filteredTransactions.length / 10), 1)
+    }
+    return lastPage
+  }, [filteredTransactions.length, hasActiveFilters, lastPage])
+
+  const paginatedTransactions = useMemo(() => {
+    if (hasActiveFilters) {
+      const startIndex = (page - 1) * 10
+      return filteredTransactions.slice(startIndex, startIndex + 10)
+    }
+    return filteredTransactions
+  }, [filteredTransactions, hasActiveFilters, page])
+
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1)
@@ -63,16 +80,24 @@ export function TransactionHistoryPage() {
       }
       if (timeFilter === 'today') {
         options.filter = 'today'
+        const todayStr = new Date().toLocaleDateString('en-CA')
+        options.startdate = todayStr
+        options.enddate = todayStr
       } else if (timeFilter === 'specific' && selectedDate) {
         options.startdate = selectedDate
         options.enddate = selectedDate
       }
 
-      fetchTransactions(accessToken, page, 10, options)
+      const limit = hasActiveFilters ? 100 : 10
+      const fetchPage = hasActiveFilters ? 1 : page
+
+      fetchTransactions(accessToken, fetchPage, limit, options)
         .then((result) => {
           if (cancelled) return
           setTransactions(result.items)
-          setLastPage(Math.max(result.lastPage || 1, 1))
+          if (!hasActiveFilters) {
+            setLastPage(Math.max(result.lastPage || 1, 1))
+          }
         })
         .catch((err: Error) => {
           if (cancelled) return
@@ -91,7 +116,7 @@ export function TransactionHistoryPage() {
       cancelled = true
       clearTimeout(delayDebounce)
     }
-  }, [accessToken, page, searchQuery, timeFilter, selectedDate])
+  }, [accessToken, page, searchQuery, timeFilter, selectedDate, hasActiveFilters])
 
   const typeBadge = (type: string) => {
     const normalized = type.toLowerCase()
@@ -197,7 +222,7 @@ export function TransactionHistoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTransactions.map((transaction) => (
+                  {paginatedTransactions.map((transaction) => (
                     <tr key={transaction.id} className="border-b border-border/50 hover:bg-white/[0.01] transition-colors">
                       <td className="px-6 py-4 font-bold text-foreground">{transaction.id}</td>
                       <td className="px-6 py-4">
@@ -233,9 +258,9 @@ export function TransactionHistoryPage() {
           Previous
         </Button>
         <div className="h-9 px-4 rounded-md border border-border bg-background flex items-center text-sm font-bold">
-          {page} / {lastPage}
+          {page} / {displayLastPage}
         </div>
-        <Button variant="outline" size="sm" disabled={page >= lastPage || loading} onClick={() => setPage((current) => current + 1)}>
+        <Button variant="outline" size="sm" disabled={page >= displayLastPage || loading} onClick={() => setPage((current) => current + 1)}>
           Next
         </Button>
       </div>

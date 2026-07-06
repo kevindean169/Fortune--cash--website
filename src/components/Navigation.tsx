@@ -37,6 +37,22 @@ export function Navigation() {
     navigateHook('/')
   }
 
+  const handleBackToLobby = async () => {
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || ''
+      const res = await fetch(`${baseUrl}/api/back-to-lobby`)
+      const data = await res.json().catch(() => null)
+      if (data && data.url) {
+        window.location.href = data.url
+      } else {
+        navigateHook('/')
+      }
+    } catch (error) {
+      console.error('Error going back to lobby:', error)
+      navigateHook('/')
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -70,6 +86,14 @@ export function Navigation() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToLobby}
+              className="border-2 border-primary bg-[#050505] text-primary hover:text-white hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] hover:bg-primary/10 font-bold transition-all px-4 rounded-lg"
+            >
+              Back to Lobby
+            </Button>
             {user ? (
               <>
                 <Link to="/wallet" onClick={handleNavigate}>
@@ -153,9 +177,22 @@ export function Navigation() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <img src="/favicon.png" alt="Fortune Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(224,172,44,0.3)]" style={{ mixBlendMode: 'screen' }} />
-                  <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
-                    <X className="size-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        handleBackToLobby()
+                        setMobileOpen(false)
+                      }}
+                      className="border-2 border-primary bg-[#050505] text-primary hover:text-white hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] hover:bg-primary/10 font-bold transition-all text-xs px-3 h-8 rounded-lg"
+                    >
+                      Back to Lobby
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
+                      <X className="size-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-1">

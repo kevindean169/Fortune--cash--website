@@ -54,18 +54,18 @@ function formatToLocalTime(isoString: string): string {
   try {
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return '';
-    
+
     const day = date.getDate();
     const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
     const month = monthNames[date.getMonth()];
     const year = date.getFullYear();
-    
+
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
     hours = hours ? hours : 12;
-    
+
     return `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
   } catch (e) {
     return isoString;
@@ -162,34 +162,34 @@ export function HomePage() {
   // latest results with fallback to local mock data
   const latestResults = homeData?.latest_results?.length
     ? homeData.latest_results.map((r: any) => {
-        const gameTypeNormalized = r.type === 'Cashpot' ? 'Cashpot' : r.type === 'Cashpot Money Time' ? 'Money Time' : r.type;
-        return {
-          game: r.name ? `${r.name} (${gameTypeNormalized})` : gameTypeNormalized,
-          date: r.draw_time ? formatToLocalTime(r.draw_time) : r.draw_time_human,
-          drawNo: r.draw_no || 0,
-          numbers: r.winning_numbers || [],
-          megaBall: r.megaball || null,
-          monstaBall: r.monstaball || null,
-          jackpot: r.jackpot || `$${Number(r.top_prize || 0).toLocaleString()}`,
-          winners: r.winners_count || 0
-        };
-      })
+      const gameTypeNormalized = r.type === 'Cashpot' ? 'Cashpot' : r.type === 'Cashpot Money Time' ? 'Money Time' : r.type;
+      return {
+        game: r.name ? `${r.name} (${gameTypeNormalized})` : gameTypeNormalized,
+        date: r.draw_time ? formatToLocalTime(r.draw_time) : r.draw_time_human,
+        drawNo: r.draw_no || 0,
+        numbers: r.winning_numbers || [],
+        megaBall: r.megaball || null,
+        monstaBall: r.monstaball || null,
+        jackpot: r.jackpot || `$${Number(r.top_prize || 0).toLocaleString()}`,
+        winners: r.winners_count || 0
+      };
+    })
     : [];
 
   // recent winners with initials/fallback to local mock data
   const winnersList = homeData?.recent_winners?.length
     ? homeData.recent_winners.map((w: any) => {
-        const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
-        return {
-          initials: getInitials(w.name || w.initials),
-          prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
-          game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
-          location: w.location || 'Kingston',
-          date: w.date,
-          image: w.image,
-          name: w.name || w.initials || 'Player'
-        };
-      })
+      const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
+      return {
+        initials: getInitials(w.name || w.initials),
+        prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
+        game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
+        location: w.location || 'Kingston',
+        date: w.date,
+        image: w.image,
+        name: w.name || w.initials || 'Player'
+      };
+    })
     : [];
 
   if (loading) {
@@ -544,10 +544,10 @@ export function HomePage() {
                   <div className="size-16 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)] overflow-hidden relative">
                     {w.image ? (
                       <>
-                        <img 
-                          src={w.image} 
-                          alt={w.initials} 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src={w.image}
+                          alt={w.initials}
+                          className="w-full h-full object-cover"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                             const fallback = e.currentTarget.nextElementSibling;

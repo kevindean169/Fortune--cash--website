@@ -661,6 +661,8 @@ export function Pick2DoublePage() {
       setTimeout(() => {
         setPayoutSuccess(false)
         setCart([])
+        handleClearData()
+        setShowCartModal(false)
       }, 3000)
     } catch (err: any) {
       console.error('Purchase error:', err)
@@ -698,7 +700,7 @@ export function Pick2DoublePage() {
     <div className="min-h-screen py-10">
       {/* Success Modal */}
       {payoutSuccess && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
           <Card className="max-w-sm w-full bg-fortune-card border border-green-500/30">
             <CardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-green-500/20 border-2 border-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400 text-3xl animate-bounce">
@@ -1576,7 +1578,6 @@ export function Pick2DoublePage() {
                             <Button
                               disabled={cart.length === 0 || checkoutLoading}
                               onClick={() => {
-                                setShowCartModal(false);
                                 handleCheckout();
                               }}
                               className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${cart.length === 0 || checkoutLoading
