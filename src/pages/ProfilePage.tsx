@@ -16,7 +16,7 @@ export function ProfilePage() {
       return
     }
 
-    const baseUrl = import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1'
+    const baseUrl = import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1'
     const appKey = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
     fetch(`${baseUrl}/auth/me`, {
