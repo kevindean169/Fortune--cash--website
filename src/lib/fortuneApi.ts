@@ -1,5 +1,5 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
-const AUTH_API_BASE_URL = (import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1').replace(/\/$/, '')
+const AUTH_API_BASE_URL = (import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1').replace(/\/$/, '')
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
 export interface ApiListResult<T> {
@@ -185,12 +185,12 @@ function pickOptionalNumber(source: unknown, keys: string[]): number | undefined
 function parseJamaicaDate(value: string): Date {
   if (!value) return new Date(NaN)
   let cleaned = value.trim()
-  
+
   // If it already has Z, GMT, or an explicit timezone offset, parse it as-is
   if (cleaned.endsWith('Z') || /[\+\-]\d{2}:?\d{2}$/.test(cleaned) || cleaned.includes('GMT')) {
     return new Date(cleaned)
   }
-  
+
   // Try to parse using native Date parser
   const tempDate = new Date(cleaned)
   if (!isNaN(tempDate.getTime())) {
@@ -201,12 +201,12 @@ function parseJamaicaDate(value: string): Date {
     const hours = tempDate.getHours()
     const minutes = tempDate.getMinutes()
     const seconds = tempDate.getSeconds()
-    
+
     const pad = (n: number) => String(n).padStart(2, '0')
     const isoStr = `${year}-${pad(month + 1)}-${pad(date)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}-05:00`
     return new Date(isoStr)
   }
-  
+
   if (cleaned.includes(' ')) {
     cleaned = cleaned.replace(' ', 'T')
   }
@@ -261,10 +261,10 @@ function parseAndFormatDrawDatetime(rawDate: string, rawTime: string) {
     let timeStr = rawTime.trim()
     let isPM = timeStr.toUpperCase().includes('PM')
     let isAM = timeStr.toUpperCase().includes('AM')
-    
+
     timeStr = timeStr.replace(/[ap]m/i, '').trim()
     const parts = timeStr.split(':')
-    
+
     let hours = parseInt(parts[0] || '0', 10)
     let mins = parseInt(parts[1] || '0', 10)
     let secs = parseInt(parts[2] || '0', 10)
@@ -346,7 +346,7 @@ function listMeta(body: unknown): Omit<ApiListResult<never>, 'items'> {
   const data = getRecord(body, 'data')
   const meta = getRecord(body, 'meta')
   const pagination = getRecord(body, 'pagination')
-  
+
   // Try to find the pagination data in various common locations
   const source = getRecord(data, 'data') || meta || pagination || data || (isRecord(body) ? body : undefined)
 
@@ -388,10 +388,10 @@ function mapTicket(raw: unknown): ApiTicketOrder {
 
   const rawDrawDate = pickString(raw, ['draw_date', 'drawDate'], '')
   const rawDrawTime = pickString(raw, ['draw_time', 'drawTime'], '')
-  
+
   let drawDateVal = '-'
   let drawTimeVal = '-'
-  
+
   if (rawDrawDate) {
     const parsedDraw = parseAndFormatDrawDatetime(rawDrawDate, rawDrawTime)
     drawDateVal = parsedDraw.date
@@ -600,7 +600,7 @@ export async function fetchTickets(
   let url = `/api/customer/tickets?per_page=${perPage}&page=${page}`
   const tz = options?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
   url += `&timezone=${encodeURIComponent(tz)}`
-  
+
   if (options) {
     if (options.search) url += `&search=${encodeURIComponent(options.search)}`
     if (options.startdate) url += `&startdate=${encodeURIComponent(options.startdate)}`
