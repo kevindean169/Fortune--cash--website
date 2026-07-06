@@ -27,7 +27,8 @@ interface SoldOutDrawOption {
 const getImageUrl = (imagePath: string) => {
   if (!imagePath) return '/favicon.png'
   if (imagePath.startsWith('http')) return imagePath
-  return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
+  const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+  return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
 import './LotteryPurchase.css';

@@ -20,7 +20,8 @@ const mapTypeToPath = (type: string, name?: string): string => {
 const getImageUrl = (imagePath: string) => {
   if (!imagePath) return '/lottery_machine.jpg'
   if (imagePath.startsWith('http')) return imagePath
-  return `https://staging.fortunescash.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
+  const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+  return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
 export function GameCard({ game }: { game: APILottery }) {

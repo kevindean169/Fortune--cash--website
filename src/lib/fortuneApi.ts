@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://staging.fortunescash.com').replace(/\/$/, '')
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
 const AUTH_API_BASE_URL = (import.meta.env.VITE_AUTH_API_URL || 'http://node.rglabs.net:3603/api/v1').replace(/\/$/, '')
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
