@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom'
 import { HomePage } from '@/pages/HomePage'
 import { LotteriesPage } from '@/pages/LotteriesPage'
+import { LotteriesByTypePage } from '@/pages/LotteriesByTypePage'
 import { CashpotPage } from '@/pages/CashpotPage'
 import { MoneyTimePage } from '@/pages/MoneyTimePage'
 import { Pick2SinglePage } from '@/pages/Pick2SinglePage'
@@ -19,6 +20,7 @@ import { LogoutPage } from '@/pages/LogoutPage'
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
   { path: 'lotteries', element: <LotteriesPage /> },
+  { path: 'lotteries-by-type', element: <LotteriesByTypePage /> },
   { path: 'lottery-info', element: <LotteryInfoPage /> },
   { path: 'cashpot', element: <CashpotPage /> },
   { path: 'money-time', element: <MoneyTimePage /> },

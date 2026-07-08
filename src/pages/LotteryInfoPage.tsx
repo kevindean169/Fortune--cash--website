@@ -384,7 +384,7 @@ export function LotteryInfoPage() {
           </button>
 
           {/* Hero content row */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 sm:gap-10">
+          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-10">
             {/* Logo with gradient ring */}
             <div
               className="relative shrink-0 p-[2px] rounded-2xl"
@@ -415,10 +415,20 @@ export function LotteryInfoPage() {
               </h1>
               <p className="text-sm text-muted-foreground max-w-md leading-relaxed">{info.tagline}</p>
             </div>
+
+            {/* Play Now Button */}
+            <div className="shrink-0 mb-1 mt-1 sm:mt-0">
+              <button
+                onClick={() => navigate(`lotteries-by-type?type=${encodeURIComponent(infoKey)}`)}
+                className="px-8 py-3.5 gold-gradient text-white font-extrabold rounded-xl hover:opacity-90 transition-all text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.3)] border border-primary/20"
+              >
+                Play Now
+              </button>
+            </div>
           </div>
 
           {/* Stat pills */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 mt-8">
+          <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-8">
             {stats.map((s, i) => (
               <div
                 key={i}
@@ -672,7 +682,6 @@ export function LotteryInfoPage() {
                     }
                   </div>
                 </button>
-
                 {openFaq === i && (
                   <div className="flex gap-3 px-5 pb-4 pt-0">
                     <span

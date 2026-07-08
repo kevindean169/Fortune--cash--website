@@ -6,7 +6,6 @@ import { Separator } from '@/components/ui/separator'
 import {
   ArrowRight, Trophy, Zap, Clock,
   ChevronRight, Star, TrendingUp, Play,
-  Download,
   User, Lock, EyeOff
 } from 'lucide-react'
 import { GAMES } from '@/lib/fortune-data'
@@ -86,6 +85,7 @@ const getInitials = (name: any): string => {
 export function HomePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
+  const baseUrl = import.meta.env.VITE_API_URL || ''
 
   const [homeData, setHomeData] = useState<{
     latest_results: any[];
@@ -275,7 +275,7 @@ export function HomePage() {
                     )}
                     <Button
                       className="w-full gold-gradient text-fortune-navy font-bold text-sm h-10 sm:h-12"
-                      onClick={() => navigate('cashpot')}
+                      onClick={() => navigate('lotteries-by-type?type=cashpot')}
                     >
                       Play Cashpot <ChevronRight className="size-4 ml-0.5" />
                     </Button>
@@ -580,8 +580,8 @@ export function HomePage() {
             {/* Column 1: Info and Download */}
             <div className="relative z-10 py-4 flex flex-col justify-center h-full">
               <Badge className="bg-primary/10 text-primary border-primary/20 mb-4 w-fit px-3 py-1 flex items-center">
-                <svg className="size-3.5 mr-1.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.523 15.3c-.551 0-.996-.445-.996-.996 0-.551.445-.996.996-.996.552 0 .997.445.997.996 0 .551-.445.996-.997.996m-11.046 0c-.551 0-.996-.445-.996-.996 0-.551.445-.996.996-.996.552 0 .997.445.997.996 0 .551-.445.996-.997.996m11.412-5.836l1.656-2.868a.498.498 0 00-.182-.68.498.498 0 00-.68.182l-1.68 2.91a10.978 10.978 0 00-6.003 0L7.3 5.1a.499.499 0 00-.862.378c0 .11.036.216.1.302l1.656 2.868A10.96 10.96 0 002 14.8h20a10.96 10.96 0 00-4.512-5.336" />
+                <svg className="size-4 mr-1.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2c.074 0 .148.002.22.006l.044.004a5.986 5.986 0 0 1 4.542 3.484l1.39-2.408a.5.5 0 0 1 .865.5l-1.378 2.385A6 6 0 0 1 20 11.5v.5h-16v-.5a6 6 0 0 1 2.316-4.527L4.938 3.588a.5.5 0 0 1 .865-.5l1.39 2.408A5.987 5.987 0 0 1 11.737 2.01L12 2zm-3.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 14h16v3.5a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 17.5V14z" />
                 </svg>
                 Android
               </Badge>
@@ -589,9 +589,12 @@ export function HomePage() {
               <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
                 Get the official Fortune Lottery Android app. Experience live draw streams, instant ticket purchases, and a secure wallet for immediate payouts. Play on the go and never miss a draw!
               </p>
-              <a href="/fortune-app.apk" download className="w-fit">
-                <Button className="gold-gradient text-fortune-navy font-bold px-8 h-12 gold-glow gap-2 text-md">
-                  <Download className="size-4" /> Download APK
+              <a href={`${baseUrl}/api/customer-apk/download`} download className="w-fit">
+                <Button className="gold-gradient text-fortune-navy font-bold px-8 h-12 gold-glow gap-2 text-md flex items-center">
+                  <svg className="size-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2c.074 0 .148.002.22.006l.044.004a5.986 5.986 0 0 1 4.542 3.484l1.39-2.408a.5.5 0 0 1 .865.5l-1.378 2.385A6 6 0 0 1 20 11.5v.5h-16v-.5a6 6 0 0 1 2.316-4.527L4.938 3.588a.5.5 0 0 1 .865-.5l-1.39 2.408A5.987 5.987 0 0 1 11.737 2.01L12 2zm-3.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 14h16v3.5a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 17.5V14z" />
+                  </svg>
+                  Download APK
                 </Button>
               </a>
             </div>
