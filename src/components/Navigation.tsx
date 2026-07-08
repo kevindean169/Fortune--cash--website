@@ -166,33 +166,30 @@ export function Navigation() {
             )}
           </div>
 
-          {/* Mobile Hamburger */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0" showCloseButton={false}>
+          {/* Mobile Actions */}
+          <div className="flex md:hidden items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToLobby}
+              className="border-2 border-primary bg-[#050505] text-primary hover:text-white hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] hover:bg-primary/10 font-bold transition-all text-xs px-3 h-8 rounded-lg"
+            >
+              Back to Lobby
+            </Button>
+
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="size-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0" showCloseButton={false}>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <img src="/favicon.png" alt="Fortune Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(224,172,44,0.3)]" style={{ mixBlendMode: 'screen' }} />
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        handleBackToLobby()
-                        setMobileOpen(false)
-                      }}
-                      className="border-2 border-primary bg-[#050505] text-primary hover:text-white hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] hover:bg-primary/10 font-bold transition-all text-xs px-3 h-8 rounded-lg"
-                    >
-                      Back to Lobby
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
-                      <X className="size-4" />
-                    </Button>
-                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
+                    <X className="size-4" />
+                  </Button>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-1">
@@ -277,6 +274,7 @@ export function Navigation() {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </div>
     </header>

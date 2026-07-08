@@ -84,7 +84,7 @@ export function PickGamePage({ gameId, navigate }: PickGamePageProps) {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-0 py-4 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-10">

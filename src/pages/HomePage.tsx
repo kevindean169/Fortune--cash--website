@@ -210,44 +210,42 @@ export function HomePage() {
         <div className="absolute inset-0 opacity-20">
           <img src="/lottery-hero.webp" alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 pb-24 lg:pt-16 lg:pb-36">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-10 lg:pt-16 lg:pb-36">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left */}
-            <div className="space-y-8">
+            <div className="space-y-5 lg:space-y-8">
               <div>
-                <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-4">
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-3 lg:mb-4">
                   Your Next<br />
                   <span className="gold-text">Fortune</span><br />
                   Awaits
                 </h1>
-                <p className="text-lg text-foreground/90 max-w-md leading-relaxed">
+                <p className="text-base lg:text-lg text-foreground/90 max-w-md leading-relaxed">
                   Play <span className="text-primary font-bold">Cashpot, Money Time, and Pick 2</span>. Draws happen daily. Winners happen constantly.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-4 mt-6">
+              <div className="flex flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
                 <Button
-                  size="lg"
                   onClick={() => navigate('lotteries')}
-                  className="gold-gradient text-fortune-navy font-extrabold text-base px-8 shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4)] hover:brightness-110 hover:scale-[1.02] transition-all"
+                  className="gold-gradient text-fortune-navy font-extrabold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4)] hover:brightness-110 hover:scale-[1.02] transition-all"
                 >
                   Play Now <ArrowRight className="size-4 ml-2" />
                 </Button>
                 <Button
-                  size="lg"
                   variant="outline"
                   onClick={() => navigate('results')}
-                  className="bg-transparent text-primary font-extrabold text-base px-8 border-[3px] border-primary hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.4)]"
+                  className="bg-transparent text-primary font-extrabold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 border-[2.5px] sm:border-[3px] border-primary hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.4)]"
                 >
                   View Results
                 </Button>
               </div>
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-5 pt-3">
+              <div className="flex flex-wrap gap-5 pt-2 lg:pt-3">
                 {[
-                  { icon: <Zap className="size-5 text-primary" />, label: 'Instant Payouts' },
-                  { icon: <Clock className="size-5 text-sky-400" />, label: 'Daily Draws' },
+                  { icon: <Zap className="size-4.5 sm:size-5 text-primary" />, label: 'Instant Payouts' },
+                  { icon: <Clock className="size-4.5 sm:size-5 text-sky-400" />, label: 'Daily Draws' },
                 ].map((b, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-foreground/90 font-semibold tracking-wide">
+                  <div key={i} className="flex items-center gap-2 text-xs sm:text-sm text-foreground/90 font-semibold tracking-wide">
                     {b.icon} {b.label}
                   </div>
                 ))}
@@ -256,41 +254,41 @@ export function HomePage() {
 
             {/* Right: Jackpot Display */}
             <div className="flex justify-center lg:justify-center">
-              <div className="relative w-80">
+              <div className="relative w-full max-w-[305px] sm:max-w-80">
                 <div className="absolute inset-0 rounded-2xl gold-glow opacity-30" />
                 <Card className="relative bg-fortune-card border-fortune-gold/20 rounded-2xl overflow-hidden">
-                  <CardContent className="p-8 text-center">
-                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                  <CardContent className="p-6 sm:p-8 text-center">
+                    <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1.5 sm:mb-2">
                       Tonight's Top Prize
                     </p>
-                    <div className="text-6xl font-extrabold gold-text my-4 min-h-[60px] flex items-center justify-center">
+                    <div className="text-5xl sm:text-6xl font-extrabold gold-text my-3 sm:my-4 min-h-[48px] sm:min-h-[60px] flex items-center justify-center">
                       {loading ? (
-                        <div className="h-14 w-44 bg-zinc-800/60 rounded animate-pulse" />
+                        <div className="h-12 sm:h-14 w-36 sm:w-44 bg-zinc-800/60 rounded animate-pulse" />
                       ) : (
                         <JackpotCounter value={cashpotPrize} />
                       )}
                     </div>
                     {loading ? (
-                      <div className="h-4 w-36 bg-zinc-800/40 rounded animate-pulse mx-auto mb-6" />
+                      <div className="h-3.5 sm:h-4 w-32 sm:w-36 bg-zinc-800/40 rounded animate-pulse mx-auto mb-4 sm:mb-6" />
                     ) : (
-                      <p className="text-muted-foreground text-sm mb-6">{topPrizeSubtitle}</p>
+                      <p className="text-muted-foreground text-xs sm:text-sm mb-4 sm:mb-6">{topPrizeSubtitle}</p>
                     )}
                     <Button
-                      className="w-full gold-gradient text-fortune-navy font-bold"
+                      className="w-full gold-gradient text-fortune-navy font-bold text-sm h-10 sm:h-12"
                       onClick={() => navigate('cashpot')}
                     >
-                      Play Cashpot <ChevronRight className="size-4" />
+                      Play Cashpot <ChevronRight className="size-4 ml-0.5" />
                     </Button>
-                    <Separator className="my-4 opacity-30" />
-                    <div className="grid grid-cols-3 gap-3 text-center">
+                    <Separator className="my-3.5 sm:my-4 opacity-30" />
+                    <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
                       {secondaryPrizes.map((j, i) => (
                         <div key={i}>
                           {loading ? (
-                            <div className="h-5 w-16 bg-zinc-800/40 rounded animate-pulse mx-auto mb-1" />
+                            <div className="h-4.5 w-14 bg-zinc-800/40 rounded animate-pulse mx-auto mb-0.5" />
                           ) : (
-                            <p className="text-sm font-bold text-primary">{j.value}</p>
+                            <p className="text-xs sm:text-sm font-bold text-primary">{j.value}</p>
                           )}
-                          <p className="text-xs text-muted-foreground">{j.label}</p>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground">{j.label}</p>
                         </div>
                       ))}
                     </div>

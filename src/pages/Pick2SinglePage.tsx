@@ -603,7 +603,7 @@ export function Pick2SinglePage() {
   }
 
   return (
-    <div className="min-h-screen py-10">
+    <div className="min-h-0 py-4 md:py-10">
       {/* Success Modal */}
       {payoutSuccess && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
