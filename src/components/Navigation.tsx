@@ -37,20 +37,9 @@ export function Navigation() {
     navigateHook('/')
   }
 
-  const handleBackToLobby = async () => {
-    try {
-      const baseUrl = import.meta.env.VITE_API_URL || ''
-      const res = await fetch(`${baseUrl}/api/back-to-lobby`)
-      const data = await res.json().catch(() => null)
-      if (data && data.url) {
-        window.location.href = data.url
-      } else {
-        navigateHook('/')
-      }
-    } catch (error) {
-      console.error('Error going back to lobby:', error)
-      navigateHook('/')
-    }
+  const handleBackToLobby = () => {
+    const baseUrl = (import.meta.env.VITE_API_URL || 'https://ja.fortunescash.com').replace(/\/$/, '')
+    window.location.href = `${baseUrl}/api/back-to-lobby`
   }
 
   return (
