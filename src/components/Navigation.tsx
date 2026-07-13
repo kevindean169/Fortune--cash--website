@@ -75,14 +75,6 @@ export function Navigation() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToLobby}
-              className="border-2 border-primary bg-[#050505] text-primary hover:text-white hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] hover:bg-primary/10 font-bold transition-all px-4 rounded-lg"
-            >
-              Back to Lobby
-            </Button>
             {user ? (
               <>
                 <Link to="/wallet" onClick={handleNavigate}>
