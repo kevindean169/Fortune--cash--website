@@ -579,7 +579,6 @@ export function Pick2DoublePage() {
     }
 
     setCart(prev => [...prev, ...newBets])
-    setBetAmounts({})
     setAmountInputWarnings({})
     setEditingGameAmount(null)
 

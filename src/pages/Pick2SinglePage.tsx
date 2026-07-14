@@ -487,10 +487,8 @@ export function Pick2SinglePage() {
     }
 
     setCart(prev => [...prev, ...newBets])
-    setBetAmounts({})
     setAmountInputWarnings({})
     setEditingGameAmount(null)
-
   }
 
   const handleClearData = () => {
