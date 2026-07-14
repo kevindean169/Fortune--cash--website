@@ -109,6 +109,7 @@ export interface ContactContent {
   phone: string
   email: string
   mobile_community?: string
+  join_mobile_community_link?: string
 }
 
 export interface FaqItem {
@@ -709,6 +710,7 @@ export async function fetchContactUs(): Promise<ContactContent> {
     phone: pickString(data, ['phone'], ''),
     email: pickString(data, ['email'], ''),
     mobile_community: pickString(data, ['mobile_community'], ''),
+    join_mobile_community_link: pickString(data, ['join_mobile_community_link'], ''),
   }
 }
 

@@ -83,9 +83,12 @@ export function ContactPage() {
       icon: <MessageSquare className="size-6 text-emerald-400" />,
       title: 'Community',
       info: cleanValue(contact?.mobile_community) || 'Live support',
-      sub: cleanValue(contact?.address) || 'Available online',
       badge: 'Live',
       badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+      action: contact?.join_mobile_community_link ? {
+        label: 'Join Now',
+        link: contact.join_mobile_community_link
+      } : undefined,
     },
   ], [contact])
 
@@ -112,15 +115,27 @@ export function ContactPage() {
 
         <div className="grid sm:grid-cols-3 gap-4 mb-12">
           {contactMethods.map((method, index) => (
-            <Card key={index} className="bg-fortune-card border-border text-center card-hover">
-              <CardContent className="p-6">
+            <Card key={index} className="bg-fortune-card border-border text-center card-hover flex flex-col">
+              <CardContent className="p-6 flex-1 flex flex-col">
                 <div className="size-12 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto mb-4">
                   {method.icon}
                 </div>
-                <Badge className={`text-xs mb-3 border ${method.badgeClass}`}>{method.badge}</Badge>
+                <Badge className={`text-xs mb-3 border ${method.badgeClass} mx-auto`}>{method.badge}</Badge>
                 <h3 className="font-bold mb-1">{method.title}</h3>
                 <p className="text-sm text-primary font-semibold mb-1">{method.info}</p>
-                <p className="text-xs text-muted-foreground">{method.sub}</p>
+                {method.sub && <p className="text-xs text-muted-foreground mb-4">{method.sub}</p>}
+
+                {method.action && (
+                  <div className="mt-auto pt-2">
+                    <Button 
+                      size="sm"
+                      className="w-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/30 transition-all font-bold gap-2" 
+                      onClick={() => window.open(method.action!.link, '_blank')}
+                    >
+                      <MessageSquare className="size-4" /> {method.action.label}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

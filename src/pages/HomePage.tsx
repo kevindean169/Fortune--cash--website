@@ -91,6 +91,7 @@ export function HomePage() {
     latest_results: any[];
     recent_winners: any[];
     tonights_prizes: any[];
+    join_mobile_community_link?: string;
   } | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -747,7 +748,7 @@ export function HomePage() {
               </p>
             </div>
             <div className="relative z-10 whitespace-nowrap mt-4 md:mt-0">
-              <a href="https://chat.whatsapp.com/invite/YOUR_GROUP_INVITE_LINK" target="_blank" rel="noreferrer">
+              <a href={homeData?.join_mobile_community_link || "#"} target="_blank" rel="noreferrer">
                 <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]">
                   <WhatsAppIcon className="size-5 text-[#25D366] group-hover:text-fortune-navy transition-colors" /> Join Group Now
                 </Button>
