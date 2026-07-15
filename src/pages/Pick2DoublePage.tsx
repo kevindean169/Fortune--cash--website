@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
@@ -183,10 +183,9 @@ export function Pick2DoublePage() {
   }, [urlId, accessToken])
 
   // 2. Fetch Lottery details (singlelottery, how-to-play, price) once ID is resolved
-  useEffect(() => {
+  const fetchLotteryData = useCallback(() => {
     if (!lotteryId) return
 
-    setLoading(true)
     setError(null)
 
     const headers: any = {
@@ -198,10 +197,21 @@ export function Pick2DoublePage() {
 
     const baseUrl = import.meta.env.VITE_API_URL || ''
 
+    const safeFetchJson = (url: string, options?: any) =>
+      fetch(url, options).then(async (res) => {
+        const contentType = res.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.message || `API error: ${res.status}`)
+          return data
+        }
+        throw new Error(`Invalid API response (Status: ${res.status}). Expected JSON.`)
+      })
+
     Promise.all([
-      fetch(`${baseUrl}/api/singlelottery/${lotteryId}`, { headers }).then(res => res.json()),
-      fetch(`${baseUrl}/api/how-to-play/${lotteryId}`, { headers }).then(res => res.json()).catch(() => null),
-      fetch(`${baseUrl}/api/price/${lotteryId}`, { headers }).then(res => res.json()).catch(() => null),
+      safeFetchJson(`${baseUrl}/api/singlelottery/${lotteryId}`, { headers }),
+      safeFetchJson(`${baseUrl}/api/how-to-play/${lotteryId}`, { headers }).catch(() => null),
+      safeFetchJson(`${baseUrl}/api/price/${lotteryId}`, { headers }).catch(() => null),
     ])
       .then(([singleRes, howRes, priceRes]) => {
         if (singleRes.status === 'success' && singleRes.data) {
@@ -226,6 +236,13 @@ export function Pick2DoublePage() {
         setLoading(false)
       })
   }, [lotteryId, accessToken])
+
+  useEffect(() => {
+    if (lotteryId) {
+      setLoading(true)
+      fetchLotteryData()
+    }
+  }, [lotteryId, fetchLotteryData])
 
   // Dynamic config construction
   const config = {
@@ -258,7 +275,7 @@ export function Pick2DoublePage() {
   const isNotStarted = lotteryData?.startDateTime ? new Date().getTime() < new Date(lotteryData.startDateTime).getTime() : false;
   const isExpired = lotteryData?.stopDateTime ? new Date().getTime() > new Date(lotteryData.stopDateTime).getTime() : false;
   const targetDate = isNotStarted ? lotteryData?.startDateTime : (lotteryData?.currentDrawUtc || lotteryData?.currentDraw);
-  const [d, h, m, s] = useDateTimeCountdown(targetDate || '')
+  const [d, h, m, s] = useDateTimeCountdown(targetDate || '', () => fetchLotteryData())
   const showCross = isNotStarted || isExpired;
 
 
@@ -292,7 +309,13 @@ export function Pick2DoublePage() {
         ? selectedSoldOutTime.split(':').slice(0, 2).join(':')
         : selectedSoldOutTime
       fetch(`${baseUrl}/api/pick-sold-out-numbers/${lotteryId}?draw_time=${cleanDrawTime}`, { headers })
-        .then(res => res.json())
+        .then(async (res) => {
+          const contentType = res.headers.get('content-type')
+          if (contentType && contentType.includes('application/json')) {
+            return res.json()
+          }
+          throw new Error('Expected JSON response')
+        })
         .then(resData => {
           if (resData.status === 'success' && resData.data) {
             const d = resData.data;
