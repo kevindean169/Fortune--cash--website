@@ -35,9 +35,13 @@ const TX_ICONS: Record<string, React.ReactNode> = {
   purchase: <Ticket className="size-4 text-muted-foreground" />,
 }
 
+import { WithdrawalDialog } from '@/components/wallet/WithdrawalDialog'
+import { Button } from '@/components/ui/button'
+
 export function WalletPage() {
   const { accessToken, walletBalance, fetchWallet } = useAuth()
   const [txFilter, setTxFilter] = useState('all')
+  const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false)
 
   const [summary, setSummary] = useState<FinancialSummary>({
     total_deposited: 0,
@@ -102,14 +106,28 @@ export function WalletPage() {
     }
   }
 
+  const handleWithdrawalSuccess = () => {
+    loadWalletData()
+    loadTransactions()
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-6 md:mb-10">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
-          <span className="gold-text">Wallet</span> &amp; Transactions
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">Manage your funds securely</p>
+      <div className="mb-6 md:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
+            <span className="gold-text">Wallet</span> &amp; Transactions
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">Manage your funds securely</p>
+        </div>
+        <Button 
+          onClick={() => setIsWithdrawalOpen(true)}
+          className="bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold"
+        >
+          <ArrowDownLeft className="size-4 mr-2" />
+          Withdraw Funds
+        </Button>
       </div>
 
       <div className="space-y-5">
@@ -129,18 +147,21 @@ export function WalletPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3.5 bg-muted/30 border border-border/40 rounded-2xl px-5 py-3.5 shrink-0 sm:min-w-[200px]">
-                <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                  <Plus className="size-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none mb-1.5">Total Deposited</p>
-                  <p className="text-lg font-black text-white tabular-nums">{formatUsd(summary.total_deposited)}</p>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3.5 bg-muted/30 border border-border/40 rounded-2xl px-5 py-3.5 shrink-0 sm:min-w-[200px]">
+                  <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                    <Plus className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none mb-1.5">Total Deposited</p>
+                    <p className="text-lg font-black text-white tabular-nums">{formatUsd(summary.total_deposited)}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
 
         {/* Transaction History */}
         <Card className="bg-fortune-card border-border">
@@ -203,6 +224,12 @@ export function WalletPage() {
           </CardContent>
         </Card>
       </div>
+
+      <WithdrawalDialog 
+        open={isWithdrawalOpen} 
+        onOpenChange={setIsWithdrawalOpen} 
+        onSuccess={handleWithdrawalSuccess} 
+      />
     </div>
   )
 }
