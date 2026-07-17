@@ -29,6 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1'
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 const SESSION_EXPIRED_MESSAGE = 'Session expired. Please log in again.'
 
@@ -166,6 +167,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.fetch = originalFetch
     }
   }, [accessToken])
+
+  const checkAndCreditTempBalance = async (userId: string, token: string) => {
+    try {
+      // 1. Check Temp Balance
+      const balanceRes = await fetch(`${API_BASE_URL}/api/customer/check-temp-balance/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!balanceRes.ok) return;
+      const balanceData = await balanceRes.json();
+
+      if (balanceData && balanceData.status === 'success' && balanceData.exist && balanceData.balance) {
+        const amount = Number(balanceData.balance);
+        if (amount > 0) {
+          // 2. Credit Wallet
+          const creditRes = await fetch(`${BASE_URL}/games/wallet/credit`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-App-Key': APP_KEY,
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount: amount,
+              gameId: 'fortune',
+              idempotencyKey: `temp-balance-${userId}-${Date.now()}`,
+              metadata: { message: "Winning balance credited" }
+            })
+          });
+
+          if (creditRes.ok) {
+            const creditData = await creditRes.json();
+            const transactionId = creditData?.data?.transactionId;
+
+            if (transactionId) {
+              // 3. Reset Temp Balance
+              const resetRes = await fetch(`${API_BASE_URL}/api/customer/reset-temp-balance/${userId}?amount=${amount}&trx=${transactionId}`, {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+
+              if (resetRes.ok) {
+                // Update wallet balance in context after all operations succeed
+                await fetchWallet(token);
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error in temp balance flow:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id && accessToken) {
+      checkAndCreditTempBalance(user.id, accessToken);
+    }
+  }, [user?.id, accessToken]);
 
   const fetchWallet = async (token?: string): Promise<number> => {
     const activeToken = token || accessToken
