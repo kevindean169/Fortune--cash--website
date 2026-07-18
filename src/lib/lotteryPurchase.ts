@@ -204,5 +204,28 @@ export async function submitLotteryPurchase({
     throw new Error(debitData?.message || 'Wallet debit failed after purchase.')
   }
 
+  const transactionId = debitData?.data?.transactionId;
+  const debitAmount = debitData?.data?.amount;
+
+  let customerId = '';
+  try {
+    const storedUser = localStorage.getItem('fortune_user');
+    if (storedUser) {
+      customerId = JSON.parse(storedUser).id || '';
+    }
+  } catch (e) {}
+
+  if (transactionId && debitAmount !== undefined && customerId) {
+    const adminLogUrl = `${baseUrl.replace(/\/$/, '')}/api/customer/store-transaction-bet/${customerId}?amount=${debitAmount}&trx=${transactionId}`;
+    try {
+      await fetch(adminLogUrl, {
+        method: 'GET',
+        headers,
+      });
+    } catch (adminErr) {
+      console.error('Failed to store admin transaction log:', adminErr);
+    }
+  }
+
   return { purchaseData, printStatusData, debitData, orderNo }
 }

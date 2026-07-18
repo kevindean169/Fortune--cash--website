@@ -13,6 +13,7 @@ import { Loader2, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
 const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1'
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
 
 type Step = 'AMOUNT' | 'SET_PIN' | 'ENTER_PIN' | 'CHANGE_PIN' | 'SUCCESS'
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export function WithdrawalDialog({ open, onOpenChange, onSuccess }: Props) {
-  const { accessToken } = useAuth()
+  const { user, accessToken } = useAuth()
   
   const [step, setStep] = useState<Step>('AMOUNT')
   const [loading, setLoading] = useState(false)
@@ -154,6 +155,19 @@ export function WithdrawalDialog({ open, onOpenChange, onSuccess }: Props) {
             setError(data.message || 'Error submitting withdrawal')
         }
         return
+      }
+
+      if (user?.id && data?.data?.transactionId) {
+        try {
+          await fetch(`${API_BASE_URL}/api/customer/sent-withdraw-request/${user.id}?amount=${data.data.amount || amount}&trx=${data.data.transactionId}`, {
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+        } catch (e) {
+          console.error('Error notifying admin of withdrawal:', e);
+        }
       }
       
       setStep('SUCCESS')
