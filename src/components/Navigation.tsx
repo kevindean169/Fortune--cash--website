@@ -38,14 +38,8 @@ export function Navigation() {
   }
 
   const handleBackToLobby = () => {
-    try {
-      const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
-      // The mobile app intercepts this URL navigation to close the webview
-      window.location.href = `${baseUrl}/api/back-to-lobby`
-    } catch (error) {
-      console.error('Error going back to lobby:', error)
-      navigateHook('/')
-    }
+    const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+    window.location.href = `${baseUrl}/api/back-to-lobby`
   }
 
   return (
