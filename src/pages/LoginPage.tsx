@@ -14,6 +14,12 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [resetUsername, setResetUsername] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null)
+
   useEffect(() => {
     const authError = sessionStorage.getItem('fortune_auth_error')
     if (authError) {
@@ -47,6 +53,45 @@ export function LoginPage() {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setResetSuccessMessage(null)
+    setSubmitting(true)
+    try {
+      const baseUrl = import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1'
+      const appKey = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
+      
+      const res = await fetch(`${baseUrl}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Key': appKey,
+        },
+        body: JSON.stringify({
+          username: resetUsername,
+          newPassword: newPassword,
+        }),
+      })
+
+      const data = await res.json().catch(() => null)
+      if (res.ok) {
+        setResetSuccessMessage('Password reset successfully! You can now log in.')
+        setResetUsername('')
+        setNewPassword('')
+        setTimeout(() => {
+          setIsForgotPassword(false)
+          setResetSuccessMessage(null)
+        }, 3000)
+      } else {
+        setError(data?.message || 'Failed to reset password. Please check your username.')
+      }
+    } catch (err) {
+      setError('Network error while resetting password.')
+    }
+    setSubmitting(false)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-16 px-4">
       {/* Background glow effects */}
@@ -67,10 +112,14 @@ export function LoginPage() {
           <CardContent className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-extrabold mb-1">
-                Welcome <span className="gold-text"> Back</span>
+                {isForgotPassword ? (
+                  <>Reset <span className="gold-text">Password</span></>
+                ) : (
+                  <>Welcome <span className="gold-text">Back</span></>
+                )}
               </h1>
               <p className="text-muted-foreground text-sm">
-                Log in to continue your winning journey with Fortune Lottery
+                {isForgotPassword ? 'Create a new password for your account' : 'Log in to continue your winning journey with Fortune Lottery'}
               </p>
             </div>
 
@@ -79,69 +128,154 @@ export function LoginPage() {
                 {error}
               </div>
             )}
-
-            <form onSubmit={handleLogin} className="space-y-5">
-              {/* Username */}
-              <div className="relative">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter Your Username"
-                    className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
-                  />
-                </div>
+            
+            {resetSuccessMessage && (
+              <div className="bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl p-3 text-xs mb-4 text-center font-bold">
+                {resetSuccessMessage}
               </div>
+            )}
 
-              {/* Password */}
-              <div className="relative">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
-                  Password
-                </label>
+            {!isForgotPassword ? (
+              <form onSubmit={handleLogin} className="space-y-5">
+                {/* Username */}
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter Your Password"
-                    className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-10 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
+                    <input
+                      type="text"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter Your Username"
+                      className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
+                    />
+                  </div>
                 </div>
-                <div className="flex justify-end mt-2">
-                  <button type="button" className="text-xs text-muted-foreground hover:text-primary transition-colors">
-                    Forgot Password?
-                  </button>
-                </div>
-              </div>
 
-              {/* Submit */}
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 disabled:opacity-50"
-              >
-                {submitting ? (
-                  <div className="size-5 rounded-full border-2 border-t-fortune-navy border-fortune-navy/20 animate-spin" />
-                ) : (
-                  'Login'
-                )}
-              </Button>
-            </form>
+                {/* Password */}
+                <div className="relative">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter Your Password"
+                      className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-10 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setError(null)
+                        setIsForgotPassword(true)
+                      }}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors font-semibold"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <div className="size-5 rounded-full border-2 border-t-fortune-navy border-fortune-navy/20 animate-spin" />
+                  ) : (
+                    'Login'
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-5 animate-in fade-in slide-in-from-right-4">
+                {/* Reset Username */}
+                <div className="relative">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
+                    <input
+                      type="text"
+                      required
+                      value={resetUsername}
+                      onChange={(e) => setResetUsername(e.target.value)}
+                      placeholder="Enter Your Username"
+                      className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div className="relative">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-primary" />
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter New Password"
+                      className="w-full bg-background border border-primary/30 rounded-xl pl-10 pr-10 py-3.5 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
+                  <div className="flex justify-start mt-2">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setError(null)
+                        setIsForgotPassword(false)
+                      }}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors font-semibold flex items-center gap-1"
+                    >
+                      &larr; Back to Login
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit Reset */}
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-6 mt-4 text-sm font-bold uppercase tracking-widest gold-gradient text-fortune-navy gold-glow hover:opacity-90 disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <div className="size-5 rounded-full border-2 border-t-fortune-navy border-fortune-navy/20 animate-spin" />
+                  ) : (
+                    'Reset Password'
+                  )}
+                </Button>
+              </form>
+            )}
 
             <div className="text-center mt-6 pt-6 border-t border-border/50 text-xs">
               <span className="text-muted-foreground">Don't have an account? </span>

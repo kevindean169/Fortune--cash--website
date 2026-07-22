@@ -38,9 +38,8 @@ export function Navigation() {
   }
 
   const handleBackToLobby = () => {
-    // We use a custom URL scheme that the mobile app can easily intercept
-    // without the WebView trying to load a real webpage and getting stuck.
-    window.location.href = 'fortuneapp://close-webview'
+    const baseUrl = (import.meta.env.VITE_API_URL || 'https://ja.fortunescash.com').replace(/\/$/, '')
+    window.location.href = `${baseUrl}/api/back-to-lobby`
   }
 
   return (
@@ -65,8 +64,8 @@ export function Navigation() {
                 to={`/${item.id}`}
                 onClick={handleNavigate}
                 className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${currentPath === item.id
-                    ? 'text-primary'
-                    : 'text-foreground/90'
+                  ? 'text-primary'
+                  : 'text-foreground/90'
                   }`}
               >
                 {item.label}
@@ -94,8 +93,8 @@ export function Navigation() {
                   <button
                     onMouseEnter={() => setProfileOpen(true)}
                     className={`flex items-center gap-2.5 rounded-full py-1.5 px-3 transition-colors ${['profile', 'dashboard'].includes(currentPath)
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-white/5 text-foreground/90 hover:text-primary'
+                      ? 'bg-primary/10 text-primary'
+                      : 'hover:bg-white/5 text-foreground/90 hover:text-primary'
                       }`}
                   >
                     <div className="size-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
@@ -166,96 +165,96 @@ export function Navigation() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-72 bg-fortune-card border-border p-0" showCloseButton={false}>
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b border-border">
-                  <img src="/favicon.png" alt="Fortune Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(224,172,44,0.3)]" style={{ mixBlendMode: 'screen' }} />
-                  <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
-                    <X className="size-4" />
-                  </Button>
-                </div>
-
-                <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-                  {[
-                    { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
-                    { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
-                    { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
-                    ...(user ? [
-                      { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
-                      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
-                      { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
-                      { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
-                      { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
-                    ] : []),
-                    { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
-                    { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
-                    { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
-                  ].map(item => (
-                    <Link
-                      key={item.id}
-                      to={`/${item.id}`}
-                      onClick={handleNavigate}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
-                        }`}
-                    >
-                      {item.icon} {item.label}
-                    </Link>
-                  ))}
-                  
-                  <div className="pt-2 mt-2 border-t border-border/50">
-                    {user ? (
-                      <button
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                      >
-                        <LogOut className="size-4" /> Log Out
-                      </button>
-                    ) : (
-                      <>
-                        {[
-                          { id: 'login', label: 'Log In', icon: <User className="size-4" /> },
-                          { id: 'register', label: 'Sign Up', icon: <ShieldCheck className="size-4" /> },
-                        ].map(item => (
-                          <Link
-                            key={item.id}
-                            to={`/${item.id}`}
-                            onClick={handleNavigate}
-                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
-                              }`}
-                          >
-                            {item.icon} {item.label}
-                          </Link>
-                        ))}
-                      </>
-                    )}
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between p-4 border-b border-border">
+                    <img src="/favicon.png" alt="Fortune Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(224,172,44,0.3)]" style={{ mixBlendMode: 'screen' }} />
+                    <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
+                      <X className="size-4" />
+                    </Button>
                   </div>
-                </nav>
 
-                <div className="p-4 border-t border-border space-y-2">
-                  {user ? (
-                    <>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Wallet Balance</span>
-                        <span className="font-bold text-primary">
-                          {formatUsd(walletBalance)}
-                        </span>
-                      </div>
-                      <Link to="/lotteries" onClick={handleNavigate} className="w-full">
+                  <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+                    {[
+                      { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
+                      { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
+                      { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
+                      ...(user ? [
+                        { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
+                        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
+                        { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
+                        { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
+                        { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
+                      ] : []),
+                      { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
+                      { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
+                      { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
+                    ].map(item => (
+                      <Link
+                        key={item.id}
+                        to={`/${item.id}`}
+                        onClick={handleNavigate}
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
+                          }`}
+                      >
+                        {item.icon} {item.label}
+                      </Link>
+                    ))}
+
+                    <div className="pt-2 mt-2 border-t border-border/50">
+                      {user ? (
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
+                          <LogOut className="size-4" /> Log Out
+                        </button>
+                      ) : (
+                        <>
+                          {[
+                            { id: 'login', label: 'Log In', icon: <User className="size-4" /> },
+                            { id: 'register', label: 'Sign Up', icon: <ShieldCheck className="size-4" /> },
+                          ].map(item => (
+                            <Link
+                              key={item.id}
+                              to={`/${item.id}`}
+                              onClick={handleNavigate}
+                              className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${currentPath === item.id ? 'bg-accent text-primary' : 'hover:bg-accent text-foreground'
+                                }`}
+                            >
+                              {item.icon} {item.label}
+                            </Link>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </nav>
+
+                  <div className="p-4 border-t border-border space-y-2">
+                    {user ? (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Wallet Balance</span>
+                          <span className="font-bold text-primary">
+                            {formatUsd(walletBalance)}
+                          </span>
+                        </div>
+                        <Link to="/lotteries" onClick={handleNavigate} className="w-full">
+                          <Button className="w-full gold-gradient text-fortune-navy font-bold">
+                            Play Now
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link to="/login" onClick={handleNavigate} className="w-full">
                         <Button className="w-full gold-gradient text-fortune-navy font-bold">
-                          Play Now
+                          Login to Play
                         </Button>
                       </Link>
-                    </>
-                  ) : (
-                    <Link to="/login" onClick={handleNavigate} className="w-full">
-                      <Button className="w-full gold-gradient text-fortune-navy font-bold">
-                        Login to Play
-                      </Button>
-                    </Link>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

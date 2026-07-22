@@ -27,7 +27,7 @@ export function ProfilePage() {
     })
       .then(res => res.json())
       .then(resData => {
-        if (resData.success && resData.data) {
+        if (resData.data) {
           setProfileData(resData.data)
         } else {
           // If fetch fails but we already have authUser, don't show block error
@@ -82,7 +82,7 @@ export function ProfilePage() {
             <div className="p-4 bg-background/30 border border-neutral-900 rounded-2xl">
               <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold block mb-1">User ID</label>
               <span className="text-base font-extrabold text-foreground tracking-wide font-mono block break-all">
-                {displayData?.id || '—'}
+                {displayData?.customerId || displayData?.id || '—'}
               </span>
             </div>
             <div className="p-4 bg-background/30 border border-neutral-900 rounded-2xl">
