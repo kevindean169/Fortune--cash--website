@@ -748,11 +748,31 @@ export function HomePage() {
               </p>
             </div>
             <div className="relative z-10 whitespace-nowrap mt-4 md:mt-0">
-              <a href={homeData?.join_mobile_community_link || "#"} target="_blank" rel="noreferrer">
-                <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]">
-                  <WhatsAppIcon className="size-5 text-[#25D366] group-hover:text-fortune-navy transition-colors" /> Join Group Now
-                </Button>
-              </a>
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  let link = homeData?.join_mobile_community_link;
+                  if (!link) return;
+                  
+                  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+                  const isAndroid = /Android/i.test(navigator.userAgent);
+                  
+                  if (isMobile && (link.includes('chat.whatsapp.com') || link.includes('wa.me'))) {
+                    if (isAndroid) {
+                      const urlWithoutProtocol = link.replace(/^https?:\/\//, '');
+                      window.location.href = `intent://${urlWithoutProtocol}#Intent;scheme=https;package=com.whatsapp;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.whatsapp;end`;
+                    } else {
+                      window.location.href = link;
+                    }
+                  } else {
+                    window.open(link, '_blank');
+                  }
+                }}
+                variant="outline" 
+                className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]"
+              >
+                <WhatsAppIcon className="size-5 text-[#25D366] group-hover:text-fortune-navy transition-colors" /> Join Group Now
+              </Button>
             </div>
           </div>
 
