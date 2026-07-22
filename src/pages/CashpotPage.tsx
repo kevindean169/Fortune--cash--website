@@ -1496,9 +1496,10 @@ export function CashpotPage() {
             <CardContent className="p-8 space-y-6">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground">How to Play {config.name}</h2>
               {howToPlayData ? (
-                <div className="text-muted-foreground text-base whitespace-pre-wrap leading-relaxed">
-                  {howToPlayData}
-                </div>
+                <div 
+                  className="text-muted-foreground text-base whitespace-pre-wrap leading-relaxed how-to-play-content"
+                  dangerouslySetInnerHTML={{ __html: howToPlayData }}
+                />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                   {[
