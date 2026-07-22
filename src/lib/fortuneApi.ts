@@ -112,6 +112,11 @@ export interface ContactContent {
   join_mobile_community_link?: string
 }
 
+export interface TermsContent {
+  title: string
+  content: string
+}
+
 export interface FaqItem {
   question: string
   answer: string
@@ -724,5 +729,14 @@ export async function fetchFaq(): Promise<{ image?: string; questions: FaqItem[]
   return {
     image: pickString(data, ['image'], ''),
     questions,
+  }
+}
+
+export async function fetchTermsConditions(): Promise<TermsContent> {
+  const data = unwrapContent(await request('/api/termsConditions'))
+
+  return {
+    title: pickString(data, ['title'], 'Terms and Conditions'),
+    content: pickString(data, ['content'], ''),
   }
 }
