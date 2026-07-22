@@ -37,23 +37,11 @@ export function Navigation() {
     navigateHook('/')
   }
 
-  const handleBackToLobby = async () => {
+  const handleBackToLobby = () => {
     try {
       const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
-      const res = await fetch(`${baseUrl}/api/back-to-lobby`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      })
-      const data = await res.json().catch(() => null)
-      
-      const targetUrl = data?.url || data?.data?.url || (typeof data?.data === 'string' ? data.data : null)
-      
-      if (targetUrl) {
-        window.location.href = targetUrl
-      } else {
-        navigateHook('/')
-      }
+      // The mobile app intercepts this URL navigation to close the webview
+      window.location.href = `${baseUrl}/api/back-to-lobby`
     } catch (error) {
       console.error('Error going back to lobby:', error)
       navigateHook('/')
