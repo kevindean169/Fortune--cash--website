@@ -39,11 +39,18 @@ export function Navigation() {
 
   const handleBackToLobby = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || ''
-      const res = await fetch(`${baseUrl}/api/back-to-lobby`)
+      const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+      const res = await fetch(`${baseUrl}/api/back-to-lobby`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
       const data = await res.json().catch(() => null)
-      if (data && data.url) {
-        window.location.href = data.url
+      
+      const targetUrl = data?.url || data?.data?.url || (typeof data?.data === 'string' ? data.data : null)
+      
+      if (targetUrl) {
+        window.location.href = targetUrl
       } else {
         navigateHook('/')
       }
