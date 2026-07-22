@@ -38,8 +38,9 @@ export function Navigation() {
   }
 
   const handleBackToLobby = () => {
-    const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
-    window.location.href = `${baseUrl}/api/back-to-lobby`
+    // We use a custom URL scheme that the mobile app can easily intercept
+    // without the WebView trying to load a real webpage and getting stuck.
+    window.location.href = 'fortuneapp://close-webview'
   }
 
   return (
