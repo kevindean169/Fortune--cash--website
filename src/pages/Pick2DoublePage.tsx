@@ -208,33 +208,30 @@ export function Pick2DoublePage() {
         throw new Error(`Invalid API response (Status: ${res.status}). Expected JSON.`)
       })
 
-    Promise.all([
+    Promise.allSettled([
       safeFetchJson(`${baseUrl}/api/singlelottery/${lotteryId}`, { headers }),
-      safeFetchJson(`${baseUrl}/api/how-to-play/${lotteryId}`, { headers }).catch(() => null),
-      safeFetchJson(`${baseUrl}/api/price/${lotteryId}`, { headers }).catch(() => null),
-    ])
-      .then(([singleRes, howRes, priceRes]) => {
-        if (singleRes.status === 'success' && singleRes.data) {
-          setLotteryData(singleRes.data)
-        } else {
-          throw new Error(singleRes.message || 'Failed to fetch lottery details')
-        }
+      safeFetchJson(`${baseUrl}/api/how-to-play/${lotteryId}`, { headers }),
+      safeFetchJson(`${baseUrl}/api/price/${lotteryId}`, { headers })
+    ]).then(([singleRes, howRes, priceRes]) => {
+      if (singleRes.status === 'fulfilled' && singleRes.value?.status === 'success' && singleRes.value.data) {
+        setLotteryData(singleRes.value.data)
+      } else if (singleRes.status === 'rejected') {
+        console.error('Error fetching lottery details:', singleRes.reason)
+        setError(singleRes.reason.message || 'An error occurred while loading lottery details.')
+      } else {
+        setError('Failed to fetch lottery details')
+      }
 
-        if (howRes?.status === 'success' && howRes.data) {
-          setHowToPlayData(howRes.data.howToPlay)
-        }
+      if (howRes.status === 'fulfilled' && howRes.value?.status === 'success' && howRes.value.data) {
+        setHowToPlayData(howRes.value.data.howToPlay)
+      }
 
-        if (priceRes?.status === 'success' && priceRes.data) {
-          setPriceData(priceRes.data)
-        }
-
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error('Error fetching lottery details:', err)
-        setError(err.message || 'An error occurred while loading lottery details.')
-        setLoading(false)
-      })
+      if (priceRes.status === 'fulfilled' && priceRes.value?.status === 'success' && priceRes.value.data) {
+        setPriceData(priceRes.value.data)
+      }
+    }).finally(() => {
+      setLoading(false)
+    })
   }, [lotteryId, accessToken])
 
   useEffect(() => {

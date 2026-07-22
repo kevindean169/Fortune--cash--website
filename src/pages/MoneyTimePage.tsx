@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
@@ -145,8 +145,9 @@ export function MoneyTimePage() {
       safeFetchJson(`${baseUrl}/api/singlelottery/${lotteryId}`, { headers }),
       safeFetchJson(`${baseUrl}/api/how-to-play/${lotteryId}`, { headers }).catch(() => null),
       safeFetchJson(`${baseUrl}/api/price/${lotteryId}`, { headers }).catch(() => null),
+      safeFetchJson(`${baseUrl}/api/lotteryDraws/${lotteryId}`, { headers }).catch(() => null)
     ])
-      .then(([singleRes, howRes, priceRes]) => {
+      .then(([singleRes, howRes, priceRes, drawsRes]) => {
         if (singleRes.status === 'success' && singleRes.data) {
           setLotteryData(singleRes.data)
         } else {
@@ -161,6 +162,12 @@ export function MoneyTimePage() {
           setPriceData(priceRes.data)
         }
 
+        if (drawsRes?.status === 'success' && drawsRes.data) {
+          const dData = drawsRes.data;
+          const drawsArray = Array.isArray(dData) ? dData : (Array.isArray(dData.draws) ? dData.draws : []);
+          setMoneyTimeDraws(drawsArray)
+        }
+
         setLoading(false)
       })
       .catch((err) => {
@@ -170,41 +177,14 @@ export function MoneyTimePage() {
       })
   }, [lotteryId, accessToken])
 
-  const fetchMoneyTimeDraws = useCallback(() => {
-    if (!lotteryId) return
-
-    const headers: any = {
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`
-    }
-
-    const baseUrl = import.meta.env.VITE_API_URL || ''
-    fetch(`${baseUrl}/api/lotteryDraws/${lotteryId}`, { headers })
-      .then(async (res) => {
-        const contentType = res.headers.get('content-type')
-        if (contentType && contentType.includes('application/json')) {
-          return res.json()
-        }
-        throw new Error('Expected JSON response')
-      })
-      .then(data => {
-        if (data.status === 'success' && data.data) {
-          const drawsArray = Array.isArray(data.data) ? data.data : (Array.isArray(data.data.draws) ? data.data.draws : []);
-          setMoneyTimeDraws(drawsArray)
-        }
-      })
-      .catch(err => console.error('Failed to fetch money time draws:', err))
-  }, [lotteryId, accessToken])
+  
 
   useEffect(() => {
     if (lotteryId) {
       setLoading(true)
       fetchLotteryData()
-      fetchMoneyTimeDraws()
     }
-  }, [lotteryId, fetchLotteryData, fetchMoneyTimeDraws])
+  }, [lotteryId, fetchLotteryData])
 
   // Dynamic config construction
   const config = {
@@ -293,7 +273,6 @@ export function MoneyTimePage() {
   })()
   const [d, h, m, s] = useDateTimeCountdown(nextMoneyTimeDrawUtc, () => {
     fetchLotteryData();
-    fetchMoneyTimeDraws();
   })
 
   const isExpired = lotteryData?.stopDateTime ? new Date().getTime() > new Date(lotteryData.stopDateTime).getTime() : false;
@@ -304,7 +283,123 @@ export function MoneyTimePage() {
   // Tab State
   const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
 
-  const groups = getMoneyTimeGroups()
+  const moneyTimeGroups = useMemo(() => {
+    if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) return [];
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const isNewFormat = moneyTimeDraws[0] && ('datetime' in moneyTimeDraws[0] || 'draws' in moneyTimeDraws[0]);
+
+    if (isNewFormat) {
+      return moneyTimeDraws.map((slot: any) => {
+        if (!slot.datetime || !Array.isArray(slot.draws)) return null;
+
+        const tIndex = slot.datetime.indexOf('T');
+        if (tIndex === -1) return null;
+
+        const datePart = slot.datetime.substring(0, tIndex);
+
+        const slotDate = parseJamaicaDrawDate(slot.datetime);
+        const localSlotHour = slotDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const localSlotDateLabel = `${String(slotDate.getDate()).padStart(2, '0')} ${months[slotDate.getMonth()]} ${slotDate.getFullYear()}`;
+        const label = `${localSlotDateLabel}, ${localSlotHour}`;
+        const key = slot.datetime;
+
+         const parsedDraws = slot.draws.map((d: any) => {
+          let drawDateTimeStr = d.draw_time;
+          if (!drawDateTimeStr.includes('-') && !drawDateTimeStr.includes('T')) {
+            drawDateTimeStr = `${datePart}T${drawDateTimeStr}`;
+          }
+          const drawDate = parseJamaicaDrawDate(drawDateTimeStr);
+          const drawDisplayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const localDrawDateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
+          const fullTime = `${localDrawDateLabel}, ${drawDisplayTime}`;
+
+          return {
+            id: d.draw_no || d.timestamp || Math.random(),
+            time: drawDisplayTime,
+            fullTime: fullTime,
+            apiDrawTime: d.draw_time,
+            timestamp: drawDate.getTime(),
+            raw: d
+          };
+        });
+
+        return {
+          key,
+          label,
+          draws: parsedDraws
+        };
+      }).filter(Boolean);
+    }
+
+    // Old format fallback:
+    const sortedDraws = [...moneyTimeDraws]
+      .filter(d => d.draw_date && d.draw_time)
+      .sort((a, b) => {
+        const datetimeA = `${a.draw_date}T${a.draw_time}`;
+        const datetimeB = `${b.draw_date}T${b.draw_time}`;
+        return datetimeA.localeCompare(datetimeB);
+      });
+
+    const groups: { key: string; label: string; draws: any[] }[] = [];
+
+    sortedDraws.forEach(draw => {
+      const drawDate = parseJamaicaDrawDate(`${draw.draw_date}T${draw.draw_time}`);
+      const drawMs = drawDate.getTime();
+
+      let foundGroup = false;
+      if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const startDraw = lastGroup.draws[0].raw;
+        const startDrawDate = parseJamaicaDrawDate(`${startDraw.draw_date}T${startDraw.draw_time}`);
+        const startMs = startDrawDate.getTime();
+
+        if (drawMs >= startMs && drawMs < startMs + 60 * 60 * 1000) {
+          foundGroup = true;
+          const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
+          lastGroup.draws.push({
+            id: draw.id,
+            time: displayTime,
+            fullTime: `${dateLabel}, ${displayTime}`,
+            apiDrawTime: draw.draw_time,
+            timestamp: drawMs,
+            raw: draw
+          });
+        }
+      }
+
+      if (!foundGroup) {
+        const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
+        const label = `${dateLabel}, ${displayTime}`;
+        const key = `${draw.draw_date}_${draw.draw_time}`;
+
+        groups.push({
+          key,
+          label,
+          draws: [{
+            id: draw.id,
+            time: displayTime,
+            fullTime: `${dateLabel}, ${displayTime}`,
+            apiDrawTime: draw.draw_time,
+            timestamp: drawMs,
+            raw: draw
+          }]
+        });
+      }
+    });
+
+    return groups;
+  }, [moneyTimeDraws]);
+
+  function getMoneyTimeGroups() {
+    return moneyTimeGroups;
+  }
+
+
+  const groups = moneyTimeGroups
   useEffect(() => {
     if (groups.length > 0 && !activeHourTab) {
       setActiveHourTab((groups[0] as { key: string }).key)
@@ -447,117 +542,6 @@ export function MoneyTimePage() {
     const localTimeDisplay = fallbackDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
     const localDateDisplay = fallbackDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
     return `${localTimeDisplay} (${localDateDisplay})`
-  }
-
-  function getMoneyTimeGroups() {
-    if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) return [];
-
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    const isNewFormat = moneyTimeDraws[0] && ('datetime' in moneyTimeDraws[0] || 'draws' in moneyTimeDraws[0]);
-
-    if (isNewFormat) {
-      return moneyTimeDraws.map((slot: any) => {
-        if (!slot.datetime || !Array.isArray(slot.draws)) return null;
-
-        const tIndex = slot.datetime.indexOf('T');
-        if (tIndex === -1) return null;
-
-        const datePart = slot.datetime.substring(0, tIndex);
-
-        const slotDate = parseJamaicaDrawDate(slot.datetime);
-        const localSlotHour = slotDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-        const localSlotDateLabel = `${String(slotDate.getDate()).padStart(2, '0')} ${months[slotDate.getMonth()]} ${slotDate.getFullYear()}`;
-        const label = `${localSlotDateLabel}, ${localSlotHour}`;
-        const key = slot.datetime;
-
-         const parsedDraws = slot.draws.map((d: any) => {
-          let drawDateTimeStr = d.draw_time;
-          if (!drawDateTimeStr.includes('-') && !drawDateTimeStr.includes('T')) {
-            drawDateTimeStr = `${datePart}T${drawDateTimeStr}`;
-          }
-          const drawDate = parseJamaicaDrawDate(drawDateTimeStr);
-          const drawDisplayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-          const localDrawDateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
-          const fullTime = `${localDrawDateLabel}, ${drawDisplayTime}`;
-
-          return {
-            id: d.draw_no || d.timestamp || Math.random(),
-            time: drawDisplayTime,
-            fullTime: fullTime,
-            apiDrawTime: d.draw_time,
-            timestamp: drawDate.getTime(),
-            raw: d
-          };
-        });
-
-        return {
-          key,
-          label,
-          draws: parsedDraws
-        };
-      }).filter(Boolean);
-    }
-
-    // Old format fallback:
-    const sortedDraws = [...moneyTimeDraws]
-      .filter(d => d.draw_date && d.draw_time)
-      .sort((a, b) => {
-        const datetimeA = `${a.draw_date}T${a.draw_time}`;
-        const datetimeB = `${b.draw_date}T${b.draw_time}`;
-        return datetimeA.localeCompare(datetimeB);
-      });
-
-    const groups: { key: string; label: string; draws: any[] }[] = [];
-
-    sortedDraws.forEach(draw => {
-      const drawDate = parseJamaicaDrawDate(`${draw.draw_date}T${draw.draw_time}`);
-      const drawMs = drawDate.getTime();
-
-      let foundGroup = false;
-      if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        const startDraw = lastGroup.draws[0].raw;
-        const startDrawDate = parseJamaicaDrawDate(`${startDraw.draw_date}T${startDraw.draw_time}`);
-        const startMs = startDrawDate.getTime();
-
-        if (drawMs >= startMs && drawMs < startMs + 60 * 60 * 1000) {
-          foundGroup = true;
-          const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-          const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
-          lastGroup.draws.push({
-            id: draw.id,
-            time: displayTime,
-            fullTime: `${dateLabel}, ${displayTime}`,
-            apiDrawTime: draw.draw_time,
-            timestamp: drawMs,
-            raw: draw
-          });
-        }
-      }
-
-      if (!foundGroup) {
-        const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-        const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
-        const label = `${dateLabel}, ${displayTime}`;
-        const key = `${draw.draw_date}_${draw.draw_time}`;
-
-        groups.push({
-          key,
-          label,
-          draws: [{
-            id: draw.id,
-            time: displayTime,
-            fullTime: `${dateLabel}, ${displayTime}`,
-            apiDrawTime: draw.draw_time,
-            timestamp: drawMs,
-            raw: draw
-          }]
-        });
-      }
-    });
-
-    return groups;
   }
 
   function getSoldOutDrawOptions(): SoldOutDrawOption[] {
@@ -1954,28 +1938,38 @@ export function MoneyTimePage() {
                       type="button"
                       onClick={() => {
                         const activeGroup = groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined;
-                        const activeFullTimes = activeGroup?.draws.map((d: { fullTime: string }) => d.fullTime) || [];
-                        const isAllSelected = activeFullTimes.length > 0 && activeFullTimes.every((ft: string) => tempSelectedDrawTimes.includes(ft));
+                        const validFullTimes = activeGroup?.draws
+                          .map((d: { fullTime: string }) => d.fullTime)
+                          .filter((ft: string) => !isMoneyTimeDrawPassed(ft)) || [];
+                        const isAllSelected = validFullTimes.length > 0 && validFullTimes.every((ft: string) => tempSelectedDrawTimes.includes(ft));
 
                         if (isAllSelected) {
-                          setTempSelectedDrawTimes(prev => prev.filter((ft: string) => !activeFullTimes.includes(ft)));
+                          setTempSelectedDrawTimes(prev => prev.filter((ft: string) => !validFullTimes.includes(ft)));
                         } else {
                           setTempSelectedDrawTimes(prev => {
                             const next = [...prev];
-                            activeFullTimes.forEach((ft: string) => {
+                            validFullTimes.forEach((ft: string) => {
                               if (!next.includes(ft)) next.push(ft);
                             });
                             return next;
                           });
                         }
                       }}
-                      className={`w-11 h-6 rounded-full transition-all relative outline-none flex items-center ${activeHourTab && (groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws.map((d: { fullTime: string }) => d.fullTime).every((ft: string) => tempSelectedDrawTimes.includes(ft))
+                      className={`w-11 h-6 rounded-full transition-all relative outline-none flex items-center ${activeHourTab && ((groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws
+                          .map((d: { fullTime: string }) => d.fullTime)
+                          .filter((ft: string) => !isMoneyTimeDrawPassed(ft)) || []).length > 0 && ((groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws
+                          .map((d: { fullTime: string }) => d.fullTime)
+                          .filter((ft: string) => !isMoneyTimeDrawPassed(ft)) || []).every((ft: string) => tempSelectedDrawTimes.includes(ft))
                         ? 'bg-primary'
                         : 'bg-[#0d0d0d] border border-neutral-800'
                         }`}
                     >
                       <span
-                        className={`absolute size-4.5 rounded-full bg-white transition-all shadow-md ${activeHourTab && (groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws.map((d: { fullTime: string }) => d.fullTime).every((ft: string) => tempSelectedDrawTimes.includes(ft))
+                        className={`absolute size-4.5 rounded-full bg-white transition-all shadow-md ${activeHourTab && ((groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws
+                          .map((d: { fullTime: string }) => d.fullTime)
+                          .filter((ft: string) => !isMoneyTimeDrawPassed(ft)) || []).length > 0 && ((groups.find((g: { key: string } | null) => g?.key === activeHourTab) as { draws: { fullTime: string }[] } | undefined)?.draws
+                          .map((d: { fullTime: string }) => d.fullTime)
+                          .filter((ft: string) => !isMoneyTimeDrawPassed(ft)) || []).every((ft: string) => tempSelectedDrawTimes.includes(ft))
                           ? 'left-[22px]'
                           : 'left-1'
                           }`}
