@@ -65,6 +65,8 @@ export function MoneyTimePage() {
   const showAlert = (message: string, isLoginRedirect = false) => setAlertModal({ isOpen: true, message, isLoginRedirect })
   const [showCartModal, setShowCartModal] = useState(false)
   const [editingGameAmount, setEditingGameAmount] = useState<string | null>(null)
+  const [tempSelectedNumber, setTempSelectedNumber] = useState('')
+  const [tempBetAmount, setTempBetAmount] = useState('')
 
   // Money Time Slot Modal States
   const [moneyTimeDraws, setMoneyTimeDraws] = useState<any[]>([])
@@ -1417,6 +1419,7 @@ export function MoneyTimePage() {
                           showAlert('Please select draw time(s) first.')
                           return
                         }
+                        setTempSelectedNumber(selectedNumber)
                         setShowNumberGrid(!showNumberGrid)
                       }}
                       className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
@@ -1434,12 +1437,12 @@ export function MoneyTimePage() {
                         <h3 className="font-black text-2xl text-white mb-4">Pick your Bet Number</h3>
                         <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
                           {['0', '00', ...Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0'))].map((numStr) => {
-                            const isSelected = selectedNumber === numStr
+                            const isSelected = tempSelectedNumber === numStr
                             return (
                               <button
                                 key={numStr}
                                 type="button"
-                                onClick={() => setSelectedNumber(numStr)}
+                                onClick={() => setTempSelectedNumber(numStr)}
                                 className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${isSelected
                                   ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
                                   : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
@@ -1452,7 +1455,7 @@ export function MoneyTimePage() {
                         </div>
                         <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
                           <Button variant="outline" onClick={() => setShowNumberGrid(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
-                          <Button onClick={() => setShowNumberGrid(false)} className="bet-add-btn-green text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
+                          <Button onClick={() => { setSelectedNumber(tempSelectedNumber); setShowNumberGrid(false); }} className="bet-add-btn-green text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
                         </div>
                       </div>
                     </div>
@@ -1499,6 +1502,7 @@ export function MoneyTimePage() {
                                 showAlert('Please select draw time(s) and bet number first.')
                                 return
                               }
+                              setTempBetAmount(betAmounts[game.id] || '')
                               setEditingGameAmount(game.id)
                             }}
                             className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
@@ -1546,58 +1550,61 @@ export function MoneyTimePage() {
                 <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
                   <div className="bg-fortune-card border border-border/60 rounded-3xl w-full max-w-[300px] p-5 flex flex-col relative animate-fadeIn shadow-2xl">
                     {(() => {
-                      const popupWarning = amountInputWarnings[editingGameAmount] || getBetAmountWarning(editingGameAmount, betAmounts[editingGameAmount] || '')
+                      const popupWarning = getBetAmountWarning(editingGameAmount, tempBetAmount)
                       return (
                         <>
-                    <h3 className="font-extrabold text-base text-foreground mb-0.5 tracking-wide">
-                      {config.games.find((g: any) => g.id === editingGameAmount)?.name}
-                    </h3>
-                    <p className="text-muted-foreground text-[10px] mb-3">Enter the Amount</p>
+                          <h3 className="font-extrabold text-base text-foreground mb-0.5 tracking-wide">
+                            {config.games.find((g: any) => g.id === editingGameAmount)?.name}
+                          </h3>
+                          <p className="text-muted-foreground text-[10px] mb-3">Enter the Amount</p>
 
-                    <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner">
-                      <span className="text-primary/70 mr-2">$</span>
-                      {betAmounts[editingGameAmount] || '0.00'}
-                    </div>
+                          <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner relative">
+                            <span className="text-primary/70 mr-2">$</span>
+                            {tempBetAmount || '0.00'}
+                            {popupWarning && (
+                              <p className="absolute -bottom-5 left-0 text-red-400 text-[9px] font-semibold">{popupWarning}</p>
+                            )}
+                          </div>
 
-                    {popupWarning && (
-                      <p className="text-red-400 text-[11px] font-semibold mb-3 leading-tight">{popupWarning}</p>
-                    )}
+                          <div className="flex gap-2 mb-4 mt-2">
+                            {config.games.find((g: any) => g.id === editingGameAmount)?.presets.map((val: string) => (
+                              <button
+                                key={val}
+                                type="button"
+                                onClick={() => setTempBetAmount(val)}
+                                className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
+                              >
+                                $ {val}
+                              </button>
+                            ))}
+                          </div>
 
-                    <div className="flex gap-2 mb-4">
-                      {config.games.find((g: any) => g.id === editingGameAmount)?.presets.map((val: string) => (
-                        <button
-                          key={val}
-                          type="button"
-                          onClick={() => updateBetAmount(editingGameAmount, val)}
-                          className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
-                        >
-                          $ {val}
-                        </button>
-                      ))}
-                    </div>
+                          <div className="grid grid-cols-4 gap-1.5 mb-5">
+                            {/* Row 1 */}
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + (tempBetAmount.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                    <div className="grid grid-cols-4 gap-1.5 mb-5">
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + (betAmounts[editingGameAmount]?.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                            {/* Row 2 */}
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                            {/* Row 3 */}
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                            <button onClick={() => setTempBetAmount('')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                      <button onClick={() => updateBetAmount(editingGameAmount, '')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                            {/* Row 4 */}
+                            <button onClick={() => setTempBetAmount(tempBetAmount + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                          </div>
 
-                      <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
-                    </div>
-
-                    <div className="flex justify-between items-center gap-3">
-                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
-                      <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
-                    </div>
+                          <div className="flex justify-between items-center gap-3">
+                            <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
+                            <button type="button" onClick={() => { updateBetAmount(editingGameAmount, tempBetAmount); setEditingGameAmount(null); }} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
+                          </div>
                         </>
                       )
                     })()}

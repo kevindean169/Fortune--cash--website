@@ -135,6 +135,8 @@ export function Pick2SinglePage() {
   const showAlert = (message: string, isLoginRedirect = false) => setAlertModal({ isOpen: true, message, isLoginRedirect })
   const [showCartModal, setShowCartModal] = useState(false)
   const [editingGameAmount, setEditingGameAmount] = useState<string | null>(null)
+  const [tempSelectedNumber, setTempSelectedNumber] = useState('')
+  const [tempBetAmount, setTempBetAmount] = useState('')
 
 
   // Local configurations fallback
@@ -1086,6 +1088,7 @@ export function Pick2SinglePage() {
                               showAlert('Please select draw time(s) first.')
                               return
                             }
+                            setTempSelectedNumber(selectedNumber)
                             setShowNumberGrid(!showNumberGrid)
                           }}
                           className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
@@ -1103,12 +1106,12 @@ export function Pick2SinglePage() {
                             <h3 className="font-black text-2xl text-white mb-4">Pick your Bet Number</h3>
                             <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
                               {Array.from({ length: 100 }, (_, i) => String(i).padStart(2, '0')).map((numStr) => {
-                                const isSelected = selectedNumber === numStr
+                                const isSelected = tempSelectedNumber === numStr
                                 return (
                                   <button
                                     key={numStr}
                                     type="button"
-                                    onClick={() => setSelectedNumber(numStr)}
+                                    onClick={() => setTempSelectedNumber(numStr)}
                                     className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${isSelected
                                       ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
                                       : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
@@ -1121,7 +1124,7 @@ export function Pick2SinglePage() {
                             </div>
                             <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
                               <Button variant="outline" onClick={() => setShowNumberGrid(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
-                              <Button onClick={() => setShowNumberGrid(false)} className="bet-add-btn-green text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
+                              <Button onClick={() => { setSelectedNumber(tempSelectedNumber); setShowNumberGrid(false); }} className="bet-add-btn-green text-fortune-navy font-bold rounded-xl gold-glow hover:opacity-90">Done</Button>
                             </div>
                           </div>
                         </div>
@@ -1217,7 +1220,7 @@ export function Pick2SinglePage() {
 
                         <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner">
                           <span className="text-primary/70 mr-2">$</span>
-                          {betAmounts[editingGameAmount] || '0.00'}
+                          {tempBetAmount || '0.00'}
                         </div>
 
                         <div className="flex gap-2 mb-4">
@@ -1225,7 +1228,7 @@ export function Pick2SinglePage() {
                             <button
                               key={val}
                               type="button"
-                              onClick={() => updateBetAmount(editingGameAmount, val)}
+                              onClick={() => setTempBetAmount(val)}
                               className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
                             >
                               $ {val}
@@ -1234,26 +1237,26 @@ export function Pick2SinglePage() {
                         </div>
 
                         <div className="grid grid-cols-4 gap-1.5 mb-5">
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + (betAmounts[editingGameAmount]?.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + (tempBetAmount.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                          <button onClick={() => updateBetAmount(editingGameAmount, '')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                          <button onClick={() => setTempBetAmount('')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                          <button onClick={() => updateBetAmount(editingGameAmount, (betAmounts[editingGameAmount] || '') + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                          <button onClick={() => setTempBetAmount(tempBetAmount + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
                         </div>
 
                         <div className="flex justify-between items-center gap-3">
                           <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
-                          <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
+                          <button type="button" onClick={() => { updateBetAmount(editingGameAmount, tempBetAmount); setEditingGameAmount(null); }} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
                         </div>
                       </div>
                     </div>

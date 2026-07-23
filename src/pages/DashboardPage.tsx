@@ -35,8 +35,8 @@ export function DashboardPage() {
   ]
 
   const quickLinks = [
-    { label: 'Play CASHPOT', page: '/cashpot', desc: 'Pick numbers 01-36 and bet', icon: <Gift className="size-10 text-primary flex-shrink-0" /> },
-    { label: 'Play Money Time', page: '/money-time', desc: 'Fast hourly draws daily', icon: <Clock className="size-10 text-primary flex-shrink-0" /> },
+    { label: 'Play CASHPOT', page: '/lottery-info?type=cashpot', desc: 'Pick numbers 01-36 and bet', icon: <Gift className="size-10 text-primary flex-shrink-0" /> },
+    { label: 'Play Money Time', page: '/lottery-info?type=money-time', desc: 'Fast hourly draws daily', icon: <Clock className="size-10 text-primary flex-shrink-0" /> },
     { label: 'Draw Results', page: '/results', desc: 'Check latest winning numbers', icon: <Trophy className="size-10 text-primary flex-shrink-0" /> },
     { label: 'Transaction Audit', page: '/transactions', desc: 'View deposits and payouts', icon: <Coins className="size-10 text-primary flex-shrink-0" /> },
   ]
