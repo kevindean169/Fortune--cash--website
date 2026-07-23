@@ -24,7 +24,7 @@ export function TransactionsPage({ navigate }: TransactionsPageProps) {
   }
 
   return (
-    <div className="min-h-screen py-10">
+    <div className="py-10">
       <div className="mx-auto max-w-md px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

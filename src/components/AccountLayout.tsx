@@ -20,7 +20,7 @@ export function AccountLayout() {
   ]
 
   return (
-    <div className="min-h-screen py-4 md:py-10">
+    <div className="py-4 md:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Page Title — hidden on mobile */}

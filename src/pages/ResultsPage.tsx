@@ -72,7 +72,7 @@ export function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <button onClick={() => navigate('home')} className="text-primary hover:underline text-sm font-bold mb-4 inline-block">

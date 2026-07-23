@@ -57,7 +57,7 @@ export function RegisterPage() {
   const inputClass = "w-full bg-background border border-primary/30 rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:shadow-[0_0_10px_oklch(0.83_0.17_84/0.2)] transition-all placeholder:text-muted-foreground/50"
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-16 px-4">
+    <div className="flex items-center justify-center relative overflow-hidden py-16 px-4">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-emerald-500/8 rounded-full blur-3xl" />

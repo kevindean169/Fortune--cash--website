@@ -28,7 +28,7 @@ export default function MobileAppPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="bg-background py-8 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-foreground flex items-center gap-3 mb-2">

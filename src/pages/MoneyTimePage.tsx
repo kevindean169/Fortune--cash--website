@@ -933,7 +933,7 @@ export function MoneyTimePage() {
 
   if (loading) {
     return (
-      <div className="lottery-purchase-wrapper min-h-screen flex items-center justify-center bg-background">
+      <div className="lottery-purchase-wrapper flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     )
@@ -941,7 +941,7 @@ export function MoneyTimePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+      <div className="flex flex-col items-center justify-center bg-background p-4 text-center">
         <p className="text-red-400 font-semibold mb-4">{error}</p>
         <Button onClick={() => navigate('lotteries')} className="bet-add-btn-green text-white font-bold">
           Back to Lotteries

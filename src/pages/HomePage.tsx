@@ -195,7 +195,7 @@ export function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
           <p className="text-muted-foreground font-medium text-sm animate-pulse">Loading Fortune...</p>
@@ -205,7 +205,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       {/* Hero */}
       <section className="relative overflow-hidden fortune-hero-bg">
         <div className="absolute inset-0 opacity-20">
