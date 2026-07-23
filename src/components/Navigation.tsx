@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   Menu, X, Trophy, Ticket, Wallet, LayoutDashboard,
   ShieldCheck, Phone, ChevronDown, User, LogOut,
-  FileText
+  FileText, ArrowLeft
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
@@ -46,14 +46,30 @@ export function Navigation() {
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link
-            to="/"
-            onClick={handleNavigate}
-            className="flex items-center group"
-          >
-            <img src="/favicon.png" alt="Fortune Logo" className="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(224,172,44,0.3)] group-hover:scale-105 transition-transform" style={{ mixBlendMode: 'screen' }} />
-          </Link>
+          {/* Left section: Back Button & Logo */}
+          <div className="flex items-center gap-1 sm:gap-3">
+            {currentPath !== '' && (
+              <Button
+                variant="ghost"
+                onClick={() => navigateHook(-1)}
+                className="group flex items-center gap-1.5 px-2 md:px-3 -ml-2 sm:-ml-3 text-muted-foreground hover:text-primary hover:bg-white/5 transition-all"
+                aria-label="Go back"
+                title="Go back"
+              >
+                <ArrowLeft className="size-5 sm:size-6 group-hover:-translate-x-1 transition-transform" />
+                <span className="hidden md:inline font-bold text-sm tracking-wide">Back</span>
+              </Button>
+            )}
+            
+            {/* Logo */}
+            <Link
+              to="/"
+              onClick={handleNavigate}
+              className="flex items-center group"
+            >
+              <img src="/favicon.png" alt="Fortune Logo" className="h-10 sm:h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(224,172,44,0.3)] group-hover:scale-105 transition-transform" style={{ mixBlendMode: 'screen' }} />
+            </Link>
+          </div>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
