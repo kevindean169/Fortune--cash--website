@@ -1444,9 +1444,7 @@ export function Pick2DoublePage() {
                     <Button
                       onClick={() => setShowCartModal(true)}
                       className="total-bets-btn-black w-full"
-                            onClick={() => setShowCartModal(true)}
-                            className="total-bets-btn-black w-full"
-                          >
+                    >
                             Total Bets View ({groupedCart.length})
                           </Button>
                         </div>
