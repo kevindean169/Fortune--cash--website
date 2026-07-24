@@ -751,13 +751,7 @@ export function HomePage() {
               <Button 
                 onClick={(e) => {
                   e.preventDefault();
-                  
-                  let link = homeData?.join_mobile_community_link;
-                  if (!link) return;
-                  
-                  // The Unity app will intercept this and can extract the 'link' parameter
-                  // which contains your dynamic chat.whatsapp.com URL.
-                  window.location.href = `uniwebview://open-whatsapp?link=${encodeURIComponent(link)}`;
+                  window.location.href = 'uniwebview://open-whatsapp?number=911234567890&text=Hello';
                 }}
                 variant="outline" 
                 className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]"
