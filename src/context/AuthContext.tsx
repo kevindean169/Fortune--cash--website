@@ -253,10 +253,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (resData.success && resData.data) {
           // resilient check if balance is nested or direct
           const rawBalance = resData.data.balance !== undefined ? resData.data.balance : resData.data.wallet?.balance
+          const rawWinningBalance = resData.data.winningBalance !== undefined ? resData.data.winningBalance : resData.data.wallet?.winningBalance
           const balance = Number(rawBalance)
+          const winningBalance = Number(rawWinningBalance) || 0
           if (!isNaN(balance)) {
-            setWalletBalance(balance)
-            return balance
+            const totalBalance = balance + winningBalance
+            setWalletBalance(totalBalance)
+            return totalBalance
           }
         }
       }
@@ -352,7 +355,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (wallet && wallet.balance !== undefined) {
-        setWalletBalance(Number(wallet.balance))
+        const balance = Number(wallet.balance)
+        const winningBalance = Number(wallet.winningBalance) || 0
+        setWalletBalance(isNaN(balance) ? 0 : balance + winningBalance)
       } else {
         await fetchWallet(token)
       }
