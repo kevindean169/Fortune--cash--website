@@ -2,38 +2,14 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import {
-  ArrowRight, Trophy, Zap, Clock,
-  ChevronRight, Star, TrendingUp, Play,
-  User, Lock, EyeOff
+  ArrowRight, Trophy, Zap,
+  Star, TrendingUp, Play,
+  User, Lock, EyeOff, ShieldCheck, CalendarDays
 } from 'lucide-react'
 import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 import { useNavigate } from 'react-router-dom'
-
-function JackpotCounter({ value }: { value: number }) {
-  const [displayed, setDisplayed] = useState(0)
-
-  useEffect(() => {
-    const duration = 1800
-    const steps = 80
-    const increment = value / steps
-    let current = 0
-    const timer = setInterval(() => {
-      current = Math.min(current + increment, value)
-      setDisplayed(Math.floor(current))
-      if (current >= value) clearInterval(timer)
-    }, duration / steps)
-    return () => clearInterval(timer)
-  }, [value])
-
-  return (
-    <span className="tabular-nums">
-      ${displayed.toLocaleString()}
-    </span>
-  )
-}
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -128,37 +104,7 @@ export function HomePage() {
     }
   }, [])
 
-  const parsePrizeNumber = (val: any, defaultVal: number): number => {
-    if (val === null || val === undefined) return defaultVal
-    const cleaned = String(val).replace(/[^0-9.]/g, '')
-    const num = Number(cleaned)
-    return isNaN(num) ? defaultVal : num
-  }
 
-  // Tonight's top prizes data with default fallbacks
-  const getPrizeValue = (gameType: string, defaultVal: number) => {
-    const p = homeData?.tonights_prizes?.find((x: any) => x.type === gameType || x.name === gameType)
-    return p ? parsePrizeNumber(p.top_prize, defaultVal) : defaultVal
-  }
-
-  const cashpotPrizeObj = homeData?.tonights_prizes?.find((x: any) => x.type === 'Cashpot' || x.name === 'Cashpot')
-  const cashpotPrize = cashpotPrizeObj ? parsePrizeNumber(cashpotPrizeObj.top_prize, 85000) : 85000
-
-  const cashpotBetNo = cashpotPrizeObj?.bet_no
-  const cashpotDrawTime = cashpotPrizeObj?.draw_time_human
-
-  const topPrizeSubtitle = cashpotPrizeObj?.subtitle || (
-    (cashpotBetNo && cashpotDrawTime)
-      ? `Cashpot � Bet No: ${cashpotBetNo} � ${cashpotDrawTime}`
-      : `Cashpot � Next Draw Soon`
-  )
-
-  // secondary tonight prizes
-  const secondaryPrizes = [
-    { label: 'Money Time', value: `$${getPrizeValue('Cashpot Money Time', 240000).toLocaleString()}` },
-    { label: 'Pick 2 Single', value: `$${getPrizeValue('Pick 2 Single', 120000).toLocaleString()}` },
-    { label: 'Pick 2 Double', value: `$${getPrizeValue('Pick 2 Double', 120000).toLocaleString()}` },
-  ]
 
   // latest results with fallback to local mock data
   const latestResults = homeData?.latest_results?.length
@@ -208,24 +154,30 @@ export function HomePage() {
     <div className="">
       {/* Hero */}
       <section className="relative overflow-hidden fortune-hero-bg">
-        <div className="absolute inset-0 opacity-20">
-          <img src="/lottery-hero.webp" alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-[#050505] opacity-100 overflow-hidden">
+          <img src="/hero_section.png" alt="" className="w-full h-full object-contain object-right-top md:object-right" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/60 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none md:hidden" />
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-10 lg:pt-16 lg:pb-36">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left */}
-            <div className="space-y-5 lg:space-y-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-4 lg:pt-16 lg:pb-24">
+          <div className="relative z-10 flex flex-col md:min-h-[500px] lg:min-h-[600px] justify-center">
+            <div className="max-w-[55%] sm:max-w-[50%] md:max-w-[45%] lg:max-w-[40%] space-y-3 lg:space-y-6 relative z-20">
               <div>
-                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-3 lg:mb-4">
+                <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-2 lg:mb-4 uppercase">
                   Your Next<br />
-                  <span className="gold-text">Fortune</span><br />
-                  Awaits
+                  <span className="gold-text text-[1.1em]">Fortune</span><br />
+                  Awaits!
                 </h1>
-                <p className="text-base lg:text-lg text-foreground/90 max-w-md leading-relaxed">
-                  Play <span className="text-primary font-bold">Cashpot, Money Time, and Pick 2</span>. Draws happen daily. Winners happen constantly.
-                </p>
+                <div className="text-xs sm:text-base lg:text-lg text-foreground/90 leading-relaxed pr-2 md:pr-0 mt-3 md:mt-5 font-medium">
+                  <span className="text-[#5cb85c] font-bold block mb-1 lg:mb-2 text-sm sm:text-lg md:text-xl">Play. Win. Repeat.</span>
+                  Cashpot, Pick 3, Pick 4.<br /> Winners happen daily!
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
+            </div>
+
+            {/* Bottom Area: Buttons full width below the text/machine layout */}
+            <div className="mt-8 md:mt-10">
+              <div className="flex flex-wrap gap-3 lg:gap-4">
                 <Button
                   onClick={() => navigate('lotteries')}
                   className="gold-gradient text-fortune-navy font-extrabold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4)] hover:brightness-110 hover:scale-[1.02] transition-all"
@@ -241,60 +193,19 @@ export function HomePage() {
                 </Button>
               </div>
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-5 pt-2 lg:pt-3">
+              <div className="flex flex-wrap items-center gap-4 lg:gap-6 pt-5 lg:pt-8 opacity-90">
                 {[
-                  { icon: <Zap className="size-4.5 sm:size-5 text-primary" />, label: 'Instant Payouts' },
-                  { icon: <Clock className="size-4.5 sm:size-5 text-sky-400" />, label: 'Daily Draws' },
+                  { icon: <Zap className="size-4 sm:size-5 text-primary" />, label: 'Instant Payouts' },
+                  { icon: <ShieldCheck className="size-4 sm:size-5 text-green-500" />, label: 'Secure & Fair' },
+                  { icon: <CalendarDays className="size-4 sm:size-5 text-sky-400" />, label: 'Daily Draws' },
                 ].map((b, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs sm:text-sm text-foreground/90 font-semibold tracking-wide">
-                    {b.icon} {b.label}
+                  <div key={i} className="flex items-center gap-2">
+                    {i > 0 && <div className="h-4 w-px bg-white/20 mr-4 lg:mr-6 hidden sm:block" />}
+                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-foreground/80 font-bold uppercase tracking-wider">
+                      {b.icon} <span className="max-w-[60px] sm:max-w-none text-left leading-tight">{b.label}</span>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Right: Jackpot Display */}
-            <div className="flex justify-center lg:justify-center">
-              <div className="relative w-full max-w-[305px] sm:max-w-80">
-                <div className="absolute inset-0 rounded-2xl gold-glow opacity-30" />
-                <Card className="relative bg-fortune-card border-fortune-gold/20 rounded-2xl overflow-hidden">
-                  <CardContent className="p-6 sm:p-8 text-center">
-                    <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1.5 sm:mb-2">
-                      Tonight's Top Prize
-                    </p>
-                    <div className="text-5xl sm:text-6xl font-extrabold gold-text my-3 sm:my-4 min-h-[48px] sm:min-h-[60px] flex items-center justify-center">
-                      {loading ? (
-                        <div className="h-12 sm:h-14 w-36 sm:w-44 bg-zinc-800/60 rounded animate-pulse" />
-                      ) : (
-                        <JackpotCounter value={cashpotPrize} />
-                      )}
-                    </div>
-                    {loading ? (
-                      <div className="h-3.5 sm:h-4 w-32 sm:w-36 bg-zinc-800/40 rounded animate-pulse mx-auto mb-4 sm:mb-6" />
-                    ) : (
-                      <p className="text-muted-foreground text-xs sm:text-sm mb-4 sm:mb-6">{topPrizeSubtitle}</p>
-                    )}
-                    <Button
-                      className="w-full gold-gradient text-fortune-navy font-bold text-sm h-10 sm:h-12"
-                      onClick={() => navigate('lotteries-by-type?type=cashpot')}
-                    >
-                      Play Cashpot <ChevronRight className="size-4 ml-0.5" />
-                    </Button>
-                    <Separator className="my-3.5 sm:my-4 opacity-30" />
-                    <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
-                      {secondaryPrizes.map((j, i) => (
-                        <div key={i}>
-                          {loading ? (
-                            <div className="h-4.5 w-14 bg-zinc-800/40 rounded animate-pulse mx-auto mb-0.5" />
-                          ) : (
-                            <p className="text-xs sm:text-sm font-bold text-primary">{j.value}</p>
-                          )}
-                          <p className="text-[11px] sm:text-xs text-muted-foreground">{j.label}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </div>
           </div>
@@ -302,7 +213,7 @@ export function HomePage() {
       </section>
 
       {/* Games Strip */}
-      <section className="py-16 bg-background">
+      <section className="py-8 md:py-16 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -748,12 +659,12 @@ export function HomePage() {
               </p>
             </div>
             <div className="relative z-10 whitespace-nowrap mt-4 md:mt-0">
-              <Button 
+              <Button
                 onClick={(e) => {
                   e.preventDefault();
                   window.location.href = 'uniwebview://open-whatsapp?number=911234567890&text=Hello';
                 }}
-                variant="outline" 
+                variant="outline"
                 className="border-primary/50 text-primary hover:bg-primary hover:text-fortune-navy font-bold px-8 h-12 gap-2 transition-all text-md shadow-[0_0_15px_rgba(197,160,89,0.1)]"
               >
                 <WhatsAppIcon className="size-5 text-[#25D366] group-hover:text-fortune-navy transition-colors" /> Join Group Now
