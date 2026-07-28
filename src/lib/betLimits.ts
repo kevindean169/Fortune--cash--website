@@ -14,6 +14,7 @@ export function getCartHeldAmount(
   gameId: string | undefined,
   gameName: string | undefined,
   drawTime: string,
+  ticketNumber?: string
 ): number {
   const normalizedGameId = normalizeKey(gameId)
   const normalizedGameName = normalizeKey(gameName)
@@ -27,6 +28,7 @@ export function getCartHeldAmount(
       : normalizeKey(item.gameName) === normalizedGameName
 
     if (!sameGame || normalizeKey(item.drawTime) !== normalizedDrawTime) return sum
+    if (ticketNumber !== undefined && (item as any).number !== ticketNumber) return sum
     return sum + item.amount
   }, 0)
 }

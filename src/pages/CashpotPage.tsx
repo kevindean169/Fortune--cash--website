@@ -460,7 +460,7 @@ export function CashpotPage() {
     }
 
     const gameName = config.games.find((game: { id: string; name: string }) => game.id === gameIdStr)?.name
-    const heldAmount = getCartHeldAmount(cart, gameIdStr, gameName, time)
+    const heldAmount = getCartHeldAmount(cart, gameIdStr, gameName, time, getSelectedTicketNumber())
 
     return clampRemainingLimit(baseLimit - heldAmount)
   }
@@ -580,6 +580,7 @@ export function CashpotPage() {
     setCart(prev => [...prev, ...newBets])
     setAmountInputWarnings({})
     setEditingGameAmount(null)
+    setBetAmounts({})
   }
 
   const handleClearData = () => {

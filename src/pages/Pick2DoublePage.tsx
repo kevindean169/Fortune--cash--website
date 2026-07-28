@@ -603,7 +603,7 @@ export function Pick2DoublePage() {
     setCart(prev => [...prev, ...newBets])
     setAmountInputWarnings({})
     setEditingGameAmount(null)
-
+    setBetAmounts({})
   }
 
   const handleClearData = () => {
