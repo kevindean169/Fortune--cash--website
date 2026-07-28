@@ -28,10 +28,17 @@ export function GameCard({ game }: { game: APILottery }) {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(`/${path}`)
 
-  const notStarted = isNotStarted(game.startDateTime)
-  const targetDate = notStarted ? game.startDateTime : game.currentDraw
+  const sDate = game.startDate || (game as any).start_date
+  const sTime = game.startTime || (game as any).start_time
+  const startDateTime = game.startDateTime || (game as any).start_date_time || (sDate && sTime ? `${sDate} ${sTime}` : '')
+  const currentDraw = game.currentDraw || (game as any).current_draw
+  const notStarted = isNotStarted(startDateTime)
+  const targetDate = notStarted ? startDateTime : currentDraw
 
   const [d, h, m, s] = useDateTimeCountdown(targetDate)
+  const isZero = d === '00' && h === '00' && m === '00' && s === '00'
+  const displayNotStarted = notStarted || isZero || !currentDraw
+
   const path = mapTypeToPath(game.type, game.name)
   const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
 
@@ -81,7 +88,7 @@ export function GameCard({ game }: { game: APILottery }) {
         {/* Countdown */}
         <div className="mb-3 text-right">
           <p className="text-[10px] text-muted-foreground/80 mb-1.5 font-bold uppercase tracking-widest">
-            {notStarted ? 'Lottery Starts In' : 'Next Draw In'}
+            {displayNotStarted ? 'Lottery Starts In' : 'Next Draw In'}
           </p>
           <div className="flex gap-1.5 justify-end">
             {[{ v: d, l: 'Day' }, { v: h, l: 'Hour' }, { v: m, l: 'Min' }, { v: s, l: 'Sec' }].map((t) => (
