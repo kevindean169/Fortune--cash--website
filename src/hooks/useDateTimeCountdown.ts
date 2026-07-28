@@ -7,7 +7,13 @@ export function useDateTimeCountdown(targetDateStr: string, onZero?: () => void)
     if (!targetDateStr) return
 
     const calculateRemaining = () => {
-      const diffMs = new Date(targetDateStr).getTime() - Date.now()
+      let dtStr = targetDateStr.trim()
+      if (dtStr) {
+        if (!dtStr.endsWith('Z')) {
+          dtStr = dtStr.replace(' ', 'T').substring(0, 19) + '-05:00'
+        }
+      }
+      const diffMs = new Date(dtStr).getTime() - Date.now()
       return Math.max(0, Math.floor(diffMs / 1000))
     }
 

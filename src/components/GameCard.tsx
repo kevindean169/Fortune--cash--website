@@ -5,7 +5,15 @@ import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 
 const isNotStarted = (startDateTime: string) => {
   if (!startDateTime) return false
-  return new Date().getTime() < new Date(startDateTime).getTime()
+  
+  let dtStr = startDateTime.trim()
+  if (dtStr) {
+    if (!dtStr.endsWith('Z')) {
+      dtStr = dtStr.replace(' ', 'T').substring(0, 19) + '-05:00'
+    }
+  }
+  
+  return new Date().getTime() < new Date(dtStr).getTime()
 }
 
 const mapTypeToPath = (type: string, name?: string): string => {
@@ -28,17 +36,12 @@ export function GameCard({ game }: { game: APILottery }) {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(`/${path}`)
 
-  const sDate = game.startDate || (game as any).start_date
-  const sTime = game.startTime || (game as any).start_time
-  const startDateTime = game.startDateTime || (game as any).start_date_time || (sDate && sTime ? `${sDate} ${sTime}` : '')
-  const currentDraw = game.currentDraw || (game as any).current_draw
-  const notStarted = isNotStarted(startDateTime)
-  const targetDate = notStarted ? startDateTime : currentDraw
+  const notStarted = isNotStarted(game.startDateTime)
+  const targetDate = notStarted ? game.startDateTime : game.currentDraw
 
   const [d, h, m, s] = useDateTimeCountdown(targetDate)
   const isZero = d === '00' && h === '00' && m === '00' && s === '00'
-  const displayNotStarted = notStarted || isZero || !currentDraw
-
+  const displayNotStarted = notStarted || isZero
   const path = mapTypeToPath(game.type, game.name)
   const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
 

@@ -502,12 +502,10 @@ export function MoneyTimePage() {
   function parseJamaicaDrawDate(dateTimeStr: string): Date {
     if (!dateTimeStr) return new Date(NaN);
     let cleaned = dateTimeStr.trim();
-    if (cleaned.endsWith('Z') || /[\+\-]\d{2}:?\d{2}$/.test(cleaned) || cleaned.includes('GMT')) {
-      return new Date(cleaned);
-    }
     if (cleaned.includes(' ')) {
       cleaned = cleaned.replace(' ', 'T');
     }
+    cleaned = cleaned.substring(0, 19);
     return new Date(cleaned + '-05:00');
   }
 
