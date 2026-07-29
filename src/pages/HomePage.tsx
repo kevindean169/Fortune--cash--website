@@ -162,12 +162,14 @@ export function HomePage() {
           {/* Desktop gradient (left-to-right) that fades out completely before hitting the right side */}
           <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/60 to-transparent z-10" />
 
-          {/* On mobile, we force the image to be only the bottom portion of the screen and shift it up (30% vertical alignment) to hide the empty table at the very bottom. */}
-          <img
-            src="/hero_wide_banner.png"
-            alt="Lottery Banner"
-            className="w-full absolute bottom-0 h-[50dvh] lg:relative lg:h-full object-cover object-[75%_30%] lg:object-center"
-          />
+          {/* On mobile, we force the image to be only the bottom portion of the screen and          {/* Show the full bottom of the image so we have the dark table area for the stats */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <img
+              src="/hero_wide_banner.png"
+              alt="Lottery Banner"
+              className="w-full absolute bottom-0 h-[65dvh] lg:relative lg:h-full object-cover object-[75%_90%] lg:object-center animate-slow-zoom"
+            />
+          </div>
         </div>
 
         {/* Glow Effects */}
@@ -187,12 +189,12 @@ export function HomePage() {
 
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.1] uppercase drop-shadow-2xl">
                   Play Big, <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a26c19] via-[#ffe6a0] to-[#a26c19] filter drop-shadow-[0_0_15px_rgba(229,180,69,0.3)]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a26c19] via-[#ffe6a0] to-[#a26c19] filter drop-shadow-[0_0_15px_rgba(229,180,69,0.3)] animate-shimmer" style={{ backgroundSize: '200% auto' }}>
                     Win Bigger
                   </span>
                 </h1>
 
-                <p className="text-xl sm:text-xl lg:text-lg text-muted-foreground max-w-md sm:max-w-lg lg:max-w-xl leading-relaxed font-medium px-4 lg:px-0 mx-auto lg:mx-0">
+                <p className="text-base min-[400px]:text-xl sm:text-lg lg:text-lg text-muted-foreground max-w-[340px] min-[400px]:max-w-md sm:max-w-lg lg:max-w-xl leading-relaxed font-medium px-4 lg:px-0 mx-auto lg:mx-0">
                   Experience the thrill of Jamaica's most premium lottery. Predict the winning numbers and turn your small bets into massive fortunes.
                 </p>
               </div>
@@ -223,9 +225,9 @@ export function HomePage() {
                     <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Payouts</span>
                   </div>
                 </div>
-                
+
                 <div className="w-[1px] h-8 bg-white/10" />
-                
+
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <ShieldCheck className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
                   <div className="flex flex-col text-left">
@@ -546,7 +548,7 @@ export function HomePage() {
               <a href={`${baseUrl}/api/customer-apk/download`} download className="w-fit">
                 <Button className="gold-gradient text-fortune-navy font-bold px-8 h-12 gold-glow gap-2 text-md flex items-center">
                   <svg className="size-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2c.074 0 .148.002.22.006l.044.004a5.986 5.986 0 0 1 4.542 3.484l1.39-2.408a.5.5 0 0 1 .865.5l-1.378 2.385A6 6 0 0 1 20 11.5v.5h-16v-.5a6 6 0 0 1 2.316-4.527L4.938 3.588a.5.5 0 0 1 .865-.5l-1.39 2.408A5.987 5.987 0 0 1 11.737 2.01L12 2zm-3.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 14h16v3.5a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 17.5V14z" />
+                    <path d="M12 2c.074 0 .148.002.22.006l.044.004a5.986 5.986 0 0 1 4.542 3.484l1.39-2.408a.5.5 0 0 1 .865.5l-1.378 2.385A6 6 0 0 1 20 11.5v.5h-16v-.5a6 6 0 0 1 2.316-4.527L4.938 3.588a.5.5 0 0 1 .865-.5l1.39 2.408A5.987 5.987 0 0 1 11.737 2.01L12 2zm-3.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 14h16v3.5a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 17.5V14z" />
                   </svg>
                   Download APK
                 </Button>
