@@ -153,60 +153,102 @@ export function HomePage() {
   return (
     <div className="">
       {/* Hero */}
-      <section className="relative overflow-hidden fortune-hero-bg">
-        <div className="absolute inset-0 bg-[#050505] opacity-100 overflow-hidden">
-          <img src="/hero_section.png" alt="" className="w-full h-full object-contain object-right-top md:object-right" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/60 to-transparent pointer-events-none" />
-          <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none md:hidden" />
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-4 lg:pt-16 lg:pb-24">
-          <div className="relative z-10 flex flex-col md:min-h-[500px] lg:min-h-[600px] justify-center">
-            <div className="max-w-[55%] sm:max-w-[50%] md:max-w-[45%] lg:max-w-[40%] space-y-3 lg:space-y-6 relative z-20">
-              <div>
-                <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-none mb-2 lg:mb-4 uppercase">
-                  Your Next<br />
-                  <span className="gold-text text-[1.1em]">Fortune</span><br />
-                  Awaits!
-                </h1>
-                <div className="text-xs sm:text-base lg:text-lg text-foreground/90 leading-relaxed pr-2 md:pr-0 mt-3 md:mt-5 font-medium">
-                  <span className="text-[#5cb85c] font-bold block mb-1 lg:mb-2 text-sm sm:text-lg md:text-xl">Play. Win. Repeat.</span>
-                  Cashpot, Pick 3, Pick 4.<br /> Winners happen daily!
-                </div>
-              </div>
-            </div>
+      <section className="relative overflow-hidden bg-[#050505] min-h-[75dvh] lg:min-h-[calc(100vh-80px)] flex flex-col lg:justify-center">
+        {/* Background Layer (Full Width Banner) */}
+        <div className="absolute inset-0 z-0">
+          {/* Mobile gradient - solid black at the top for text, completely transparent at bottom for balls */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#050505] via-60% to-transparent lg:hidden z-10" />
 
-            {/* Bottom Area: Buttons full width below the text/machine layout */}
-            <div className="mt-8 md:mt-10">
-              <div className="flex flex-wrap gap-3 lg:gap-4">
+          {/* Desktop gradient (left-to-right) that fades out completely before hitting the right side */}
+          <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/60 to-transparent z-10" />
+
+          {/* On mobile, we force the image to be only the bottom portion of the screen and shift it up (30% vertical alignment) to hide the empty table at the very bottom. */}
+          <img
+            src="/hero_wide_banner.png"
+            alt="Lottery Banner"
+            className="w-full absolute bottom-0 h-[50dvh] lg:relative lg:h-full object-cover object-[75%_30%] lg:object-center"
+          />
+        </div>
+
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 left-0 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] bg-primary/20 rounded-full blur-[100px] lg:blur-[150px] pointer-events-none z-0" />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full pt-20 pb-0 lg:py-20 flex-1 flex flex-col justify-start lg:justify-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+            {/* Left Content */}
+            <div className="flex flex-col space-y-6 lg:space-y-8 relative z-20 text-center lg:text-left">
+
+              <div className="space-y-3 lg:space-y-4 flex flex-col items-center lg:items-start">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm w-fit shadow-[0_0_15px_rgba(224,172,44,0.15)]">
+                  <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] lg:text-xs font-bold text-primary tracking-widest uppercase">Live Draws Daily</span>
+                </div>
+
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.1] uppercase drop-shadow-2xl">
+                  Play Big, <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a26c19] via-[#ffe6a0] to-[#a26c19] filter drop-shadow-[0_0_15px_rgba(229,180,69,0.3)]">
+                    Win Bigger
+                  </span>
+                </h1>
+
+                <p className="text-xl sm:text-xl lg:text-lg text-muted-foreground max-w-md sm:max-w-lg lg:max-w-xl leading-relaxed font-medium px-4 lg:px-0 mx-auto lg:mx-0">
+                  Experience the thrill of Jamaica's most premium lottery. Predict the winning numbers and turn your small bets into massive fortunes.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-row gap-3 pt-4 w-full max-w-sm sm:max-w-none mx-auto lg:mx-0">
                 <Button
                   onClick={() => navigate('lotteries')}
-                  className="gold-gradient text-fortune-navy font-extrabold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4)] hover:brightness-110 hover:scale-[1.02] transition-all"
+                  className="hero-gold-gradient flex-1 sm:flex-none text-fortune-navy font-extrabold text-sm sm:text-base px-2 sm:px-8 h-12 sm:h-14 rounded-xl shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4),0_0_20px_rgba(224,172,44,0.3)] hover:scale-105 hover:brightness-110 transition-all duration-300 group"
                 >
-                  Play Now <ArrowRight className="size-4 ml-2" />
+                  Play Now <ArrowRight className="size-4 sm:size-5 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => navigate('results')}
-                  className="bg-transparent text-primary font-extrabold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 border-[2.5px] sm:border-[3px] border-primary hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.4)]"
+                  className="bg-black/40 backdrop-blur-md flex-1 sm:flex-none text-primary font-bold text-sm sm:text-base px-2 sm:px-8 h-12 sm:h-14 rounded-xl border-[2px] border-primary/50 hover:bg-primary/10 hover:border-primary transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.3)]"
                 >
-                  View Results
+                  <Trophy className="size-4 sm:size-5 mr-1 sm:mr-2" /> <span className="hidden sm:inline">View </span>Results
                 </Button>
               </div>
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-4 lg:gap-6 pt-5 lg:pt-8 opacity-90">
-                {[
-                  { icon: <Zap className="size-4 sm:size-5 text-primary" />, label: 'Instant Payouts' },
-                  { icon: <ShieldCheck className="size-4 sm:size-5 text-green-500" />, label: 'Secure & Fair' },
-                  { icon: <CalendarDays className="size-4 sm:size-5 text-sky-400" />, label: 'Daily Draws' },
-                ].map((b, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    {i > 0 && <div className="h-4 w-px bg-white/20 mr-4 lg:mr-6 hidden sm:block" />}
-                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-foreground/80 font-bold uppercase tracking-wider">
-                      {b.icon} <span className="max-w-[60px] sm:max-w-none text-left leading-tight">{b.label}</span>
-                    </div>
+
+              {/* Stats/Badges Row */}
+              <div className="flex flex-row justify-between items-center mt-[15vh] lg:mt-6 py-4 px-3 sm:px-6 w-[95%] max-w-md mx-auto lg:mx-0 bg-[#080808]/95 backdrop-blur-md border border-white/5 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] relative z-20">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Zap className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Instant</span>
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Payouts</span>
                   </div>
-                ))}
+                </div>
+                
+                <div className="w-[1px] h-8 bg-white/10" />
+                
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <ShieldCheck className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Secure</span>
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">& Fair</span>
+                  </div>
+                </div>
+
+                <div className="w-[1px] h-8 bg-white/10" />
+
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <CalendarDays className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Daily</span>
+                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Draws</span>
+                  </div>
+                </div>
               </div>
+
+            </div>
+
+            {/* Right Side Empty Space (Allows the background image to show clearly) */}
+            <div className="hidden lg:block relative z-20 w-full h-[500px]">
             </div>
           </div>
         </div>

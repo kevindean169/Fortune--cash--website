@@ -211,6 +211,43 @@
     transform: translateY(2px);
   }
 
+  .hero-gold-gradient {
+    background: linear-gradient(to bottom, #ffe6a0 0%, #e5b445 45%, #905d10 100%) !important;
+    border-style: solid !important;
+    border-color: #ffe6a0 !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+    color: #1a0e00 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+    box-shadow:
+      inset 2px 2px 4px rgba(255, 255, 255, 0.5),
+      inset -2px -2px 4px rgba(0, 0, 0, 0.3),
+      0 8px 16px rgba(0, 0, 0, 0.6) !important;
+    transition: all 0.15s ease;
+  }
+
+  .hero-gold-gradient:hover {
+    background: linear-gradient(to bottom, #fff0bc 0%, #f4c759 45%, #a66f18 100%) !important;
+    border-color: #fff0bc !important;
+    box-shadow:
+      inset 2px 2px 5px rgba(255, 255, 255, 0.6),
+      inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+      0 12px 24px rgba(0, 0, 0, 0.7) !important;
+    transform: translateY(-2px);
+  }
+
+  .hero-gold-gradient:active {
+    background: linear-gradient(to bottom, #e5b445 0%, #ba8b2a 45%, #7a4f0d 100%) !important;
+    border-width: 2px !important;
+    border-color: #ba8b2a !important;
+    box-shadow:
+      inset 2px 2px 6px rgba(0, 0, 0, 0.4),
+      0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(2px);
+  }
+
   .gold-border {
     border-color: rgba(224, 172, 44, 0.4);
   }
