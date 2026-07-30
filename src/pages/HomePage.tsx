@@ -153,111 +153,130 @@ export function HomePage() {
   return (
     <div className="">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#050505] min-h-[75dvh] lg:min-h-[calc(100vh-80px)] flex flex-col lg:justify-center">
-        {/* Background Layer (Full Width Banner) */}
-        <div className="absolute inset-0 z-0">
-          {/* Mobile gradient - solid black at the top for text, completely transparent at bottom for balls */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#050505] via-60% to-transparent lg:hidden z-10" />
-
-          {/* Desktop gradient (left-to-right) that fades out completely before hitting the right side */}
-          <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/60 to-transparent z-10" />
-
-          {/* On mobile, we force the image to be only the bottom portion of the screen and          {/* Show the full bottom of the image so we have the dark table area for the stats */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden">
-            <img
-              src="/hero_wide_banner.png"
-              alt="Lottery Banner"
-              className="w-full absolute bottom-0 h-[65dvh] lg:relative lg:h-full object-cover object-[75%_90%] lg:object-center animate-slow-zoom"
-            />
-          </div>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[#050505] flex flex-col justify-start lg:justify-center">
+        {/* Background glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#c79844]/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/2 left-0 w-48 h-48 bg-[#32CD32]/10 rounded-full blur-[100px]" />
         </div>
 
-        {/* Glow Effects */}
-        <div className="absolute top-1/4 left-0 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] bg-primary/20 rounded-full blur-[100px] lg:blur-[150px] pointer-events-none z-0" />
+        {/* Full Screen Desktop Background Image */}
+        <div className="hidden lg:block absolute inset-0 z-0 pointer-events-none">
+          <img src="/golden_pedestal.png" alt="Desktop Background" className="w-full h-full object-fill" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)' }} />
+        </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full pt-20 pb-0 lg:py-20 flex-1 flex flex-col justify-start lg:justify-center">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="relative z-10 mx-auto max-w-[1600px] w-full px-4 lg:px-12 pt-6 pb-2 lg:pt-8 lg:pb-16 overflow-visible">
+          {/* Top Section with Text and Image */}
+          <div className="relative flex flex-col lg:flex-row items-start min-h-[260px] lg:min-h-0">
+
+            {/* Right Image (Mobile only now, positioned) */}
+            <div className="absolute right-[-10%] sm:right-[-5%] top-1/2 -translate-y-[65%] w-[130%] sm:w-[80%] z-10 pointer-events-none mix-blend-screen flex justify-end max-w-[800px] lg:hidden">
+              {/* Mobile Image */}
+              <img src="/golden_pedestal.png" alt="Balls Mobile" className="block lg:hidden w-full h-auto object-contain scale-[1.1] origin-[70%_center]" style={{ WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)' }} />
+            </div>
 
             {/* Left Content */}
-            <div className="flex flex-col space-y-6 lg:space-y-8 relative z-20 text-center lg:text-left">
+            <div className="w-[60%] sm:w-[50%] lg:w-[45%] flex flex-col z-20 relative pt-2 lg:pt-0">
+              <h1 className="text-3xl min-[380px]:text-4xl sm:text-5xl lg:text-6xl xl:text-[4.5rem] font-black text-white leading-[1.05] tracking-tight">
+                YOUR <br className="lg:hidden" /> NEXT <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fce293] via-[#d4af37] to-[#c79844] drop-shadow-[0_2px_10px_rgba(199,152,68,0.2)]">
+                  FORTUNE
+                </span><br className="lg:hidden" />
+                <span className="lg:ml-2">AWAITS!</span>
+              </h1>
 
-              <div className="space-y-3 lg:space-y-4 flex flex-col items-center lg:items-start">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm w-fit shadow-[0_0_15px_rgba(224,172,44,0.15)]">
-                  <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] lg:text-xs font-bold text-primary tracking-widest uppercase">Live Draws Daily</span>
-                </div>
-
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.1] uppercase drop-shadow-2xl">
-                  Play Big, <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a26c19] via-[#ffe6a0] to-[#a26c19] filter drop-shadow-[0_0_15px_rgba(229,180,69,0.3)] animate-shimmer" style={{ backgroundSize: '200% auto' }}>
-                    Win Bigger
-                  </span>
-                </h1>
-
-                <p className="text-base min-[400px]:text-xl sm:text-lg lg:text-lg text-muted-foreground max-w-[340px] min-[400px]:max-w-md sm:max-w-lg lg:max-w-xl leading-relaxed font-medium px-4 lg:px-0 mx-auto lg:mx-0">
-                  Experience the thrill of Jamaica's most premium lottery. Predict the winning numbers and turn your small bets into massive fortunes.
+              <div className="mt-4 lg:mt-4 flex flex-col gap-1 lg:gap-2">
+                <p className="text-base min-[380px]:text-lg sm:text-2xl lg:text-2xl xl:text-3xl font-extrabold text-[#00ff00] leading-tight drop-shadow-[0_0_8px_rgba(0,255,0,0.3)]">
+                  Play. Win.<br className="lg:hidden" />
+                  {" "}Repeat.
+                </p>
+                <p className="text-xs lg:text-sm xl:text-base text-white/80 leading-snug mt-1 max-w-[200px] lg:max-w-md drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                  Cashpot, Money Time, Pick 2 Sigle<br /> and Pick 2 Double.<br />
+                  Winners happen daily!
                 </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-row gap-3 pt-4 w-full max-w-sm sm:max-w-none mx-auto lg:mx-0">
-                <Button
-                  onClick={() => navigate('lotteries')}
-                  className="hero-gold-gradient flex-1 sm:flex-none text-fortune-navy font-extrabold text-sm sm:text-base px-2 sm:px-8 h-12 sm:h-14 rounded-xl shadow-[inset_0px_4px_10px_rgba(255,255,255,0.5),inset_0px_-6px_10px_rgba(0,0,0,0.4),0_0_20px_rgba(224,172,44,0.3)] hover:scale-105 hover:brightness-110 transition-all duration-300 group"
-                >
-                  Play Now <ArrowRight className="size-4 sm:size-5 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
+              {/* Desktop Buttons */}
+              <div className="hidden lg:flex flex-row gap-4 w-full mt-6 xl:mt-8 max-w-[400px]">
+                <Button onClick={() => navigate('lotteries')} className="flex-1 text-black font-extrabold text-base h-12 xl:h-14 rounded-lg bg-gradient-to-b from-[#fce293] to-[#c79844] hover:brightness-110 shadow-[0_4px_15px_rgba(199,152,68,0.3)] border-none">
+                  PLAY NOW <ArrowRight className="size-5 ml-1" />
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('results')}
-                  className="bg-black/40 backdrop-blur-md flex-1 sm:flex-none text-primary font-bold text-sm sm:text-base px-2 sm:px-8 h-12 sm:h-14 rounded-xl border-[2px] border-primary/50 hover:bg-primary/10 hover:border-primary transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.3)]"
-                >
-                  <Trophy className="size-4 sm:size-5 mr-1 sm:mr-2" /> <span className="hidden sm:inline">View </span>Results
+                <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-base h-12 xl:h-14 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
+                  VIEW RESULTS
                 </Button>
               </div>
 
-              {/* Stats/Badges Row */}
-              <div className="flex flex-row justify-between items-center mt-[15vh] lg:mt-6 py-4 px-3 sm:px-6 w-[95%] max-w-md mx-auto lg:mx-0 bg-[#080808]/95 backdrop-blur-md border border-white/5 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] relative z-20">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Zap className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Instant</span>
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Payouts</span>
+              {/* Desktop Features Box */}
+              <div className="hidden lg:flex flex-row justify-between items-center mt-6 py-3 px-5 xl:py-4 xl:px-6 bg-[#0a0a0a] border border-white/5 rounded-xl w-full max-w-[500px] xl:max-w-[550px] shadow-2xl relative z-20">
+                <div className="flex flex-row items-center gap-2 xl:gap-3 flex-1 justify-center">
+                  <Zap className="text-[#ffc107] size-5 xl:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Instant</span>
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Payouts</span>
                   </div>
                 </div>
-
-                <div className="w-[1px] h-8 bg-white/10" />
-
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <ShieldCheck className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Secure</span>
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">& Fair</span>
+                <div className="w-[1px] h-8 xl:h-10 bg-white/10" />
+                <div className="flex flex-row items-center gap-2 xl:gap-3 flex-1 justify-center">
+                  <ShieldCheck className="text-[#ffc107] size-5 xl:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Secure</span>
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">& Fair</span>
                   </div>
                 </div>
-
-                <div className="w-[1px] h-8 bg-white/10" />
-
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <CalendarDays className="text-fortune-gold size-5 sm:size-6" strokeWidth={2.5} />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Daily</span>
-                    <span className="text-[10px] sm:text-xs font-black text-white/90 leading-[1.1] uppercase tracking-widest">Draws</span>
+                <div className="w-[1px] h-8 xl:h-10 bg-white/10" />
+                <div className="flex flex-row items-center gap-2 xl:gap-3 flex-1 justify-center">
+                  <CalendarDays className="text-[#ffc107] size-5 xl:size-6" strokeWidth={2.5} />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Daily</span>
+                    <span className="text-[9px] xl:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Draws</span>
                   </div>
                 </div>
               </div>
-
             </div>
+          </div>
 
-            {/* Right Side Empty Space (Allows the background image to show clearly) */}
-            <div className="hidden lg:block relative z-20 w-full h-[500px]">
+          {/* Mobile Buttons */}
+          <div className="flex lg:hidden flex-row gap-3 w-full mt-4 z-20 relative max-w-2xl mx-auto">
+            <Button onClick={() => navigate('lotteries')} className="flex-1 text-black font-extrabold text-sm h-12 rounded-lg bg-gradient-to-b from-[#fce293] to-[#c79844] hover:brightness-110 shadow-[0_4px_15px_rgba(199,152,68,0.3)] border-none">
+              PLAY NOW <ArrowRight className="size-4 ml-1" />
+            </Button>
+            <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-sm h-12 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
+              VIEW RESULTS
+            </Button>
+          </div>
+
+          {/* Mobile Features Strip */}
+          <div className="flex lg:hidden flex-row justify-between items-center mt-8 py-4 w-full border-y border-white/10 relative z-20">
+            <div className="flex flex-row items-center gap-2 sm:gap-3 flex-1 justify-center">
+              <Zap className="text-[#ffc107] size-5" strokeWidth={2.5} />
+              <div className="flex flex-col">
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Instant</span>
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Payouts</span>
+              </div>
+            </div>
+            <div className="w-[1px] h-8 bg-white/10" />
+            <div className="flex flex-row items-center gap-2 sm:gap-3 flex-1 justify-center">
+              <ShieldCheck className="text-[#ffc107] size-5" strokeWidth={2.5} />
+              <div className="flex flex-col">
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Secure</span>
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">& Fair</span>
+              </div>
+            </div>
+            <div className="w-[1px] h-8 bg-white/10" />
+            <div className="flex flex-row items-center gap-2 sm:gap-3 flex-1 justify-center">
+              <CalendarDays className="text-[#ffc107] size-5" strokeWidth={2.5} />
+              <div className="flex flex-col">
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Daily</span>
+                <span className="text-[9px] sm:text-[10px] font-black text-white uppercase leading-[1.1] tracking-wide">Draws</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Games Strip */}
-      <section className="py-8 md:py-16 bg-background">
+      <section className="py-16 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
