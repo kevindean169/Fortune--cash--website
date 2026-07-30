@@ -1046,8 +1046,14 @@ export function Pick2DoublePage() {
                                         }
                                       }}
                                       onChange={(e) => {
-                                        const val = e.target.value
-                                        updateBetAmount(game.id, val)
+                                        let val = e.target.value;
+                                        if (game.presets && game.presets.length > 0) {
+                                          const maxAllowed = Math.max(...game.presets.map(Number));
+                                          if (val !== '' && parseFloat(val) > maxAllowed) {
+                                            val = maxAllowed.toString();
+                                          }
+                                        }
+                                        updateBetAmount(game.id, val);
                                       }}
                                       className="w-full bg-[#0d0d0d] border border-border/80 rounded-xl pl-8 pr-4 py-3 text-sm font-extrabold text-foreground focus:outline-none focus:border-primary"
                                     />
