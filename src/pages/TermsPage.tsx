@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FileText, AlertCircle, Loader2, ShieldCheck, HelpCircle, CheckCircle, Info } from 'lucide-react'
+import { FileText, AlertCircle, ShieldCheck, HelpCircle, CheckCircle, Info } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState, useMemo } from 'react'
 import { fetchTermsConditions, type TermsContent } from '@/lib/fortuneApi'
