@@ -163,17 +163,17 @@ export function HomePage() {
 
         {/* Full Screen Desktop Background Image */}
         <div className="hidden lg:block absolute inset-0 z-0 pointer-events-none">
-          <img src="/golden_pedestal.png" alt="Desktop Background" className="w-full h-full object-fill" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)' }} />
+          <img src="/golden.png" alt="Desktop Background" className="w-full h-full object-cover object-right-bottom" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)' }} />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[1600px] w-full px-4 lg:px-12 pt-6 pb-2 lg:pt-8 lg:pb-16 overflow-visible">
+        <div className="relative z-10 mx-auto max-w-[1600px] w-full px-4 lg:px-12 pt-12 pb-2 lg:pt-24 lg:pb-16 overflow-visible">
           {/* Top Section with Text and Image */}
           <div className="relative flex flex-col lg:flex-row items-start min-h-[260px] lg:min-h-0">
 
             {/* Right Image (Mobile only now, positioned) */}
             <div className="absolute right-[-10%] sm:right-[-5%] top-1/2 -translate-y-[65%] w-[130%] sm:w-[80%] z-10 pointer-events-none mix-blend-screen flex justify-end max-w-[800px] lg:hidden">
               {/* Mobile Image */}
-              <img src="/golden_pedestal.png" alt="Balls Mobile" className="block lg:hidden w-full h-auto object-contain scale-[1.1] origin-[70%_center]" style={{ WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)' }} />
+              <img src="/golden.png" alt="Balls Mobile" className="block lg:hidden w-full h-auto object-contain scale-[1.1] origin-[70%_center]" style={{ WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at 70% 50%, black 40%, transparent 100%)' }} />
             </div>
 
             {/* Left Content */}
