@@ -60,7 +60,7 @@ export function Navigation() {
                 <span className="hidden md:inline font-bold text-sm tracking-wide">Back</span>
               </Button>
             )}
-            
+
             {/* Logo */}
             <Link
               to="/"
@@ -173,6 +173,19 @@ export function Navigation() {
             >
               Back to Lobby
             </Button>
+
+            {user && (
+              <Link to="/wallet" onClick={handleNavigate}>
+                <div className="flex items-center gap-1.5 rounded-full border-2 bg-[#050505] p-0.5 pr-2.5 transition-all border-primary/70 hover:border-primary hover:shadow-[0_0_10px_rgba(224,172,44,0.15)] h-8">
+                  <div className="size-6 rounded-full border border-primary/50 bg-[#1a150c] flex items-center justify-center">
+                    <Wallet className="size-3 text-primary" />
+                  </div>
+                  <span className="text-foreground font-bold tracking-wide text-xs">
+                    {formatUsd(walletBalance)}
+                  </span>
+                </div>
+              </Link>
+            )}
 
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
