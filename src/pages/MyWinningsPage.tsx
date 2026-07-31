@@ -27,11 +27,15 @@ import { formatUsd } from '@/lib/currency'
 export function MyWinningsPage() {
   const { accessToken } = useAuth()
   const [selectedWinning, setSelectedWinning] = useState<ApiWinningOrder | null>(null)
-  const [winnings, setWinnings] = useState<ApiWinningOrder[]>([])
+  const [apiData, setApiData] = useState<ApiWinningOrder[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const ITEMS_PER_PAGE = 10;
+  const API_LIMIT = 500;
+
 
   const [search, setSearch] = useState('')
   // Filter States
@@ -44,11 +48,14 @@ export function MyWinningsPage() {
   }, [search, timeFilter, selectedDate])
 
   useEffect(() => {
-    if (!accessToken) return
+    if (!accessToken) {
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
-    setLoading(true)
     setError(null)
+    setLoading(true)
 
     const delayDebounce = setTimeout(() => {
       const options: any = {}
@@ -62,15 +69,15 @@ export function MyWinningsPage() {
         options.enddate = selectedDate
       }
 
-      fetchCustomerWinnings(accessToken, page, 10, options)
+      fetchCustomerWinnings(accessToken, 1, API_LIMIT, options)
         .then((result) => {
           if (cancelled) return
-          setWinnings(result.items)
-          setLastPage(Math.max(result.lastPage || 1, 1))
+          setApiData(result.items)
+          setLastPage(Math.max(Math.ceil(result.items.length / ITEMS_PER_PAGE), 1))
         })
         .catch((err: Error) => {
           if (cancelled) return
-          setWinnings([])
+          setApiData([])
           setLastPage(1)
           setError(err.message)
         })
@@ -86,7 +93,10 @@ export function MyWinningsPage() {
       cancelled = true
       clearTimeout(delayDebounce)
     }
-  }, [accessToken, page, search, timeFilter, selectedDate])
+  }, [accessToken, search, timeFilter, selectedDate])
+
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const winnings = apiData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const totalWinnings = winnings.reduce((acc, item) => acc + item.total_won, 0)
 

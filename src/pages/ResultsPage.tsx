@@ -101,7 +101,35 @@ export function ResultsPage() {
         </div>
 
         {loading ? (
-          <div className="py-16 text-center text-muted-foreground">Loading results...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
+            {Array(6).fill(0).map((_, i) => (
+              <Card
+                key={`skeleton-${i}`}
+                className="bg-[#0c0c0c] border border-white/5 animate-pulse"
+              >
+                <CardContent className="p-5">
+                  <div className="flex justify-between items-start mb-4 gap-3">
+                    <div className="space-y-2 w-full">
+                      <div className="h-5 w-24 bg-white/5 rounded" />
+                      <div className="h-3 w-32 bg-white/5 rounded" />
+                      <div className="h-3 w-20 bg-white/5 rounded" />
+                    </div>
+                    <div className="h-6 w-16 bg-white/5 rounded" />
+                  </div>
+                  <div className="flex items-center justify-between mt-2 pt-4 border-t border-white/5 gap-4">
+                    <div className="flex items-center gap-2">
+                       <div className="size-12 rounded-full bg-white/5" />
+                       <div className="size-12 rounded-full bg-white/5" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <div className="size-10 rounded-full bg-white/5" />
+                       <div className="size-10 rounded-full bg-white/5" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         ) : error ? (
           <div className="py-16 text-center text-red-400">{error}</div>
         ) : results.length === 0 ? (

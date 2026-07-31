@@ -84,8 +84,23 @@ export function TermsPage() {
 
         {/* Content */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="size-8 animate-spin text-primary" />
+          <div className="space-y-8">
+            {Array(3).fill(0).map((_, idx) => (
+              <Card key={idx} className="bg-[#0c0c0c] border-white/5 animate-pulse">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                     <div className="size-6 bg-white/5 rounded-full" />
+                     <div className="h-6 w-48 bg-white/5 rounded" />
+                  </div>
+                  <div className="space-y-4 mt-2">
+                      <div className="h-4 w-full bg-white/5 rounded" />
+                      <div className="h-4 w-11/12 bg-white/5 rounded" />
+                      <div className="h-4 w-4/5 bg-white/5 rounded" />
+                      <div className="h-4 w-full bg-white/5 rounded" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : error ? (
           <div className="text-center text-red-500 py-12">

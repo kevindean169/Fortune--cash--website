@@ -81,8 +81,10 @@ export function LotteriesByTypePage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array(6).fill(0).map((_, i) => (
+              <div key={i} className="h-[280px] bg-neutral-900/50 rounded-2xl animate-pulse border border-border/40" />
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-16">

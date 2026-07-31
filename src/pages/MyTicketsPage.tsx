@@ -27,11 +27,14 @@ export function MyTicketsPage() {
   const { accessToken, walletBalance } = useAuth()
   const [search, setSearch] = useState('')
   const [selectedTicket, setSelectedTicket] = useState<ApiTicketOrder | null>(null)
-  const [tickets, setTickets] = useState<ApiTicketOrder[]>([])
+  const [apiData, setApiData] = useState<ApiTicketOrder[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const ITEMS_PER_PAGE = 10;
+  const API_LIMIT = 500; // Fetch all items to bypass backend ignoring page param
 
   // Filter States
   const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
@@ -43,11 +46,14 @@ export function MyTicketsPage() {
   }, [search, timeFilter, selectedDate])
 
   useEffect(() => {
-    if (!accessToken) return
+    if (!accessToken) {
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
-    setLoading(true)
     setError(null)
+    setLoading(true)
 
     const delayDebounce = setTimeout(() => {
       const options: any = {}
@@ -61,15 +67,16 @@ export function MyTicketsPage() {
         options.enddate = selectedDate
       }
 
-      fetchTickets(accessToken, page, 10, options)
+      fetchTickets(accessToken, 1, API_LIMIT, options)
         .then((result) => {
           if (cancelled) return
-          setTickets(result.items)
-          setLastPage(Math.max(result.lastPage || 1, 1))
+          setApiData(result.items)
+          setLastPage(Math.max(Math.ceil(result.items.length / ITEMS_PER_PAGE), 1))
         })
         .catch((err: Error) => {
           if (cancelled) return
-          setTickets([])
+          setApiData([])
+          setLastPage(1)
           setError(err.message)
         })
         .finally(() => {
@@ -84,7 +91,10 @@ export function MyTicketsPage() {
       cancelled = true
       clearTimeout(delayDebounce)
     }
-  }, [accessToken, page, search, timeFilter, selectedDate])
+  }, [accessToken, search, timeFilter, selectedDate])
+
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const tickets = apiData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {

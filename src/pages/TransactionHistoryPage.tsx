@@ -8,58 +8,18 @@ import { Search, Calendar } from 'lucide-react'
 
 export function TransactionHistoryPage() {
   const { accessToken } = useAuth()
-  const [transactions, setTransactions] = useState<ApiTransaction[]>([])
+  const [apiData, setApiData] = useState<ApiTransaction[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const ITEMS_PER_PAGE = 10;
+
   // Filter States
   const [searchQuery, setSearchQuery] = useState('')
   const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'specific'
   const [selectedDate, setSelectedDate] = useState('')
-
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((tx) => {
-      // 1. Search Query filter
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase().trim()
-        const idMatches = tx.id.toLowerCase().includes(query)
-        const typeMatches = tx.type.toLowerCase().includes(query)
-        const detailsMatches = tx.details.toLowerCase().includes(query)
-        if (!idMatches && !typeMatches && !detailsMatches) {
-          return false
-        }
-      }
-
-      // 2. Date filter
-      if (timeFilter === 'today') {
-        const todayStr = new Date().toLocaleDateString('en-CA')
-        return tx.localDate === todayStr
-      } else if (timeFilter === 'specific' && selectedDate) {
-        return tx.localDate === selectedDate
-      }
-
-      return true
-    })
-  }, [transactions, searchQuery, timeFilter, selectedDate])
-
-  const hasActiveFilters = searchQuery.trim() !== '' || timeFilter !== 'all'
-
-  const displayLastPage = useMemo(() => {
-    if (hasActiveFilters) {
-      return Math.max(Math.ceil(filteredTransactions.length / 10), 1)
-    }
-    return lastPage
-  }, [filteredTransactions.length, hasActiveFilters, lastPage])
-
-  const paginatedTransactions = useMemo(() => {
-    if (hasActiveFilters) {
-      const startIndex = (page - 1) * 10
-      return filteredTransactions.slice(startIndex, startIndex + 10)
-    }
-    return filteredTransactions
-  }, [filteredTransactions, hasActiveFilters, page])
 
   // Reset page to 1 when filters change
   useEffect(() => {
@@ -67,11 +27,14 @@ export function TransactionHistoryPage() {
   }, [searchQuery, timeFilter, selectedDate])
 
   useEffect(() => {
-    if (!accessToken) return
+    if (!accessToken) {
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
-    setLoading(true)
     setError(null)
+    setLoading(true)
 
     const delayDebounce = setTimeout(() => {
       const options: any = {}
@@ -88,20 +51,15 @@ export function TransactionHistoryPage() {
         options.enddate = selectedDate
       }
 
-      const limit = hasActiveFilters ? 100 : 10
-      const fetchPage = hasActiveFilters ? 1 : page
-
-      fetchTransactions(accessToken, fetchPage, limit, options)
+      fetchTransactions(accessToken, page, ITEMS_PER_PAGE, options)
         .then((result) => {
           if (cancelled) return
-          setTransactions(result.items)
-          if (!hasActiveFilters) {
-            setLastPage(Math.max(result.lastPage || 1, 1))
-          }
+          setApiData(result.items)
+          setLastPage(Math.max(result.lastPage, 1))
         })
         .catch((err: Error) => {
           if (cancelled) return
-          setTransactions([])
+          setApiData([])
           setError(err.message)
         })
         .finally(() => {
@@ -116,7 +74,7 @@ export function TransactionHistoryPage() {
       cancelled = true
       clearTimeout(delayDebounce)
     }
-  }, [accessToken, page, searchQuery, timeFilter, selectedDate, hasActiveFilters])
+  }, [accessToken, page, searchQuery, timeFilter, selectedDate])
 
   const typeBadge = (type: string) => {
     const normalized = type.toLowerCase()
@@ -149,7 +107,7 @@ export function TransactionHistoryPage() {
             className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
           />
         </div>
-        
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Quick Filters */}
           <div className="flex bg-background border border-border rounded-xl p-1">
@@ -158,11 +116,10 @@ export function TransactionHistoryPage() {
                 setTimeFilter('all')
                 setSelectedDate('')
               }}
-              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
-                timeFilter === 'all'
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${timeFilter === 'all'
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               All Records
             </button>
@@ -171,11 +128,10 @@ export function TransactionHistoryPage() {
                 setTimeFilter('today')
                 setSelectedDate('')
               }}
-              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
-                timeFilter === 'today'
+              className={`px-4 py-2 text-xs font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${timeFilter === 'today'
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               Today
             </button>
@@ -207,7 +163,7 @@ export function TransactionHistoryPage() {
             <div className="p-12 text-center text-muted-foreground">Loading transactions...</div>
           ) : error ? (
             <div className="p-12 text-center text-red-400">{error}</div>
-          ) : filteredTransactions.length === 0 ? (
+          ) : apiData.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">No transactions found.</div>
           ) : (
             <div className="overflow-x-auto">
@@ -222,7 +178,7 @@ export function TransactionHistoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedTransactions.map((transaction) => (
+                  {apiData.map((transaction) => (
                     <tr key={transaction.id} className="border-b border-border/50 hover:bg-white/[0.01] transition-colors">
                       <td className="px-6 py-4 font-bold text-foreground">{transaction.id}</td>
                       <td className="px-6 py-4">
@@ -231,7 +187,7 @@ export function TransactionHistoryPage() {
                         </span>
                         {transaction.details && (
                           <p className="mt-2 max-w-[280px] text-xs leading-relaxed text-muted-foreground">
-                             {transaction.details}
+                            {transaction.details}
                           </p>
                         )}
                       </td>
@@ -258,9 +214,9 @@ export function TransactionHistoryPage() {
           Previous
         </Button>
         <div className="h-9 px-4 rounded-md border border-border bg-background flex items-center text-sm font-bold">
-          {page} / {displayLastPage}
+          {page} / {lastPage}
         </div>
-        <Button variant="outline" size="sm" disabled={page >= displayLastPage || loading} onClick={() => setPage((current) => current + 1)}>
+        <Button variant="outline" size="sm" disabled={page >= lastPage || loading} onClick={() => setPage((current) => current + 1)}>
           Next
         </Button>
       </div>

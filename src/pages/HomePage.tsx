@@ -139,16 +139,7 @@ export function HomePage() {
     })
     : [];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-          <p className="text-muted-foreground font-medium text-sm animate-pulse">Loading Fortune...</p>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
     <div className="">
@@ -449,7 +440,25 @@ export function HomePage() {
             </Button>
           </div>
           <div className="space-y-3">
-            {latestResults.slice(0, 4).map((result, i) => (
+            {loading ? (
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="h-[104px] bg-[#0c0c0c] rounded-xl animate-pulse border border-white/5 p-6 flex items-center justify-between">
+                  <div className="space-y-2">
+                    <div className="h-5 w-32 bg-white/5 rounded" />
+                    <div className="h-3 w-24 bg-white/5 rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="size-10 rounded-full bg-white/5" />
+                    <div className="size-10 rounded-full bg-white/5" />
+                    <div className="size-10 rounded-full bg-white/5" />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <div className="h-3 w-16 bg-white/5 rounded ml-auto" />
+                    <div className="h-6 w-12 bg-white/5 rounded ml-auto" />
+                  </div>
+                </div>
+              ))
+            ) : latestResults.slice(0, 4).map((result, i) => (
               <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
                 <CardContent className="p-6 md:px-8">
                   <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
@@ -511,7 +520,11 @@ export function HomePage() {
             <p className="text-muted-foreground">Real players. Real winnings. Real life-changing moments.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {winnersList.map((w, i) => (
+            {loading ? (
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="h-[218px] bg-neutral-900/50 rounded-xl animate-pulse border border-border/40" />
+              ))
+            ) : winnersList.map((w, i) => (
               <Card key={i} className="bg-fortune-card border-border text-center">
                 <CardContent className="p-5">
                   <div className="size-16 rounded-full border border-[#c5a059]/50 bg-[#1a150c] flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(197,160,89,0.15)] overflow-hidden relative">

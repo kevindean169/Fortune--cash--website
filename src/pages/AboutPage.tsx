@@ -9,15 +9,22 @@ export function AboutPage() {
     title: 'About Us',
     content: 'Fortune Lottery is committed to delivering a secure, simple, and responsible online lottery experience.',
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
+    setLoading(true)
 
     fetchAboutUs()
       .then((data) => {
-        if (!cancelled) setAbout(data)
+        if (!cancelled) {
+          setAbout(data)
+          setLoading(false)
+        }
       })
-      .catch(() => undefined)
+      .catch(() => {
+        if (!cancelled) setLoading(false)
+      })
 
     return () => {
       cancelled = true
@@ -32,33 +39,55 @@ export function AboutPage() {
             <Info className="size-3 mr-1" /> Fortune Cash
           </Badge>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
-            {about.title || 'About Us'}
+            {loading ? 'About Us' : (about.title || 'About Us')}
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Learn more about the team and platform behind Fortune Lottery.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
-          {about.image && (
-            <div className="overflow-hidden rounded-lg border border-border/60 bg-fortune-card">
-              <img src={about.image} alt={about.title || 'About Fortune'} className="w-full aspect-[4/3] object-cover" />
-            </div>
-          )}
-
-          <Card className="bg-fortune-card border-border">
-            <CardContent className="p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <ShieldCheck className="size-6 text-primary" />
-                <h2 className="text-xl font-bold">Our Story</h2>
+        {loading ? (
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start animate-pulse">
+             <div className="rounded-lg bg-[#0c0c0c] border border-white/5 aspect-[4/3] w-full" />
+             <Card className="bg-[#0c0c0c] border-white/5">
+               <CardContent className="p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="size-6 bg-white/5 rounded-full" />
+                    <div className="h-6 w-32 bg-white/5 rounded" />
+                  </div>
+                  <div className="space-y-4 mt-2">
+                     <div className="h-4 w-full bg-white/5 rounded" />
+                     <div className="h-4 w-5/6 bg-white/5 rounded" />
+                     <div className="h-4 w-4/6 bg-white/5 rounded" />
+                     <div className="h-4 w-full bg-white/5 rounded" />
+                     <div className="h-4 w-3/4 bg-white/5 rounded mt-4" />
+                     <div className="h-4 w-full bg-white/5 rounded" />
+                  </div>
+               </CardContent>
+             </Card>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+            {about.image && (
+              <div className="overflow-hidden rounded-lg border border-border/60 bg-fortune-card">
+                <img src={about.image} alt={about.title || 'About Fortune'} className="w-full aspect-[4/3] object-cover" />
               </div>
-              <div
-                className="prose prose-invert max-w-none text-sm text-muted-foreground leading-relaxed [&_div]:mb-4 [&_p]:mb-4"
-                dangerouslySetInnerHTML={{ __html: about.content }}
-              />
-            </CardContent>
-          </Card>
-        </div>
+            )}
+
+            <Card className="bg-fortune-card border-border">
+              <CardContent className="p-6 lg:p-8">
+                <div className="flex items-center gap-3 mb-5">
+                  <ShieldCheck className="size-6 text-primary" />
+                  <h2 className="text-xl font-bold">Our Story</h2>
+                </div>
+                <div
+                  className="prose prose-invert max-w-none text-sm text-muted-foreground leading-relaxed [&_div]:mb-4 [&_p]:mb-4"
+                  dangerouslySetInnerHTML={{ __html: about.content }}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )

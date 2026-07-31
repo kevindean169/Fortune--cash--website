@@ -45,8 +45,28 @@ export function LotteriesPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array(6).fill(0).map((_, i) => (
+              <div key={i} className="h-[280px] bg-[#0c0c0c] rounded-2xl animate-pulse border border-white/5 p-6 flex flex-col relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6">
+                  <div className="h-6 w-32 bg-white/5 rounded-md" />
+                </div>
+                <div className="flex gap-4 items-center mt-2">
+                  <div className="h-24 w-24 rounded-full bg-white/5" />
+                  <div className="space-y-3 mt-8">
+                    <div className="h-4 w-24 bg-white/5 rounded" />
+                  </div>
+                </div>
+                <div className="mt-auto space-y-4">
+                   <div className="flex justify-end gap-2">
+                     <div className="h-12 w-12 bg-white/5 rounded-lg" />
+                     <div className="h-12 w-12 bg-white/5 rounded-lg" />
+                     <div className="h-12 w-12 bg-white/5 rounded-lg" />
+                   </div>
+                   <div className="h-12 w-full bg-white/5 rounded-lg" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-16">
