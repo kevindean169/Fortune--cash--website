@@ -1213,12 +1213,24 @@ export function CashpotPage() {
                               <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
                                 <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="none"
+                                  readOnly
                                   placeholder="0.00"
                                   value={amount}
                                   disabled={isDisabled}
-                                  onChange={(e) => updateBetAmount(game.id, e.target.value)}
-                                  className={`bg-transparent w-full outline-none text-sm font-bold ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
+                                  onClick={(e) => {
+                                    if (!isDisabled) {
+                                      e.preventDefault();
+                                      if (!selectedNumber) {
+                                        showAlert('Please select draw time(s) and bet number first.');
+                                        return;
+                                      }
+                                      setTempBetAmount(betAmounts[game.id] || '');
+                                      setEditingGameAmount(game.id);
+                                    }
+                                  }}
+                                  className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
                                 />
                               </div>
                               <button
