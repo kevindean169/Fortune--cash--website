@@ -330,7 +330,7 @@ export function MyWinningsPage() {
       </div>
 
       <Dialog open={selectedWinning !== null} onOpenChange={(open) => !open && setSelectedWinning(null)}>
-        <DialogContent className="bg-transparent border-none shadow-none max-w-md p-0 overflow-visible flex flex-col pt-12">
+        <DialogContent className="bg-transparent border-none shadow-none w-full max-w-[calc(100%-3.5rem)] sm:max-w-md p-0 overflow-visible flex flex-col pt-12">
           {selectedWinning && (
             <div className="relative w-full">
               {/* Floating Logo */}
@@ -380,10 +380,10 @@ export function MyWinningsPage() {
                 <div className="overflow-y-auto">
                   {/* Header */}
                   <div className="flex items-center bg-gradient-to-b from-[#0F4C23] to-[#0A2F12] border-t-2 border-b-2 border-[#D4AF37]">
-                    <div className="flex-1 px-3 py-2 font-black text-white text-[11px] tracking-widest uppercase">
+                    <div className="flex-1 px-2 sm:px-3 py-2 font-black text-white text-[10px] sm:text-[11px] tracking-widest uppercase">
                       Win Type
                     </div>
-                    <div className="w-[110px] px-3 py-2 font-black text-white text-[11px] tracking-widest uppercase text-right border-l-2 border-[#D4AF37]">
+                    <div className="w-[90px] sm:w-[110px] px-2 sm:px-3 py-2 font-black text-white text-[10px] sm:text-[11px] tracking-widest uppercase text-right border-l-2 border-[#D4AF37]">
                       Your Winnings
                     </div>
                   </div>
@@ -395,36 +395,36 @@ export function MyWinningsPage() {
                       return (
                         <div key={`${game.bet}-${i}`} className="flex items-stretch border-b border-[#D4AF37]/40 last:border-0">
                           {/* Left Section (Alternating Gold/White) */}
-                          <div className={`flex-1 flex items-center justify-between p-2.5 ${isGold ? 'bg-gradient-to-r from-[#FFE57F] via-[#FFD700] to-[#FFC107] text-black' : 'bg-[#F8F9FA] text-black'}`}>
-                            <div className="flex items-center gap-2.5">
-                              <div className="flex flex-col gap-1 items-center justify-center drop-shadow-md">
+                          <div className={`flex-1 flex items-center justify-between p-1.5 sm:p-2.5 ${isGold ? 'bg-gradient-to-r from-[#FFE57F] via-[#FFD700] to-[#FFC107] text-black' : 'bg-[#F8F9FA] text-black'}`}>
+                            <div className="flex items-center gap-1.5 sm:gap-2.5">
+                              <div className="flex flex-col gap-1 items-center justify-center drop-shadow-md scale-90 sm:scale-100 origin-left">
                                 <GameBallGraphic gameName={game.game_name} value={game.bet} />
                               </div>
-                              <div className="flex flex-col">
-                                <span className="font-black text-[13px] uppercase leading-none drop-shadow-sm">{game.game_name}:</span>
-                                <span className={`font-black text-[11px] uppercase mt-0.5 ${isGold ? 'text-[#0A2F12]' : 'text-[#0F4C23]'}`}>
+                              <div className="flex flex-col -space-y-0.5 sm:space-y-0">
+                                <span className="font-black text-[11px] sm:text-[13px] uppercase leading-none drop-shadow-sm whitespace-nowrap">{game.game_name}:</span>
+                                <span className={`font-black text-[9px] sm:text-[11px] uppercase mt-0.5 whitespace-nowrap ${isGold ? 'text-[#0A2F12]' : 'text-[#0F4C23]'}`}>
                                   BET {formatUsd(game.bet_amount)}
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 sm:gap-2">
                               {game.win_amount > 0 ? (
-                                <div className="flex items-center justify-center size-5 rounded-full bg-[#1A6C2B] text-white shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.2)]">
-                                  <Check className="size-3.5 font-bold stroke-[3]" />
+                                <div className="flex items-center justify-center size-4 sm:size-5 rounded-full bg-[#1A6C2B] text-white shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.2)]">
+                                  <Check className="size-3 sm:size-3.5 font-bold stroke-[3]" />
                                 </div>
                               ) : (
-                                <div className="size-5" />
+                                <div className="size-4 sm:size-5" />
                               )}
-                              <div className={`h-6 w-[1.5px] mx-1 ${isGold ? 'bg-black/20' : 'bg-black/10'}`} />
-                              <span className="font-black text-lg tracking-tighter">
+                              <div className={`h-4 sm:h-6 w-[1.5px] mx-0.5 sm:mx-1 ${isGold ? 'bg-black/20' : 'bg-black/10'}`} />
+                              <span className="font-black text-sm sm:text-lg tracking-tighter pr-0.5 sm:pr-0">
                                 {formatUsd(game.win_amount)}
                               </span>
                             </div>
                           </div>
 
                           {/* Right Section (Dark Green) */}
-                          <div className="w-[110px] flex items-center justify-end p-2.5 bg-gradient-to-b from-[#0A2F12] to-[#051809] border-l border-[#D4AF37]/40">
-                            <span className="font-black text-xl text-[#FFD700] drop-shadow-[0_2px_3px_rgba(0,0,0,1)]">
+                          <div className="w-[90px] sm:w-[110px] flex items-center justify-end p-2 sm:p-2.5 bg-gradient-to-b from-[#0A2F12] to-[#051809] border-l border-[#D4AF37]/40">
+                            <span className="font-black text-base sm:text-xl text-[#FFD700] drop-shadow-[0_2px_3px_rgba(0,0,0,1)]">
                               {formatUsd(game.win_amount)}
                             </span>
                           </div>
@@ -439,7 +439,7 @@ export function MyWinningsPage() {
                   <div className="flex-1 px-3 py-2.5 font-black text-[#FFD700] text-[10px] tracking-widest uppercase text-right">
                     Total Payout
                   </div>
-                  <div className="w-[110px] px-3 py-2.5 font-black text-[#FFD700] text-xl tracking-tighter text-right border-l-2 border-[#D4AF37] drop-shadow-[0_2px_3px_rgba(0,0,0,1)] bg-gradient-to-b from-[#0A2F12] to-[#051809]">
+                  <div className="w-[90px] sm:w-[110px] px-2 sm:px-3 py-2.5 font-black text-[#FFD700] text-lg sm:text-xl tracking-tighter text-right border-l-2 border-[#D4AF37] drop-shadow-[0_2px_3px_rgba(0,0,0,1)] bg-gradient-to-b from-[#0A2F12] to-[#051809]">
                     {formatUsd(selectedWinning.total_won)}
                   </div>
                 </div>
