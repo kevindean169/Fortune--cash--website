@@ -42,7 +42,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     tagline: 'Pick one number 01–36 and multiply your bet up to 50×',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/cashpot_logo.png?v=5',
+    logoSrc: '/cashpot_logo.png?v=6',
     numberRange: { from: 1, to: 36, label: '01 – 36' },
     howManyNumbers: 1,
     drawFrequency: 'Multiple times daily',
@@ -114,7 +114,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     tagline: 'Fixed daily Cashpot draws — same rules, extra opportunities',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/moneytime_logo.png?v=5',
+    logoSrc: '/moneytime_logo.png?v=6',
     numberRange: { from: 0, to: 36, label: '0, 00, 01 – 36' },
     howManyNumbers: 1,
     drawFrequency: 'Daily at fixed special time slots',
@@ -184,7 +184,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     tagline: 'Pick one two-digit number from 00–99 and win big',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/pick2_logo.png?v=5',
+    logoSrc: '/pick2_single.png?v=6',
     numberRange: { from: 0, to: 99, label: '00 – 99' },
     howManyNumbers: 1,
     drawFrequency: 'Daily and Weekly',
@@ -232,7 +232,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     tagline: 'Bet on two numbers — more ways to win in a single ticket',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/pick2_logo.png?v=5',
+    logoSrc: '/pick2_double.png?v=6',
     numberRange: { from: 1, to: 36, label: '01 – 36 (two numbers)' },
     howManyNumbers: 2,
     drawFrequency: 'Daily and Weekly',
@@ -397,7 +397,7 @@ export function LotteryInfoPage() {
                 <img
                   src={info.logoSrc}
                   alt={info.name}
-                  className="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_24px_rgba(255,255,255,0.12)]"
+                  className="w-24 h-24 sm:w-36 sm:h-36 -m-2 object-contain relative z-10"
                 />
               </div>
             </div>

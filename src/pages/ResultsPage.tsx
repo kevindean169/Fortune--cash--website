@@ -14,12 +14,13 @@ const tabs = [
 const getTabIcon = (id: string) => {
   switch (id) {
     case 'cashpot':
-      return <img src="/cashpot_logo.png?v=5" alt="Cashpot" className="w-9 h-9 object-contain" />
+      return <img src="/cashpot_logo.png?v=6" alt="Cashpot" className="w-12 h-12 -m-1.5 object-contain" />
     case 'moneytime':
-      return <img src="/moneytime_logo.png?v=5" alt="Money Time" className="w-9 h-9 object-contain" />
+      return <img src="/moneytime_logo.png?v=6" alt="Money Time" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick2single':
+      return <img src="/pick2_single.png?v=6" alt="Pick 2 Single" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick2double':
-      return <img src="/pick2_logo.png?v=5" alt="Pick 2" className="w-9 h-9 object-contain" />
+      return <img src="/pick2_double.png?v=6" alt="Pick 2 Double" className="w-12 h-12 -m-1.5 object-contain" />
     default:
       return null
   }

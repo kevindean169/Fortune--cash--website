@@ -33,10 +33,10 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-4 tracking-wide uppercase">Lotteries</h3>
             <ul className="space-y-2.5">
               {[
-                { id: 'cashpot' as PageId, label: 'Cashpot', logo: '/cashpot_logo.png?v=5' },
-                { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png?v=5' },
-                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_logo.png?v=5' },
-                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_logo.png?v=5' },
+                { id: 'cashpot' as PageId, label: 'Cashpot', logo: '/cashpot_logo.png?v=6' },
+                { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png?v=6' },
+                { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_single.png?v=6' },
+                { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_double.png?v=6' },
               ].map(g => (
                 <li key={g.id}>
                   <Link 

@@ -283,12 +283,13 @@ export function HomePage() {
               const getGameLogoSrc = (id: string) => {
                 switch (id) {
                   case 'cashpot':
-                    return '/cashpot_logo.png?v=5'
+                    return '/cashpot_logo.png?v=6'
                   case 'money-time':
-                    return '/moneytime_logo.png?v=5'
+                    return '/moneytime_logo.png?v=6'
                   case 'pick-2-single':
+                    return '/pick2_single.png?v=6'
                   case 'pick-2-double':
-                    return '/pick2_logo.png?v=5'
+                    return '/pick2_double.png?v=6'
                   default:
                     return null
                 }
@@ -305,11 +306,13 @@ export function HomePage() {
 
                     <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full relative z-10">
                       {logoSrc ? (
-                        <div className="h-40 w-40 flex-shrink-0 mb-6 group-hover/card:scale-105 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(224,172,44,0.25)]">
+                        <div className="h-52 w-52 flex-shrink-0 mb-1 group-hover/card:scale-105 transition-transform duration-500 relative">
+                          {/* Optional: Add a separate div for glow if needed, avoiding filter on the img itself */}
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,172,44,0.15)_0%,transparent_70%)]" />
                           <img
                             src={logoSrc}
                             alt={game.name}
-                            className="h-full w-full object-contain"
+                            className="h-full w-full object-contain relative z-10"
                           />
                         </div>
                       ) : (
@@ -403,11 +406,12 @@ export function HomePage() {
                     className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
                     onClick={() => navigate(game.path as PageId)}
                   >
-                    <div className="size-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(224,172,44,0.2)]">
+                    <div className="size-24 -mx-4 -my-4 flex-shrink-0 relative">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,172,44,0.1)_0%,transparent_70%)]" />
                       <img
-                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=5' : game.path === 'money-time' ? '/moneytime_logo.png?v=5' : '/pick2_logo.png?v=5'}
+                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=6' : game.path === 'money-time' ? '/moneytime_logo.png?v=6' : game.path === 'pick-2-single' ? '/pick2_single.png?v=6' : '/pick2_double.png?v=6'}
                         alt={game.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain relative z-10"
                       />
                     </div>
                     <div>

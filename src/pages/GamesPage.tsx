@@ -90,12 +90,13 @@ export function GamesPage({ navigate }: GamesPageProps) {
             const getGameLogoSrc = (id: string) => {
               switch (id) {
                 case 'cashpot':
-                  return '/cashpot_logo.png?v=5'
+                  return '/cashpot_logo.png?v=6'
                 case 'money-time':
-                  return '/moneytime_logo.png?v=5'
+                  return '/moneytime_logo.png?v=6'
                 case 'pick-2-single':
+                  return '/pick2_single.png?v=6'
                 case 'pick-2-double':
-                  return '/pick2_logo.png?v=5'
+                  return '/pick2_double.png?v=6'
                 default:
                   return null
               }
@@ -113,7 +114,7 @@ export function GamesPage({ navigate }: GamesPageProps) {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         {logoSrc ? (
-                          <img src={logoSrc} alt={game.name} className="w-12 h-12 object-contain" />
+                          <img src={logoSrc} alt={game.name} className="w-16 h-16 -m-2 object-contain" />
                         ) : (
                           <div className="text-4xl">{game.icon}</div>
                         )}
