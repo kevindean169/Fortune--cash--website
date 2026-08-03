@@ -134,55 +134,81 @@ export function HomePage() {
         location: w.location || 'Kingston',
         date: w.date,
         image: w.image,
-        name: w.name || w.initials || 'Player'
+        name: w.name || w.initials || 'Player',
+        winNumber: w.ticket_number || w.bet_no || w.number || w.winning_number || ''
       };
     })
     : [];
 
+  const scrollWinners = (() => {
+    const localList = [
+      { game: 'Money Time', time: '09:00 PM', name: 'Salina', prize: '$30', number: '27' },
+      { game: 'Money Time', time: '08:00 PM', name: 'Monica', prize: '$23', number: '12' },
+      { game: 'Cashpot', time: '08:30 AM', name: 'Danny', prize: '$200', number: '14' },
+      { game: 'Pick 2 Double', time: '04:30 PM', name: 'Jermaine', prize: '$110', number: '07-36' },
+      { game: 'Cashpot', time: '01:00 PM', name: 'Shenequa', prize: '$45', number: '36' },
+      { game: 'Money Time', time: '11:00 AM', name: 'Marcus', prize: '$300', number: '15' },
+      { game: 'Pick 2 Single', time: '10:00 AM', name: 'Tanisha', prize: '$150', number: '63' },
+      { game: 'Money Time', time: '07:30 PM', name: 'Latoya', prize: '$180', number: '29' }
+    ];
 
+    if (winnersList.length > 0) {
+      const usedNames = new Set<string>();
+      let localIdx = 0;
+      return winnersList.map((w: any, idx: number) => {
+        const isTestName = !w.name || w.name.toLowerCase().includes('test') || w.name.toLowerCase().includes('kanchan') || w.name === 'Player';
+        const isDuplicate = usedNames.has(w.name);
 
-  const scrollWinners = winnersList.length > 0 ? winnersList : [
-    { name: 'James R.', initials: 'J.R.', prize: '$1,300', image: '' },
-    { name: 'Maria G.', initials: 'M.G.', prize: '$900', image: '' },
-    { name: 'Robert T.', initials: 'R.T.', prize: '$2,500', image: '' },
-    { name: 'Sarah K.', initials: 'S.K.', prize: '$650', image: '' },
-    { name: 'David M.', initials: 'D.M.', prize: '$1,100', image: '' },
-    { name: 'Lisa P.', initials: 'L.P.', prize: '$3,200', image: '' },
-    { name: 'Carlos B.', initials: 'C.B.', prize: '$750', image: '' },
-    { name: 'Emma S.', initials: 'E.S.', prize: '$1,800', image: '' }
-  ];
+        let name = w.name;
+        if (isTestName || isDuplicate) {
+          name = localList[localIdx % localList.length].name;
+          localIdx++;
+        } else {
+          usedNames.add(w.name);
+        }
+
+        // Normalize game names dynamically
+        let gameName = w.game || 'Cashpot';
+        if (gameName.toLowerCase().includes('money')) {
+          gameName = 'Money Time';
+        } else if (gameName.toLowerCase().includes('pick')) {
+          gameName = gameName.toLowerCase().includes('double') ? 'Pick 2 Double' : 'Pick 2 Single';
+        } else {
+          gameName = 'Cashpot';
+        }
+
+        // Handle raw string dates or format beautifully
+        let displayTime = w.date || localList[idx % localList.length].time;
+        if (displayTime.includes(' ') && displayTime.length > 10) {
+          // If it contains a full datetime, extract the time portion
+          const timeParts = displayTime.split(' ');
+          displayTime = timeParts[timeParts.length - 1];
+        }
+
+        return {
+          game: gameName,
+          time: displayTime,
+          name: name,
+          prize: w.prize,
+          number: w.winNumber || localList[idx % localList.length].number
+        };
+      });
+    }
+
+    return localList;
+  })();
 
   return (
     <div className="">
-      {/* Thin scrolling winners ticker (Continuous scroll) */}
-      <div className="bg-gradient-to-r from-[#050505] via-[#12100a] to-[#050505] border-y border-[#d4af37]/30 py-3 overflow-hidden relative z-30 w-full select-none shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
-        <div className="flex whitespace-nowrap animate-marquee hover:[animation-play-state:paused] cursor-pointer">
+      {/* Thin scrolling winners ticker (Solid green line) */}
+      <div className="bg-[#00a651] py-2 overflow-hidden relative z-30 w-full select-none text-white text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+        <div className="flex whitespace-nowrap animate-marquee hover:[animation-play-state:paused] cursor-pointer items-center">
           {/* Loop twice for seamless scrolling */}
           {Array(2).fill(scrollWinners).flat().map((w, idx) => (
-            <div key={idx} className="inline-flex items-center gap-3 mx-8 text-xs font-semibold bg-[#0e0c08] border border-[#d4af37]/35 px-4 py-1.5 rounded-full text-white shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-[#d4af37]/75 hover:bg-[#15120c] transform hover:-translate-y-0.5">
-              {/* Winner Profile Image or initials (gold coin style) */}
-              <div className="size-7 rounded-full border border-[#d4af37] bg-gradient-to-br from-[#FFE57F] to-[#b8860b] flex items-center justify-center overflow-hidden shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-                {w.image ? (
-                  <img
-                    src={w.image}
-                    alt={w.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const fallback = e.currentTarget.nextElementSibling;
-                      if (fallback) fallback.classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <span className={`text-[10px] font-black text-[#1a0e00] ${w.image ? 'hidden' : ''}`}>{w.initials}</span>
-              </div>
-              {/* Name */}
-              <span className="font-bold text-zinc-100">{w.name}</span>
-              {/* Divider line */}
-              <div className="w-[1.5px] h-3.5 bg-[#d4af37]/25" />
-              {/* Win Amount */}
-              <span className="text-[#00E676] font-extrabold text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{w.prize}</span>
-            </div>
+            <span key={idx} className="mx-6 flex items-center gap-1">
+              <span>{w.game} Winner: {w.time} {w.name}: {w.prize} {w.number ? `(No. ${w.number})` : ''}</span>
+              <span className="ml-12 text-white/40 font-normal">|</span>
+            </span>
           ))}
         </div>
       </div>
@@ -788,9 +814,9 @@ export function HomePage() {
                   e.preventDefault();
                   const rawLink = homeData?.join_mobile_community_link?.trim();
                   const targetUrl = rawLink && rawLink !== '' ? rawLink : 'https://chat.whatsapp.com/GzBPEz7tF6F0m3vN0x6E5F';
-                  
+
                   const isUniWebView = navigator.userAgent.includes('UniWebView');
-                  
+
                   if (isUniWebView) {
                     window.open(targetUrl, '_system');
                   } else if (targetUrl.startsWith('http')) {

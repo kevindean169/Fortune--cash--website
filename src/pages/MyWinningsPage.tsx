@@ -17,7 +17,7 @@ import {
 import { Trophy, Eye, Calendar, Clock, User, Receipt, Search, Check } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchCustomerWinnings, type ApiWinningOrder } from '@/lib/fortuneApi'
-import { GameBallGraphic, GoldenTrophyIcon } from '@/components/GameLogos'
+import { GameBallGraphic, GoldenTrophyIcon, GoldCoinIcon } from '@/components/GameLogos'
 import { formatUsd } from '@/lib/currency'
 
 const getLotteryLogo = (winning: ApiWinningOrder | null) => {
@@ -416,6 +416,7 @@ export function MyWinningsPage() {
                                 <div className="size-4 sm:size-5" />
                               )}
                               <div className={`h-4 sm:h-6 w-[1.5px] mx-0.5 sm:mx-1 ${isGold ? 'bg-black/20' : 'bg-black/10'}`} />
+                              <GoldCoinIcon className="size-4.5 sm:size-5.5 shrink-0 drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.2)]" />
                               <span className="font-black text-sm sm:text-lg tracking-tighter pr-0.5 sm:pr-0">
                                 {formatUsd(game.win_amount)}
                               </span>

@@ -1,50 +1,69 @@
 export function GoldenTrophyIcon({ className = 'size-8' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="10 12 44 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        {/* Shiny gold gradient for the cup */}
-        <linearGradient id="goldTrophyGrad" x1="10" y1="12" x2="54" y2="52" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFFDF0" />
-          <stop offset="25%" stopColor="#FFE885" />
-          <stop offset="65%" stopColor="#D4AF37" />
+        {/* Gold metal gradient */}
+        <linearGradient id="goldGrad" x1="16" y1="8" x2="48" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFF2B2" />
+          <stop offset="30%" stopColor="#F5B041" />
+          <stop offset="70%" stopColor="#D4AC0D" />
           <stop offset="100%" stopColor="#8A6B12" />
         </linearGradient>
-        {/* Base dark gradient */}
-        <linearGradient id="baseGrad" x1="0" y1="46" x2="0" y2="55" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#333333" />
+        {/* Shiny highlights */}
+        <linearGradient id="goldHighlight" x1="16" y1="8" x2="16" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+        </linearGradient>
+        {/* Dark base block */}
+        <linearGradient id="baseDark" x1="0" y1="46" x2="0" y2="60" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#2D2D2D" />
+          <stop offset="50%" stopColor="#1B1B1B" />
           <stop offset="100%" stopColor="#0B0B0B" />
         </linearGradient>
-        {/* Drop shadow for 3D depth */}
-        <filter id="trophyDropShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="2" stdDeviation="1" floodColor="#000000" floodOpacity="0.5" />
-        </filter>
       </defs>
 
-      {/* Trophy Group with Shadow */}
-      <g filter="url(#trophyDropShadow)">
-        {/* Trophy Handles */}
-        <path d="M21 21 C13 21 11 31 21 34.5" stroke="url(#goldTrophyGrad)" strokeWidth="3" strokeLinecap="round" fill="none" />
-        <path d="M43 21 C51 21 53 31 43 34.5" stroke="url(#goldTrophyGrad)" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* Handles */}
+      {/* Left Handle */}
+      <path d="M21 20 C11 20 9 32 21 34.5" stroke="url(#goldGrad)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+      <path d="M21 20 C13 20 11 30 21 32.5" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.4" />
+      
+      {/* Right Handle */}
+      <path d="M43 20 C53 20 55 32 43 34.5" stroke="url(#goldGrad)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+      <path d="M43 20 C51 20 49 30 43 32.5" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.4" />
 
-        {/* Cup Body */}
-        <path d="M21 17 H43 V29 C43 38.5 35.5 44 32 44 C28.5 44 21 38.5 21 29 V17Z" fill="url(#goldTrophyGrad)" />
-        
-        {/* Rim shine */}
-        <ellipse cx="32" cy="17" rx="11" ry="1.75" fill="#FFFDF0" opacity="0.7" />
+      {/* Cup Body */}
+      <path d="M21 14 H43 V28 C43 37.5 35.5 43 32 43 C28.5 43 21 37.5 21 28 V14Z" fill="url(#goldGrad)" stroke="#A0780A" strokeWidth="1" />
+      
+      {/* Shadow overlay on left side of cup */}
+      <path d="M21 14 V28 C21 37.5 28.5 43 32 43 V14 H21Z" fill="#000000" opacity="0.12" />
+      
+      {/* Highlight overlay on right side of cup */}
+      <path d="M32 14 V43 C35.5 43 43 37.5 43 28 V14 H32Z" fill="url(#goldHighlight)" opacity="0.15" />
 
-        {/* Stem */}
-        <path d="M28.5 43.5 H35.5 V48 H28.5 V43.5Z" fill="url(#goldTrophyGrad)" />
+      {/* Cup Rim Top */}
+      <ellipse cx="32" cy="14" rx="11" ry="2" fill="url(#goldGrad)" stroke="#A0780A" strokeWidth="0.75" />
+      <ellipse cx="32" cy="14" rx="9.5" ry="1.25" fill="#4B3A08" />
 
-        {/* Base */}
-        {/* Gold trim */}
-        <path d="M25 48 H39 V50.5 H25 V48Z" fill="url(#goldTrophyGrad)" />
-        {/* Main Base */}
-        <rect x="20" y="50.5" width="24" height="5.5" rx="1" fill="url(#baseGrad)" stroke="#1A1A1A" strokeWidth="0.5" />
-        <line x1="21" y1="55.5" x2="43" y2="55.5" stroke="url(#goldTrophyGrad)" strokeWidth="0.75" />
-        
-        {/* Star */}
-        <polygon points="32,23.5 33.8,27 37.8,27.3 34.8,30 35.8,34 32,32 28.2,34 29.2,30 26.2,27.3 30.2,27" fill="#FFFFFF" opacity="0.95" />
-      </g>
+      {/* Cup Stem */}
+      <path d="M28 43 H36 V48 H28 V43Z" fill="url(#goldGrad)" />
+      <path d="M28 43 H32 V48 H28 V43Z" fill="#000000" opacity="0.12" />
+
+      {/* Collar/Trim above base */}
+      <path d="M24 48 H40 V50 H24 V48Z" fill="url(#goldGrad)" stroke="#A0780A" strokeWidth="0.5" />
+      
+      {/* Base */}
+      {/* Black Pedestal Base */}
+      <path d="M16 50 H48 V58 C48 59.5 46.5 60 45 60 H19 C17.5 60 16 59.5 16 58 V50Z" fill="url(#baseDark)" stroke="#111111" strokeWidth="1" />
+      
+      {/* Gold Trim Line at the very bottom of the pedestal */}
+      <path d="M19 58.5 H45" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
+      
+      {/* Highlight on base */}
+      <path d="M16 50 H48 V51.5 H16 V50Z" fill="#FFFFFF" opacity="0.2" />
+
+      {/* Star in center of cup */}
+      <polygon points="32,20.5 34.3,25.3 39.5,25.8 35.5,29.3 36.8,34.5 32,31.8 27.2,34.5 28.5,29.3 24.5,25.8 29.7,25.3" fill="#FFFFFF" />
+      <polygon points="32,21.7 33.7,25.3 37.7,25.7 34.7,28.4 35.7,32.3 32,30.3 28.3,32.3 29.3,28.4 26.3,25.7 30.3,25.3" fill="#FBD249" />
     </svg>
   )
 }
@@ -156,6 +175,55 @@ export function Pick2Logo({ className = 'size-6' }: { className?: string }) {
           <stop offset="100%" stopColor="#FF4E50" />
         </linearGradient>
       </defs>
+    </svg>
+  )
+}
+
+export function GoldCoinIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        {/* Soft shadow for the coin */}
+        <filter id="coinShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="1" stdDeviation="0.75" floodColor="#000000" floodOpacity="0.3" />
+        </filter>
+        {/* Outer rim gradient */}
+        <linearGradient id="rimGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFF2B2" />
+          <stop offset="20%" stopColor="#E5B445" />
+          <stop offset="80%" stopColor="#B3860B" />
+          <stop offset="100%" stopColor="#664C00" />
+        </linearGradient>
+        {/* Inner face gradient */}
+        <radialGradient id="faceGrad" cx="35%" cy="30%" r="60%">
+          <stop offset="0%" stopColor="#FFFDE6" />
+          <stop offset="35%" stopColor="#FBD249" />
+          <stop offset="85%" stopColor="#D4AC0D" />
+          <stop offset="100%" stopColor="#9A7D0A" />
+        </radialGradient>
+      </defs>
+      
+      <g filter="url(#coinShadow)">
+        {/* Outer Rim */}
+        <circle cx="12" cy="12" r="10" fill="url(#rimGrad)" stroke="#664C00" strokeWidth="0.5" />
+        
+        {/* Inner Raised Face */}
+        <circle cx="12" cy="12" r="8" fill="url(#faceGrad)" stroke="#B3860B" strokeWidth="0.5" />
+        <circle cx="12" cy="12" r="7.5" stroke="#FFFFFF" strokeWidth="0.35" opacity="0.4" />
+        
+        {/* Clean, bold, crisp black dollar symbol */}
+        <text
+          x="12"
+          y="15.5"
+          fill="#111"
+          fontSize="11"
+          fontWeight="900"
+          textAnchor="middle"
+          fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        >
+          $
+        </text>
+      </g>
     </svg>
   )
 }
