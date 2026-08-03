@@ -192,6 +192,11 @@
     0% { background-position: -200% center; }
     100% { background-position: 200% center; }
   }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 }
 
 @layer utilities {
@@ -212,6 +217,13 @@
     background-size: 200% auto;
     animation: shimmer 4s linear infinite;
   }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+  }
+
   .gold-text {
     background: linear-gradient(135deg, #f3ca20, #e0ac2c, #f3ca20);
     -webkit-background-clip: text;

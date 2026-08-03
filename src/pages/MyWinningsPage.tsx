@@ -17,7 +17,7 @@ import {
 import { Trophy, Eye, Calendar, Clock, User, Receipt, Search, Check } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { fetchCustomerWinnings, type ApiWinningOrder } from '@/lib/fortuneApi'
-import { GameBallGraphic } from '@/components/GameLogos'
+import { GameBallGraphic, GoldenTrophyIcon } from '@/components/GameLogos'
 import { formatUsd } from '@/lib/currency'
 
 const getLotteryLogo = (winning: ApiWinningOrder | null) => {
@@ -436,8 +436,14 @@ export function MyWinningsPage() {
 
                 {/* Footer */}
                 <div className="flex items-center bg-gradient-to-b from-[#151515] to-[#0A0A0A] border-t-2 border-[#D4AF37] rounded-b-lg shrink-0">
-                  <div className="flex-1 px-3 py-2.5 font-black text-[#FFD700] text-[10px] tracking-widest uppercase text-right">
-                    Total Payout
+                  <div className="flex-1 flex items-center justify-between px-3 py-2.5">
+                    {/* Trophy Icon next to Total Payout */}
+                    <div className="flex items-center gap-2">
+                      <GoldenTrophyIcon className="size-8" />
+                    </div>
+                    <span className="font-black text-[#FFD700] text-[10px] tracking-widest uppercase">
+                      Total Payout
+                    </span>
                   </div>
                   <div className="w-[90px] sm:w-[110px] px-2 sm:px-3 py-2.5 font-black text-[#FFD700] text-lg sm:text-xl tracking-tighter text-right border-l-2 border-[#D4AF37] drop-shadow-[0_2px_3px_rgba(0,0,0,1)] bg-gradient-to-b from-[#0A2F12] to-[#051809]">
                     {formatUsd(selectedWinning.total_won)}
