@@ -788,7 +788,12 @@ export function HomePage() {
                   e.preventDefault();
                   const rawLink = homeData?.join_mobile_community_link?.trim();
                   const targetUrl = rawLink && rawLink !== '' ? rawLink : 'https://chat.whatsapp.com/GzBPEz7tF6F0m3vN0x6E5F';
-                  if (targetUrl.startsWith('http')) {
+                  
+                  const isUniWebView = navigator.userAgent.includes('UniWebView');
+                  
+                  if (isUniWebView) {
+                    window.open(targetUrl, '_system');
+                  } else if (targetUrl.startsWith('http')) {
                     window.open(targetUrl, '_blank', 'noopener,noreferrer');
                   } else {
                     window.location.href = targetUrl;
