@@ -786,7 +786,8 @@ export function HomePage() {
               <Button
                 onClick={(e) => {
                   e.preventDefault();
-                  const targetUrl = homeData?.join_mobile_community_link || 'https://chat.whatsapp.com/GzBPEz7tF6F0m3vN0x6E5F';
+                  const rawLink = homeData?.join_mobile_community_link?.trim();
+                  const targetUrl = rawLink && rawLink !== '' ? rawLink : 'https://chat.whatsapp.com/GzBPEz7tF6F0m3vN0x6E5F';
                   if (targetUrl.startsWith('http')) {
                     window.open(targetUrl, '_blank', 'noopener,noreferrer');
                   } else {
