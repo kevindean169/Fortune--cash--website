@@ -180,7 +180,7 @@ export function HomePage() {
               <div className="mt-4 lg:mt-4 flex flex-col gap-1 lg:gap-2">
                 <p className="text-base min-[380px]:text-lg sm:text-2xl lg:text-2xl xl:text-3xl font-extrabold text-[#00ff00] leading-tight drop-shadow-[0_0_8px_rgba(0,255,0,0.3)]">
                   Play. Win.<br className="lg:hidden" />
-                  {" "}Repeat.
+                  {" "}Repeat.check
                 </p>
                 <p className="text-xs lg:text-sm xl:text-base text-white/80 leading-snug mt-1 max-w-[200px] lg:max-w-md drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
                   Cashpot, Money Time, Pick 2 Sigle<br /> and Pick 2 Double.<br />
