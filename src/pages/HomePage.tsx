@@ -805,14 +805,66 @@ export function HomePage() {
                   const rawLink = homeData?.join_mobile_community_link?.trim();
                   const targetUrl = rawLink && rawLink !== '' ? rawLink : 'https://chat.whatsapp.com/GzBPEz7tF6F0m3vN0x6E5F';
 
-                  const isUniWebView = navigator.userAgent.includes('UniWebView');
+                  // Extract WhatsApp invite code (e.g. GzBPEz7tF6F0m3vN0x6E5F)
+                  let code = '';
+                  const match = targetUrl.match(/chat\.whatsapp\.com\/([a-zA-Z0-9]+)/);
+                  if (match && match[1]) {
+                    code = match[1];
+                  }
 
+                  // 1. Post message to React Native WebView
+                  try {
+                    if ((window as any).ReactNativeWebView) {
+                      (window as any).ReactNativeWebView.postMessage(
+                        JSON.stringify({ type: 'whatsapp', action: 'whatsapp', url: targetUrl, code: code })
+                      );
+                    }
+                  } catch (err) {}
+
+                  // 2. Post message to standard window listeners
+                  try {
+                    window.postMessage({ type: 'whatsapp', action: 'whatsapp', url: targetUrl, code: code }, '*');
+                  } catch (err) {}
+
+                  // 3. Android JS bridge triggers (window.Android)
+                  try {
+                    const android = (window as any).Android;
+                    if (android) {
+                      if (typeof android.openWhatsApp === 'function') {
+                        android.openWhatsApp(targetUrl);
+                      } else if (typeof android.postMessage === 'function') {
+                        android.postMessage(
+                          JSON.stringify({ type: 'whatsapp', action: 'whatsapp', url: targetUrl, code: code })
+                        );
+                      }
+                    }
+                  } catch (err) {}
+
+                  // 4. Custom protocol triggers for WebView intercept (uniwebview://, whatsapp://)
+                  const isUniWebView = navigator.userAgent.includes('UniWebView');
                   if (isUniWebView) {
-                    window.open(targetUrl, '_system');
-                  } else if (targetUrl.startsWith('http')) {
-                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                    window.location.href = `uniwebview://whatsapp?url=${encodeURIComponent(targetUrl)}&code=${code}`;
+                    setTimeout(() => {
+                      try {
+                        window.open(targetUrl, '_system');
+                      } catch (e) {}
+                    }, 100);
                   } else {
-                    window.location.href = targetUrl;
+                    const isWebView = /wv|WebView|Android.*Version\/[0-9.]+/i.test(navigator.userAgent);
+                    const whatsappScheme = code ? `whatsapp://chat?code=${code}` : 'whatsapp://send';
+
+                    if (isWebView) {
+                      // Attempt whatsapp:// deep link first
+                      window.location.href = whatsappScheme;
+                      // Fallback to web link in case protocol is unhandled
+                      setTimeout(() => {
+                        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                      }, 500);
+                    } else if (targetUrl.startsWith('http')) {
+                      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                      window.location.href = targetUrl;
+                    }
                   }
                 }}
                 variant="outline"
