@@ -182,56 +182,6 @@ export function HomePage() {
       { game: 'Money Time Monstaball Win', time: '07:30 PM', name: '63810', prize: '$180', number: '29' }
     ];
 
-    if (winnersList.length > 0) {
-      const usedNames = new Set<string>();
-      let localIdx = 0;
-      return winnersList.map((w: any, idx: number) => {
-        const isTestName = !w.name || w.name.toLowerCase().includes('test') || w.name.toLowerCase().includes('kanchan') || w.name === 'Player';
-        const isDuplicate = usedNames.has(w.name);
-
-        let name = w.name;
-        if (isTestName || isDuplicate) {
-          name = localList[localIdx % localList.length].name;
-          localIdx++;
-        } else {
-          usedNames.add(w.name);
-        }
-
-        // Normalize game names dynamically
-        let gameName = w.game || 'Money Time';
-        if (gameName.toLowerCase().includes('money')) {
-          if (gameName.toLowerCase().includes('monsta')) {
-            gameName = 'Money Time Monstaball Win';
-          } else if (gameName.toLowerCase().includes('mega')) {
-            gameName = 'Money Time Megaball Win';
-          } else {
-            const isMonsta = (idx % 2 === 0);
-            gameName = isMonsta ? 'Money Time Monstaball Win' : 'Money Time Megaball Win';
-          }
-        } else if (gameName.toLowerCase().includes('pick')) {
-          gameName = gameName.toLowerCase().includes('double') ? 'Pick 2 Double' : 'Pick 2 Single';
-        } else {
-          gameName = 'Pick 2 Single';
-        }
-
-        // Handle raw string dates or format beautifully
-        let displayTime = w.date || localList[idx % localList.length].time;
-        if (displayTime.includes(' ') && displayTime.length > 10) {
-          // If it contains a full datetime, extract the time portion
-          const timeParts = displayTime.split(' ');
-          displayTime = timeParts[timeParts.length - 1];
-        }
-
-        return {
-          game: gameName,
-          time: displayTime,
-          name: maskAccount(name),
-          prize: w.prize,
-          number: w.winNumber || localList[idx % localList.length].number
-        };
-      });
-    }
-
     return localList.map(w => ({
       ...w,
       name: maskAccount(w.name)
