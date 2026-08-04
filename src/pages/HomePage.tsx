@@ -58,6 +58,28 @@ const getInitials = (name: any): string => {
   return parts.slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('.') + '.';
 }
 
+const maskAccount = (val: any): string => {
+  if (!val) return '8***28';
+  const str = String(val).trim();
+  if (/^\d{5}$/.test(str)) {
+    return `${str[0]}***${str.slice(-2)}`;
+  }
+  if (/^\d+$/.test(str)) {
+    if (str.length > 2) {
+      return `${str[0]}***${str.slice(-2)}`;
+    }
+    return str;
+  }
+  // Consistent hash to 5-digit account number, then mask
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const num = Math.abs(hash % 90000) + 10000;
+  const numStr = String(num);
+  return `${numStr[0]}***${numStr.slice(-2)}`;
+};
+
 export function HomePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
@@ -125,31 +147,39 @@ export function HomePage() {
 
   // recent winners with initials/fallback to local mock data
   const winnersList = homeData?.recent_winners?.length
-    ? homeData.recent_winners.map((w: any) => {
-      const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
-      return {
-        initials: getInitials(w.name || w.initials),
-        prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
-        game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
-        location: w.location || 'Kingston',
-        date: w.date,
-        image: w.image,
-        name: w.name || w.initials || 'Player',
-        winNumber: w.ticket_number || w.bet_no || w.number || w.winning_number || ''
-      };
-    })
+    ? homeData.recent_winners
+      .filter((w: any) => {
+        const gameType = (w.lottery_type || w.game || '').toLowerCase().trim();
+        const gameName = (w.lottery_name || '').toLowerCase().trim();
+        // Exclude strictly 'cashpot' but keep 'money time' (or 'cashpot money time')
+        if (gameType === 'cashpot' || gameName === 'cashpot') {
+          return false;
+        }
+        return true;
+      })
+      .map((w: any) => {
+        const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
+        return {
+          initials: getInitials(w.name || w.initials),
+          prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
+          game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
+          location: w.location || 'Kingston',
+          date: w.date,
+          image: w.image,
+          name: w.name || w.initials || 'Player',
+          winNumber: w.ticket_number || w.bet_no || w.number || w.winning_number || ''
+        };
+      })
     : [];
 
   const scrollWinners = (() => {
     const localList = [
-      { game: 'Money Time', time: '09:00 PM', name: 'Salina', prize: '$30', number: '27' },
-      { game: 'Money Time', time: '08:00 PM', name: 'Monica', prize: '$23', number: '12' },
-      { game: 'Cashpot', time: '08:30 AM', name: 'Danny', prize: '$200', number: '14' },
-      { game: 'Pick 2 Double', time: '04:30 PM', name: 'Jermaine', prize: '$110', number: '07-36' },
-      { game: 'Cashpot', time: '01:00 PM', name: 'Shenequa', prize: '$45', number: '36' },
-      { game: 'Money Time', time: '11:00 AM', name: 'Marcus', prize: '$300', number: '15' },
-      { game: 'Pick 2 Single', time: '10:00 AM', name: 'Tanisha', prize: '$150', number: '63' },
-      { game: 'Money Time', time: '07:30 PM', name: 'Latoya', prize: '$180', number: '29' }
+      { game: 'Money Time Megaball Win', time: '09:00 PM', name: '84628', prize: '$30', number: '27' },
+      { game: 'Money Time Monstaball Win', time: '08:00 PM', name: '29381', prize: '$23', number: '12' },
+      { game: 'Pick 2 Double', time: '04:30 PM', name: '74820', prize: '$110', number: '07-36' },
+      { game: 'Pick 2 Single', time: '10:00 AM', name: '93721', prize: '$150', number: '63' },
+      { game: 'Money Time Megaball Win', time: '11:00 AM', name: '10582', prize: '$300', number: '15' },
+      { game: 'Money Time Monstaball Win', time: '07:30 PM', name: '63810', prize: '$180', number: '29' }
     ];
 
     if (winnersList.length > 0) {
@@ -168,13 +198,20 @@ export function HomePage() {
         }
 
         // Normalize game names dynamically
-        let gameName = w.game || 'Cashpot';
+        let gameName = w.game || 'Money Time';
         if (gameName.toLowerCase().includes('money')) {
-          gameName = 'Money Time';
+          if (gameName.toLowerCase().includes('monsta')) {
+            gameName = 'Money Time Monstaball Win';
+          } else if (gameName.toLowerCase().includes('mega')) {
+            gameName = 'Money Time Megaball Win';
+          } else {
+            const isMonsta = (idx % 2 === 0);
+            gameName = isMonsta ? 'Money Time Monstaball Win' : 'Money Time Megaball Win';
+          }
         } else if (gameName.toLowerCase().includes('pick')) {
           gameName = gameName.toLowerCase().includes('double') ? 'Pick 2 Double' : 'Pick 2 Single';
         } else {
-          gameName = 'Cashpot';
+          gameName = 'Pick 2 Single';
         }
 
         // Handle raw string dates or format beautifully
@@ -188,14 +225,17 @@ export function HomePage() {
         return {
           game: gameName,
           time: displayTime,
-          name: name,
+          name: maskAccount(name),
           prize: w.prize,
           number: w.winNumber || localList[idx % localList.length].number
         };
       });
     }
 
-    return localList;
+    return localList.map(w => ({
+      ...w,
+      name: maskAccount(w.name)
+    }));
   })();
 
   return (
@@ -206,7 +246,7 @@ export function HomePage() {
           {/* Loop twice for seamless scrolling */}
           {Array(2).fill(scrollWinners).flat().map((w, idx) => (
             <span key={idx} className="mx-6 flex items-center gap-1">
-              <span>{w.game} Winner: {w.time} {w.name}: {w.prize} {w.number ? `(No. ${w.number})` : ''}</span>
+              <span>{w.game.toLowerCase().endsWith('win') ? w.game : `${w.game} Winner`}: {w.name} won {w.prize} {w.number ? `(No. ${w.number})` : ''} @ {w.time}</span>
               <span className="ml-12 text-white/40 font-normal">|</span>
             </span>
           ))}
