@@ -191,7 +191,7 @@ export function HomePage() {
   return (
     <div className="">
       {/* Thin scrolling winners ticker (Solid green line) */}
-      <div className="bg-[#00a651] py-2 overflow-hidden relative z-30 w-full select-none text-white text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+      <div className="bg-[#00a651] py-2 overflow-hidden relative z-30 w-full select-none text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
         <div className="flex whitespace-nowrap animate-marquee hover:[animation-play-state:paused] cursor-pointer items-center">
           {/* Loop twice for seamless scrolling */}
           {Array(2).fill(scrollWinners).flat().map((w, idx) => (
