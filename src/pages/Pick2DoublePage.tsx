@@ -281,7 +281,7 @@ export function Pick2DoublePage() {
 
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
+  const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout' | 'recent'>('buy')
 
   // 3. Keep sold out draw selection aligned with the available schedule
   useEffect(() => {

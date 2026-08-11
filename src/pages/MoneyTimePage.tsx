@@ -284,7 +284,7 @@ export function MoneyTimePage() {
 
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout'>('buy')
+  const [activeTab, setActiveTab] = useState<'buy' | 'prize' | 'how' | 'soldout' | 'recent'>('buy')
 
   const moneyTimeGroups = useMemo(() => {
     if (!Array.isArray(moneyTimeDraws) || moneyTimeDraws.length === 0) return [];
