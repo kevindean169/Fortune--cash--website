@@ -211,6 +211,7 @@ export function Navigation() {
                         { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
                         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
                         { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
+                        { id: 'winnings', label: 'My Winnings', icon: <Trophy className="size-4" /> },
                         { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
                         { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
                       ] : []),

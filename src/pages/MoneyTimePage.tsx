@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
 import { clampRemainingLimit, getCartHeldAmount } from '@/lib/betLimits'
+import { RecentDrawsTab } from '@/components/RecentDrawsTab'
 
 interface BetItem {
   id: number
@@ -1026,6 +1027,7 @@ export function MoneyTimePage() {
             { id: 'prize', label: 'Prize Structure' },
             { id: 'how', label: 'How to Play' },
             { id: 'soldout', label: 'Sold Out Numbers' },
+            { id: 'recent', label: 'Recent Draws' },
           ] as const).map((tab) => (
             <button
               key={tab.id}
@@ -1861,6 +1863,10 @@ export function MoneyTimePage() {
         )}
 
         {/* SOLD OUT */}
+        {activeTab === 'recent' && (
+          <RecentDrawsTab lotteryId={lotteryId || '1'} />
+        )}
+
         {activeTab === 'soldout' && (
           <Card className="lottery-card-container">
             <CardContent className="p-8">
