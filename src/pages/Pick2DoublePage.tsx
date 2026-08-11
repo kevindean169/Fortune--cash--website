@@ -1494,23 +1494,47 @@ export function Pick2DoublePage() {
                                 ))}
                               </div>
 
-                              <div className="grid grid-cols-4 gap-1.5 mb-5">
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + (tempBetAmount.includes('.') ? '' : '.'))} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                              {(() => {
+                                const handleKeypadPress = (val: string) => {
+                                  let newVal = tempBetAmount;
+                                  if (val === 'clear') {
+                                    newVal = '';
+                                  } else if (val === '.') {
+                                    if (!newVal.includes('.')) newVal += '.';
+                                  } else {
+                                    newVal += val;
+                                  }
+                                  
+                                  const game = config.games.find((g: any) => g.id === editingGameAmount);
+                                  if (game?.presets && game.presets.length > 0) {
+                                    const maxAllowed = Math.max(...game.presets.map(Number));
+                                    if (newVal !== '' && parseFloat(newVal) > maxAllowed) {
+                                      newVal = maxAllowed.toString();
+                                    }
+                                  }
+                                  setTempBetAmount(newVal);
+                                };
+                                
+                                return (
+                                  <div className="grid grid-cols-4 gap-1.5 mb-5">
+                                    <button onClick={() => handleKeypadPress('1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                                    <button onClick={() => handleKeypadPress('2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                                    <button onClick={() => handleKeypadPress('3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                                    <button onClick={() => handleKeypadPress('.')} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                                    <button onClick={() => handleKeypadPress('4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                                    <button onClick={() => handleKeypadPress('5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                                    <button onClick={() => handleKeypadPress('6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                                <button onClick={() => setTempBetAmount('')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                                    <button onClick={() => handleKeypadPress('7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                                    <button onClick={() => handleKeypadPress('8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                                    <button onClick={() => handleKeypadPress('9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                                    <button onClick={() => handleKeypadPress('clear')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                                <button onClick={() => setTempBetAmount(tempBetAmount + '0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
-                              </div>
+                                    <button onClick={() => handleKeypadPress('0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
+                                  </div>
+                                );
+                              })()}
 
                               <div className="flex justify-between items-center gap-3">
                                 <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
