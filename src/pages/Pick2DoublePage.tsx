@@ -58,7 +58,7 @@ function formatDrawTimeToLocal(timeStr: string): { display: string; original: st
     return { display: timeStr, original: timeStr };
   }
 
-  const localTimeDisplay = localDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+  const localTimeDisplay = localDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
   const localDateDisplay = localDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
 
   return {
@@ -343,7 +343,7 @@ export function Pick2DoublePage() {
       const allPassed = Array.from(new Set([...passedSelected, ...passedInCart]))
 
       if (allPassed.length > 0) {
-        const displays = allPassed.map(t => formatDrawTimeToLocal(t).display.split(' ')[0]).join(', ')
+        const displays = allPassed.map(t => formatDrawTimeToLocal(t).display.split(' (')[0]).join(', ')
         showAlert(`The following draw time(s) have passed: ${displays}. They have been removed from your selection and cart.`)
 
         setSelectedDrawTimes(prev => prev.filter(t => !allPassed.includes(t)))
@@ -863,7 +863,7 @@ export function Pick2DoublePage() {
                                       : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
                                   }`}
                               >
-                                {formatDrawTimeToLocal(time).display.split(' ')[0]}
+                                {formatDrawTimeToLocal(time).display.split(' (')[0]}
                               </button>
                             )
                           })}
@@ -1170,7 +1170,7 @@ export function Pick2DoublePage() {
                                                 <span className="font-bold text-foreground truncate">{item.gameName}</span>
                                               </div>
                                               <span className="text-muted-foreground w-[25%] text-left font-medium">
-                                                {time.includes(',') ? time.split(',')[1].trim() : formatDrawTimeToLocal(time).display.split(' ')[0]}
+                                                {time.includes(',') ? time.split(',')[1].trim() : formatDrawTimeToLocal(time).display.split(' (')[0]}
                                               </span>
                                               <span className="font-extrabold text-foreground w-[30%] text-right pr-5">
                                                 $ {item.amount.toFixed(2)}
@@ -1236,7 +1236,7 @@ export function Pick2DoublePage() {
                                     : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
                                 }`}
                             >
-                              {formatDrawTimeToLocal(time).display.split(' ')[0]}
+                              {formatDrawTimeToLocal(time).display.split(' (')[0]}
                             </button>
                           )
                         })}
@@ -1612,7 +1612,7 @@ export function Pick2DoublePage() {
                                                 <span className="font-bold text-foreground truncate">{item.gameName}</span>
                                               </div>
                                               <span className="text-muted-foreground w-[25%] text-left font-medium">
-                                                {time.includes(',') ? time.split(',')[1].trim() : formatDrawTimeToLocal(time).display.split(' ')[0]}
+                                                {time.includes(',') ? time.split(',')[1].trim() : formatDrawTimeToLocal(time).display.split(' (')[0]}
                                               </span>
                                               <span className="font-extrabold text-foreground w-[30%] text-right pr-5">
                                                 $ {item.amount.toFixed(2)}

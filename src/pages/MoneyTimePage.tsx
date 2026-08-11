@@ -302,7 +302,7 @@ export function MoneyTimePage() {
         const datePart = slot.datetime.substring(0, tIndex);
 
         const slotDate = parseJamaicaDrawDate(slot.datetime);
-        const localSlotHour = slotDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const localSlotHour = slotDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
         const localSlotDateLabel = `${String(slotDate.getDate()).padStart(2, '0')} ${months[slotDate.getMonth()]} ${slotDate.getFullYear()}`;
         const label = `${localSlotDateLabel}, ${localSlotHour}`;
         const key = slot.datetime;
@@ -313,7 +313,7 @@ export function MoneyTimePage() {
             drawDateTimeStr = `${datePart}T${drawDateTimeStr}`;
           }
           const drawDate = parseJamaicaDrawDate(drawDateTimeStr);
-          const drawDisplayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const drawDisplayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
           const localDrawDateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
           const fullTime = `${localDrawDateLabel}, ${drawDisplayTime}`;
 
@@ -359,7 +359,7 @@ export function MoneyTimePage() {
 
         if (drawMs >= startMs && drawMs < startMs + 60 * 60 * 1000) {
           foundGroup = true;
-          const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+          const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
           const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
           lastGroup.draws.push({
             id: draw.id,
@@ -373,7 +373,7 @@ export function MoneyTimePage() {
       }
 
       if (!foundGroup) {
-        const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const displayTime = drawDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
         const dateLabel = `${String(drawDate.getDate()).padStart(2, '0')} ${months[drawDate.getMonth()]} ${drawDate.getFullYear()}`;
         const label = `${dateLabel}, ${displayTime}`;
         const key = `${draw.draw_date}_${draw.draw_time}`;
@@ -528,7 +528,7 @@ export function MoneyTimePage() {
   function formatSoldOutDrawTimeToLocal(timeStr: string): string {
     const directDate = parseJamaicaDrawDate(timeStr)
     if (!Number.isNaN(directDate.getTime())) {
-      const localTimeDisplay = directDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+      const localTimeDisplay = directDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })
       const localDateDisplay = directDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
       return `${localTimeDisplay} (${localDateDisplay})`
     }
@@ -539,7 +539,7 @@ export function MoneyTimePage() {
       return timeStr
     }
 
-    const localTimeDisplay = fallbackDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+    const localTimeDisplay = fallbackDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })
     const localDateDisplay = fallbackDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
     return `${localTimeDisplay} (${localDateDisplay})`
   }

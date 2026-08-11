@@ -22,9 +22,6 @@ export function Footer() {
               <div className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-xs text-muted-foreground">
                 <Lock className="size-3 text-primary" /> SSL Secured
               </div>
-              <div className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-xs text-muted-foreground">
-                <ShieldCheck className="size-3 text-emerald-500" /> Licensed
-              </div>
             </div>
           </div>
 
