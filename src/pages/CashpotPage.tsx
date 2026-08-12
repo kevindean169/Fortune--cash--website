@@ -1088,10 +1088,10 @@ export function CashpotPage() {
                             <span className="font-extrabold text-lg text-green-400">${cartTotal.toFixed(2)}</span>
                           </div>
                           <Button
-                            disabled={cart.length === 0 || checkoutLoading}
+                            disabled={true || cart.length === 0 || checkoutLoading} // TEMPORARILY DISABLED: remove 'true ||' to re-enable
                             onClick={handleCheckout}
                             size="lg"
-                            className={`w-full font-extrabold text-[15px] uppercase tracking-widest transition-all rounded-lg ${cart.length === 0 || checkoutLoading
+                            className={`w-full font-extrabold text-[15px] uppercase tracking-widest transition-all rounded-lg ${true || cart.length === 0 || checkoutLoading
                               ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
                               : 'bet-add-btn-green'
                               }`}
@@ -1475,11 +1475,9 @@ export function CashpotPage() {
                               + Add More
                             </Button>
                             <Button
-                              disabled={cart.length === 0 || checkoutLoading}
-                              onClick={() => {
-                                handleCheckout();
-                              }}
-                              className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${cart.length === 0 || checkoutLoading
+                              disabled={true || cart.length === 0 || checkoutLoading} // TEMPORARILY DISABLED: remove 'true ||' to re-enable
+                              onClick={handleCheckout}
+                              className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${true || cart.length === 0 || checkoutLoading
                                 ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
                                 : 'bet-add-btn-green'
                                 }`}
