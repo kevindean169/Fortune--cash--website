@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useTabManagement } from '@/context/TabManagementContext'
 import { formatUsd } from '@/lib/currency'
 
 const mainNav = [
@@ -20,6 +21,7 @@ const mainNav = [
 
 export function Navigation() {
   const { user, walletBalance, logout } = useAuth()
+  const { isTabEnabled } = useTabManagement()
   const navigateHook = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -41,6 +43,28 @@ export function Navigation() {
     const baseUrl = (import.meta.env.VITE_API_URL || 'https://ja.fortunescash.com').replace(/\/$/, '')
     window.location.href = `${baseUrl}/api/back-to-lobby`
   }
+
+  const filteredMainNav = mainNav.filter(item => {
+    if (item.id === 'results') return isTabEnabled('results')
+    return true
+  })
+
+  const mobileNavItems = [
+    { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
+    { id: 'results', label: 'Results', icon: <Trophy className="size-4" />, hide: !isTabEnabled('results') },
+    { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
+    ...(user ? [
+      { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
+      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
+      { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" />, hide: !isTabEnabled('purchased') },
+      { id: 'winnings', label: 'My Winnings', icon: <Trophy className="size-4" />, hide: !isTabEnabled('winnings') },
+      { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
+      { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" />, hide: !isTabEnabled('transaction') },
+    ] : []),
+    { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
+    { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
+    { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
+  ].filter(item => !item.hide)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md">
@@ -74,7 +98,7 @@ export function Navigation() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
 
-            {mainNav.map(item => (
+            {filteredMainNav.map(item => (
               <Link
                 key={item.id}
                 to={`/${item.id}`}
@@ -203,22 +227,7 @@ export function Navigation() {
                   </div>
 
                   <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-                    {[
-                      { id: 'lotteries', label: 'Lotteries', icon: <Ticket className="size-4" /> },
-                      { id: 'results', label: 'Results', icon: <Trophy className="size-4" /> },
-                      { id: 'about', label: 'About', icon: <FileText className="size-4" /> },
-                      ...(user ? [
-                        { id: 'profile', label: 'My Profile', icon: <User className="size-4" /> },
-                        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="size-4" /> },
-                        { id: 'tickets', label: 'My Tickets', icon: <Ticket className="size-4" /> },
-                        { id: 'winnings', label: 'My Winnings', icon: <Trophy className="size-4" /> },
-                        { id: 'wallet', label: 'Wallet', icon: <Wallet className="size-4" /> },
-                        { id: 'transactions', label: 'Transactions', icon: <FileText className="size-4" /> },
-                      ] : []),
-                      { id: 'responsible-gaming', label: 'Responsible Gaming', icon: <ShieldCheck className="size-4" /> },
-                      { id: 'contact', label: 'Support', icon: <Phone className="size-4" /> },
-                      { id: 'terms', label: 'Terms & Conditions', icon: <FileText className="size-4" /> },
-                    ].map(item => (
+                    {mobileNavItems.map(item => (
                       <Link
                         key={item.id}
                         to={`/${item.id}`}

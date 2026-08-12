@@ -5,19 +5,21 @@ import {
   ChevronRight, LayoutDashboard, FileText
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useTabManagement } from '@/context/TabManagementContext'
 import { formatUsd } from '@/lib/currency'
 
 export function AccountLayout() {
   const { user, walletBalance, logout } = useAuth()
+  const { isTabEnabled } = useTabManagement()
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
     { path: '/profile', label: 'Personal Details', icon: UserIcon },
     { path: '/wallet', label: 'My Wallet', icon: Wallet },
-    { path: '/transactions', label: 'My Transactions', icon: FileText },
-    { path: '/tickets', label: 'My Tickets', icon: Ticket },
-    { path: '/winnings', label: 'My Winnings', icon: Trophy },
-  ]
+    { path: '/transactions', label: 'My Transactions', icon: FileText, hide: !isTabEnabled('transaction') },
+    { path: '/tickets', label: 'My Tickets', icon: Ticket, hide: !isTabEnabled('purchased') },
+    { path: '/winnings', label: 'My Winnings', icon: Trophy, hide: !isTabEnabled('winnings') },
+  ].filter(item => !item.hide)
 
   return (
     <div className="py-4 md:py-10">

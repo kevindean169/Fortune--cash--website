@@ -10,6 +10,7 @@ import {
 import { GAMES } from '@/lib/fortune-data'
 import type { PageId } from '@/lib/fortune-data'
 import { useNavigate } from 'react-router-dom'
+import { useTabManagement } from '@/context/TabManagementContext'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -84,6 +85,7 @@ export function HomePage() {
   const routerNavigate = useNavigate()
   const navigate = (path: string) => routerNavigate(path === 'home' ? '/' : `/${path}`)
   const baseUrl = import.meta.env.VITE_API_URL || ''
+  const { isTabEnabled } = useTabManagement()
 
   const [homeData, setHomeData] = useState<{
     latest_results: any[];
@@ -253,9 +255,11 @@ export function HomePage() {
                 <Button onClick={() => navigate('lotteries')} className="flex-1 text-black font-extrabold text-base h-12 xl:h-14 rounded-lg bg-gradient-to-b from-[#fce293] to-[#c79844] hover:brightness-110 shadow-[0_4px_15px_rgba(199,152,68,0.3)] border-none">
                   PLAY NOW <ArrowRight className="size-5 ml-1" />
                 </Button>
-                <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-base h-12 xl:h-14 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
-                  VIEW RESULTS
-                </Button>
+                {isTabEnabled('results') && (
+                  <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-base h-12 xl:h-14 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
+                    VIEW RESULTS
+                  </Button>
+                )}
               </div>
 
               {/* Desktop Features Box */}
@@ -292,9 +296,11 @@ export function HomePage() {
             <Button onClick={() => navigate('lotteries')} className="flex-1 text-black font-extrabold text-sm h-12 rounded-lg bg-gradient-to-b from-[#fce293] to-[#c79844] hover:brightness-110 shadow-[0_4px_15px_rgba(199,152,68,0.3)] border-none">
               PLAY NOW <ArrowRight className="size-4 ml-1" />
             </Button>
-            <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-sm h-12 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
-              VIEW RESULTS
-            </Button>
+            {isTabEnabled('results') && (
+              <Button variant="outline" onClick={() => navigate('results')} className="flex-1 text-[#d4af37] font-bold text-sm h-12 rounded-lg border-[1.5px] border-[#c79844] bg-[#050505] hover:bg-[#1a1a1a]">
+                VIEW RESULTS
+              </Button>
+            )}
           </div>
 
           {/* Mobile Features Strip */}
@@ -492,89 +498,91 @@ export function HomePage() {
       </section>
 
       {/* Latest Results */}
-      <section className="py-16 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-extrabold tracking-tight">Latest Results</h2>
-              <p className="text-muted-foreground mt-1">Most recent winning numbers</p>
+      {isTabEnabled('results') && (
+        <section className="py-16 bg-background">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-extrabold tracking-tight">Latest Results</h2>
+                <p className="text-muted-foreground mt-1">Most recent winning numbers</p>
+              </div>
+              <Button variant="ghost" onClick={() => navigate('results')} className="text-primary gap-1">
+                All Results <ArrowRight className="size-4" />
+              </Button>
             </div>
-            <Button variant="ghost" onClick={() => navigate('results')} className="text-primary gap-1">
-              All Results <ArrowRight className="size-4" />
-            </Button>
-          </div>
-          <div className="space-y-3">
-            {loading ? (
-              Array(4).fill(0).map((_, i) => (
-                <div key={i} className="h-[104px] bg-[#0c0c0c] rounded-xl animate-pulse border border-white/5 p-6 flex items-center justify-between">
-                  <div className="space-y-2">
-                    <div className="h-5 w-32 bg-white/5 rounded" />
-                    <div className="h-3 w-24 bg-white/5 rounded" />
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="size-10 rounded-full bg-white/5" />
-                    <div className="size-10 rounded-full bg-white/5" />
-                    <div className="size-10 rounded-full bg-white/5" />
-                  </div>
-                  <div className="space-y-2 text-right">
-                    <div className="h-3 w-16 bg-white/5 rounded ml-auto" />
-                    <div className="h-6 w-12 bg-white/5 rounded ml-auto" />
-                  </div>
-                </div>
-              ))
-            ) : latestResults.slice(0, 4).map((result, i) => (
-              <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
-                <CardContent className="p-6 md:px-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
-                    {/* Col 1: Game name + date */}
-                    <div className="text-center sm:text-left">
-                      <p className="font-bold text-base leading-tight">{result.game}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{result.date}</p>
+            <div className="space-y-3">
+              {loading ? (
+                Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="h-[104px] bg-[#0c0c0c] rounded-xl animate-pulse border border-white/5 p-6 flex items-center justify-between">
+                    <div className="space-y-2">
+                      <div className="h-5 w-32 bg-white/5 rounded" />
+                      <div className="h-3 w-24 bg-white/5 rounded" />
                     </div>
-
-                    {/* Col 2: Balls spread evenly */}
-                    <div className="flex items-center justify-center gap-4 flex-wrap">
-                      {/* Number balls */}
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="flex gap-2">
-                          {result.numbers.map((n: string | number, ni: number) => (
-                            <div key={ni} className="number-ball number-ball-result size-10 text-sm">
-                              {n}
-                            </div>
-                          ))}
-                        </div>
-                        <span className="text-[10px] text-muted-foreground tracking-wide uppercase">Number</span>
+                    <div className="flex gap-2">
+                      <div className="size-10 rounded-full bg-white/5" />
+                      <div className="size-10 rounded-full bg-white/5" />
+                      <div className="size-10 rounded-full bg-white/5" />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <div className="h-3 w-16 bg-white/5 rounded ml-auto" />
+                      <div className="h-6 w-12 bg-white/5 rounded ml-auto" />
+                    </div>
+                  </div>
+                ))
+              ) : latestResults.slice(0, 4).map((result, i) => (
+                <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
+                  <CardContent className="p-6 md:px-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
+                      {/* Col 1: Game name + date */}
+                      <div className="text-center sm:text-left">
+                        <p className="font-bold text-base leading-tight">{result.game}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{result.date}</p>
                       </div>
 
-                      {/* Megaball — Cashpot only */}
-                      {result.megaBall != null && result.megaBall !== '' && (
+                      {/* Col 2: Balls spread evenly */}
+                      <div className="flex items-center justify-center gap-4 flex-wrap">
+                        {/* Number balls */}
                         <div className="flex flex-col items-center gap-1">
-                          <div className={`number-ball size-10 ${result.megaBall === 'white' ? 'number-ball-result' : 'number-ball-mega'}`} />
-                          <span className="text-[10px] text-red-400 tracking-wide uppercase font-semibold">Mega</span>
+                          <div className="flex gap-2">
+                            {result.numbers.map((n: string | number, ni: number) => (
+                              <div key={ni} className="number-ball number-ball-result size-10 text-sm">
+                                {n}
+                              </div>
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground tracking-wide uppercase">Number</span>
                         </div>
-                      )}
 
-                      {/* Monstaball — Cashpot only */}
-                      {result.monstaBall != null && result.monstaBall !== '' && (
-                        <div className="flex flex-col items-center gap-1">
-                          <div className={`number-ball size-10 ${result.monstaBall === 'white' ? 'number-ball-result' : 'number-ball-monsta'}`} />
-                          <span className="text-[10px] text-amber-400 tracking-wide uppercase font-semibold">Monsta</span>
-                        </div>
-                      )}
-                    </div>
+                        {/* Megaball — Cashpot only */}
+                        {result.megaBall != null && result.megaBall !== '' && (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className={`number-ball size-10 ${result.megaBall === 'white' ? 'number-ball-result' : 'number-ball-mega'}`} />
+                            <span className="text-[10px] text-red-400 tracking-wide uppercase font-semibold">Mega</span>
+                          </div>
+                        )}
 
-                    {/* Col 3: Draw No */}
-                    <div className="text-center sm:text-right min-w-[80px]">
-                      <p className="text-xs text-muted-foreground mb-0.5">Draw No</p>
-                      <p className="font-extrabold text-lg text-primary">{result.drawNo}</p>
+                        {/* Monstaball — Cashpot only */}
+                        {result.monstaBall != null && result.monstaBall !== '' && (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className={`number-ball size-10 ${result.monstaBall === 'white' ? 'number-ball-result' : 'number-ball-monsta'}`} />
+                            <span className="text-[10px] text-amber-400 tracking-wide uppercase font-semibold">Monsta</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Col 3: Draw No */}
+                      <div className="text-center sm:text-right min-w-[80px]">
+                        <p className="text-xs text-muted-foreground mb-0.5">Draw No</p>
+                        <p className="font-extrabold text-lg text-primary">{result.drawNo}</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Recent Winners */}
       <section className="py-16 bg-fortune-card/30">

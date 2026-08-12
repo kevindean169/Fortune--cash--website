@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { RootLayout } from '@/components/RootLayout'
 import { publicRoutes } from '@/routes/publicRoutes'
 import { protectedRoutes } from '@/routes/protectedRoutes'
+import { TabManagementProvider } from '@/context/TabManagementContext'
 
 const router = createBrowserRouter([
   {
@@ -15,7 +16,11 @@ const router = createBrowserRouter([
 ])
 
 export function App() {
-  return <RouterProvider router={router} />
+  return (
+    <TabManagementProvider>
+      <RouterProvider router={router} />
+    </TabManagementProvider>
+  )
 }
 
 export default App

@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useTabManagement } from '@/context/TabManagementContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
 import { clampRemainingLimit, getCartHeldAmount } from '@/lib/betLimits'
@@ -112,6 +113,7 @@ export function Pick2SinglePage() {
   const urlId = searchParams.get('id')
 
   const { accessToken, fetchWallet } = useAuth()
+  const { isTabEnabled } = useTabManagement()
 
   // Dynamic States
   const [lotteryId, setLotteryId] = useState<string | null>(urlId)
@@ -693,12 +695,12 @@ export function Pick2SinglePage() {
             { id: 'buy', label: 'Buy Tickets' },
             { id: 'prize', label: 'Prize Structure' },
             { id: 'how', label: 'How to Play' },
-            { id: 'soldout', label: 'Sold Out Numbers' },
-            { id: 'recent', label: 'Recent Draws' },
-          ] as const).map((tab) => (
+            { id: 'soldout', label: 'Sold Out Numbers', hide: !isTabEnabled('sold_out') },
+            { id: 'recent', label: 'Recent Draws', hide: !isTabEnabled('recent_draws') },
+          ] as const).filter(tab => !('hide' in tab) || !tab.hide).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setActiveTab(tab.id as 'buy'|'prize'|'how'|'soldout'|'recent')}
               className={`px-5 py-3 text-sm font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
                 ? 'lottery-tab-active-gold'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
