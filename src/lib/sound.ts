@@ -1,5 +1,6 @@
 let audioCtx: AudioContext | null = null;
 let audioBuffer: AudioBuffer | null = null;
+let lastPlayTime = 0;
 
 if (typeof window !== 'undefined') {
   // Initialize and decode the audio into raw memory for zero-latency playback
@@ -22,6 +23,11 @@ if (typeof window !== 'undefined') {
 export const playClickSound = () => {
   try {
     if (!audioCtx || !audioBuffer) return;
+    
+    // Prevent double-firing from simultaneous touchstart/mousedown events
+    const now = performance.now();
+    if (now - lastPlayTime < 50) return;
+    lastPlayTime = now;
     
     // Browsers suspend audio contexts until first user interaction; resume if needed
     if (audioCtx.state === 'suspended') {

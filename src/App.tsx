@@ -33,12 +33,10 @@ export function App() {
       }
     };
 
-    document.addEventListener('mousedown', handleGlobalClick, true);
-    document.addEventListener('touchstart', handleGlobalClick, { capture: true, passive: true });
+    document.addEventListener('pointerdown', handleGlobalClick, { capture: true, passive: true });
     
     return () => {
-      document.removeEventListener('mousedown', handleGlobalClick, true);
-      document.removeEventListener('touchstart', handleGlobalClick, { capture: true, passive: true } as any);
+      document.removeEventListener('pointerdown', handleGlobalClick, { capture: true, passive: true } as any);
     };
   }, []);
 
