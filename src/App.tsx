@@ -33,8 +33,8 @@ export function App() {
       }
     };
 
-    document.addEventListener('click', handleGlobalClick, true);
-    return () => document.removeEventListener('click', handleGlobalClick, true);
+    document.addEventListener('pointerdown', handleGlobalClick, true);
+    return () => document.removeEventListener('pointerdown', handleGlobalClick, true);
   }, []);
 
   return (
