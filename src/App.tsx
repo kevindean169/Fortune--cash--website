@@ -19,7 +19,7 @@ const router = createBrowserRouter([
 
 export function App() {
   useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
+    const handleGlobalClick = (e: Event) => {
       const target = e.target as HTMLElement;
       
       // Do not play sound when interacting with text inputs
@@ -33,8 +33,13 @@ export function App() {
       }
     };
 
-    document.addEventListener('pointerdown', handleGlobalClick, true);
-    return () => document.removeEventListener('pointerdown', handleGlobalClick, true);
+    document.addEventListener('mousedown', handleGlobalClick, true);
+    document.addEventListener('touchstart', handleGlobalClick, { capture: true, passive: true });
+    
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick, true);
+      document.removeEventListener('touchstart', handleGlobalClick, { capture: true, passive: true } as any);
+    };
   }, []);
 
   return (
