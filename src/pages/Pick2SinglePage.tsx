@@ -1057,7 +1057,7 @@ export function Pick2SinglePage() {
                               type="button"
                               disabled={isPassed}
                               onClick={() => toggleDrawTime(time)}
-                              className={`py-2 px-1 text-base font-bold rounded-lg border text-center transition-all ${isPassed
+                              className={`py-2 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
                                 ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
                                 : isSelected
                                   ? 'border-primary bg-primary/15 text-primary'
