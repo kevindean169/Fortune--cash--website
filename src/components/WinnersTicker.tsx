@@ -1,4 +1,3 @@
-import React from 'react';
 
 const maskAccount = (val: any): string => {
   if (!val) return '8***28';

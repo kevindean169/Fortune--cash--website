@@ -1,5 +1,3 @@
-import React from 'react'
-
 export function LotterySkeleton() {
   return (
     <div className="min-h-0 py-4 md:py-10 w-full bg-background">
