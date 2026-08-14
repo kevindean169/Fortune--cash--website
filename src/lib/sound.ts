@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') {
       if (!AudioContextClass) return;
       
       audioCtx = new AudioContextClass();
-      const response = await fetch('/lottery-sound.mp3');
+      const response = await fetch('/lottery-sound.dat');
       const arrayBuffer = await response.arrayBuffer();
       audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
     } catch (err) {

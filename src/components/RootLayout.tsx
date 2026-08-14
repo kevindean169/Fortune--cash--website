@@ -3,12 +3,13 @@ import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { MobileBottomNav } from '@/components/MobileBottomNav'
-
+import { WinnersTicker } from '@/components/WinnersTicker'
 
 export function RootLayout() {
   return (
     <div className="min-h-svh flex flex-col bg-background pb-16 md:pb-0">
       <ScrollToTop />
+      <WinnersTicker />
       <Navigation />
       
       <main className="flex-1">

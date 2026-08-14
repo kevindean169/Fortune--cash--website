@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, ChevronRight, Trash2 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTabManagement } from '@/context/TabManagementContext'
@@ -9,6 +9,7 @@ import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { submitLotteryPurchase } from '@/lib/lotteryPurchase'
 import { clampRemainingLimit, getCartHeldAmount } from '@/lib/betLimits'
 import { RecentDrawsTab } from '@/components/RecentDrawsTab'
+import { LotterySkeleton } from '@/components/LotterySkeleton'
 
 interface BetItem {
   id: number
@@ -935,11 +936,7 @@ export function MoneyTimePage() {
   }
 
   if (loading) {
-    return (
-      <div className="lottery-purchase-wrapper flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <LotterySkeleton />
   }
 
   if (error) {
@@ -1023,7 +1020,8 @@ export function MoneyTimePage() {
         </Card>
 
         {/* Action Tabs */}
-        <div className="flex gap-0 border-b border-border/50 mb-8 overflow-x-auto scrollbar-hide">
+        <div className="relative mb-8 group">
+          <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
           {([
             { id: 'buy', label: 'Buy Tickets' },
             { id: 'prize', label: 'Prize Structure' },
@@ -1042,6 +1040,20 @@ export function MoneyTimePage() {
               {tab.label}
             </button>
           ))}
+          </div>
+          {/* Scroll Hint Arrow for Mobile */}
+          <button 
+            type="button"
+            onClick={(e) => {
+              const container = e.currentTarget.previousElementSibling;
+              if (container) container.scrollBy({ left: 150, behavior: 'smooth' });
+            }}
+            className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center pr-2 md:hidden z-10"
+          >
+            <div className="bg-black/80 backdrop-blur-md rounded-full p-1.5 shadow-lg border border-white/20 text-white">
+              <ChevronRight className="w-4 h-4 animate-pulse" />
+            </div>
+          </button>
         </div>
 
         {/* BUY TICKETS */}
