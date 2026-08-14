@@ -167,7 +167,7 @@ export function HomePage() {
 
         {/* Full Screen Desktop Background Image */}
         <div className="hidden lg:block absolute inset-0 z-0 pointer-events-none">
-          <img src="/golden.png" alt="Desktop Background" className="w-full h-full object-cover object-right" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)' }} />
+          <img src="/golden.png" alt="Desktop Background" className="w-full h-full object-cover object-right-bottom" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)' }} />
         </div>
 
         <div className="relative z-10 mx-auto max-w-[1600px] w-full px-4 lg:px-12 pt-12 pb-2 lg:pt-24 lg:pb-16 overflow-visible">
