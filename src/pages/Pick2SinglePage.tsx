@@ -637,7 +637,7 @@ export function Pick2SinglePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Lottery Header styled like App */}
-        <Card className="border border-border/60 mb-6 overflow-hidden relative min-h-[64px] flex items-center bg-[#0c0c0c]">
+        <Card className="border border-border/60 mb-4 overflow-hidden relative min-h-[48px] flex items-center bg-[#0c0c0c]">
           {/* Background Image covering full card */}
           <div className="absolute inset-0 w-full h-full">
             <img
@@ -648,7 +648,7 @@ export function Pick2SinglePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
 
-          <CardContent className="p-3 md:p-4 flex flex-row items-center justify-between gap-4 w-full relative z-10">
+          <CardContent className="p-2 md:p-3 flex flex-row items-center justify-between gap-4 w-full relative z-10">
             {/* Left side: Back button + Name and Type in one row */}
             <div className="flex items-center gap-3 min-w-0">
               <button
@@ -687,7 +687,7 @@ export function Pick2SinglePage() {
         </Card>
 
         {/* Action Tabs */}
-        <div className="relative mb-8 group">
+        <div className="relative mb-3 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
           {([
             { id: 'buy', label: 'Buy Tickets' },
@@ -699,7 +699,7 @@ export function Pick2SinglePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as 'buy'|'prize'|'how'|'soldout'|'recent')}
-              className={`px-5 py-3 text-sm font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
+              className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
                 ? 'lottery-tab-active-gold'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
@@ -1053,39 +1053,41 @@ export function Pick2SinglePage() {
                 {/* Mobile Responsive Stepped View */}
                 <div className="lg:hidden space-y-2 pb-36">
                   {/* Draws selection */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
                       <div className="flex justify-between items-center mb-1 pb-1 border-b border-border/40">
                         <span className="text-xs text-primary font-black uppercase tracking-wider">Draw Schedule</span>
                         <span className="text-base text-primary font-bold border border-primary px-2 py-0.5 rounded">{selectedDrawTimes.length} Selected</span>
                       </div>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {config.drawTimes.map((time: string) => {
-                          const isSelected = selectedDrawTimes.includes(time)
-                          const isPassed = isDrawTimePassed(time)
-                          return (
-                            <button
-                              key={time}
-                              type="button"
-                              disabled={isPassed}
-                              onClick={() => toggleDrawTime(time)}
-                              className={`py-2 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
-                                ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                : isSelected
-                                  ? 'border-primary bg-primary/15 text-primary'
-                                  : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
-                                }`}
-                            >
-                              {formatDrawTimeToLocal(time).display.split(' (')[0]}
-                            </button>
-                          )
-                        })}
+                      <div className="max-h-[82px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {config.drawTimes.map((time: string) => {
+                            const isSelected = selectedDrawTimes.includes(time)
+                            const isPassed = isDrawTimePassed(time)
+                            return (
+                              <button
+                                key={time}
+                                type="button"
+                                disabled={isPassed}
+                                onClick={() => toggleDrawTime(time)}
+                                className={`py-1.5 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
+                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : isSelected
+                                    ? 'border-primary bg-primary/15 text-primary'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
+                                  }`}
+                              >
+                                {formatDrawTimeToLocal(time).display.split(' (')[0]}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
 
                   {/* Pick Number */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex flex-col gap-1 shrink-0">
@@ -1114,7 +1116,7 @@ export function Pick2SinglePage() {
                             setTempSelectedNumber(selectedNumber)
                             setShowNumberGrid(!showNumberGrid)
                           }}
-                          className="flex-1 px-3 py-2.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
+                          className="flex-1 px-3 py-1.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
                         >
                           <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
                             {selectedNumber ? `#${selectedNumber}` : 'Select Number'}
@@ -1156,7 +1158,7 @@ export function Pick2SinglePage() {
                   </Card>
 
                   {/* Enter Bet Amounts */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0 mt-2">
                     <CardContent className="px-3 py-1 space-y-1">
                       <h3 className="font-extrabold text-sm text-foreground">ENTER YOUR BET AMOUNT</h3>
                       <div className="grid grid-cols-1 gap-2">

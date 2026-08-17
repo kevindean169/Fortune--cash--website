@@ -738,7 +738,7 @@ export function Pick2DoublePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Lottery Header styled like App */}
-        <Card className="border border-border/60 mb-6 overflow-hidden relative min-h-[64px] flex items-center bg-[#0c0c0c]">
+        <Card className="border border-border/60 mb-4 overflow-hidden relative min-h-[48px] flex items-center bg-[#0c0c0c]">
           {/* Background Image covering full card */}
           <div className="absolute inset-0 w-full h-full">
             <img
@@ -749,7 +749,7 @@ export function Pick2DoublePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
 
-          <CardContent className="p-3 md:p-4 flex flex-row items-center justify-between gap-4 w-full relative z-10">
+          <CardContent className="p-2 md:p-3 flex flex-row items-center justify-between gap-4 w-full relative z-10">
             {/* Left side: Back button + Name and Type in one row */}
             <div className="flex items-center gap-3 min-w-0">
               <button
@@ -788,7 +788,7 @@ export function Pick2DoublePage() {
         </Card>
 
         {/* Action Tabs */}
-        <div className="relative mb-8 group">
+        <div className="relative mb-3 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
           {([
             { id: 'buy', label: 'Buy Tickets' },
@@ -800,7 +800,7 @@ export function Pick2DoublePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as 'buy'|'prize'|'how'|'soldout'|'recent')}
-              className={`px-5 py-3 text-sm font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
+              className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
                 ? 'lottery-tab-active-gold'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
@@ -1229,60 +1229,44 @@ export function Pick2DoublePage() {
                 {/* Mobile Responsive Stepped View */}
                 <div className="lg:hidden space-y-2 pb-36">
                   {/* Draws selection */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
                       <div className="flex justify-between items-center mb-1 pb-1 border-b border-border/40">
                         <span className="text-xs text-primary font-black uppercase tracking-wider">Draw Schedule</span>
                         <span className="text-base text-primary font-bold border border-primary px-2 py-0.5 rounded">{selectedDrawTimes.length} Selected</span>
                       </div>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {config.drawTimes.map((time: string) => {
-                          const isSelected = selectedDrawTimes.includes(time)
-                          const isPassed = isDrawTimePassed(time)
-                          return (
-                            <button
-                              key={time}
-                              type="button"
-                              disabled={isPassed}
-                              onClick={() => toggleDrawTime(time)}
-                              className={`py-2 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
-                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                  : isSelected
-                                    ? 'border-primary bg-primary/15 text-primary'
-                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
-                                }`}
-                            >
-                              {formatDrawTimeToLocal(time).display.split(' (')[0]}
-                            </button>
-                          )
-                        })}
+                      <div className="max-h-[82px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {config.drawTimes.map((time: string) => {
+                            const isSelected = selectedDrawTimes.includes(time)
+                            const isPassed = isDrawTimePassed(time)
+                            return (
+                              <button
+                                key={time}
+                                type="button"
+                                disabled={isPassed}
+                                onClick={() => toggleDrawTime(time)}
+                                className={`py-1.5 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
+                                    ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                    : isSelected
+                                      ? 'border-primary bg-primary/15 text-primary'
+                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
+                                  }`}
+                              >
+                                {formatDrawTimeToLocal(time).display.split(' (')[0]}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
 
                   {/* Pick Numbers */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
-                    <CardContent className="px-3 py-1 space-y-3">
-                      <h3 className="font-extrabold text-sm text-foreground mb-1">Pick your Bet Numbers</h3>
-
-                      {/* Bet No. 1 Mobile */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-muted-foreground uppercase">Bet No. 1</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (selectedDrawTimes.length === 0) {
-                                showAlert('Please select draw time(s) first.')
-                                return
-                              }
-                              setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
-                            }}
-                            className="px-2 py-1 bg-neutral-900 border border-neutral-850 text-foreground text-[10px] font-bold rounded-md"
-                          >
-                            Quick Pick
-                          </button>
-                        </div>
+                  <Card className="bg-fortune-card border border-border/60 py-0">
+                    <CardContent className="px-3 py-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-extrabold text-sm text-foreground">Pick your Bet Numbers</h3>
                         <button
                           type="button"
                           onClick={() => {
@@ -1290,48 +1274,19 @@ export function Pick2DoublePage() {
                               showAlert('Please select draw time(s) first.')
                               return
                             }
-                            setTempSelectedNumber(selectedNumber)
-                            setShowGrid1(!showGrid1); setShowGrid2(false)
+                            setSelectedNumber(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
+                            setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
                           }}
-                          className="w-full bg-background border border-border px-3 py-2.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
+                          className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-foreground text-[10px] font-bold rounded-md"
                         >
-                          <span className={selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
-                            {selectedNumber ? `#${selectedNumber}` : 'Select Number 1'}
-                          </span>
-                          {showGrid1 ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+                          Quick Pick
                         </button>
-                        {showGrid1 && (
-                          <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                            <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn shadow-2xl">
-                              <h3 className="font-black text-2xl text-white mb-4">Pick Bet No. 1</h3>
-                              <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                                {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => (
-                                  <button
-                                    key={numStr}
-                                    type="button"
-                                    onClick={() => { setTempSelectedNumber(numStr) }}
-                                    className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${tempSelectedNumber === numStr
-                                      ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
-                                      }`}
-                                  >
-                                    {numStr}
-                                  </button>
-                                ))}
-                              </div>
-                              <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
-                                <Button variant="outline" onClick={() => setShowGrid1(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
-                                <Button onClick={() => { setSelectedNumber(tempSelectedNumber); setShowGrid1(false); }} className="bg-[#468a35] hover:bg-[#3a7526] text-white font-bold rounded-xl shadow-sm border border-white">Done</Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
 
-                      {/* Bet No. 2 Mobile */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-muted-foreground uppercase">Bet No. 2</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Bet No. 1 Mobile */}
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">Bet No. 1</span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1339,62 +1294,99 @@ export function Pick2DoublePage() {
                                 showAlert('Please select draw time(s) first.')
                                 return
                               }
-                              setSelectedNumber2(String(Math.floor(Math.random() * 36) + 1).padStart(2, '0'))
+                              setTempSelectedNumber(selectedNumber)
+                              setShowGrid1(!showGrid1); setShowGrid2(false)
                             }}
-                            className="px-2 py-1 bg-neutral-900 border border-neutral-850 text-foreground text-[10px] font-bold rounded-md"
+                            className="w-full bg-background border border-border px-2 py-1.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
                           >
-                            Quick Pick
+                            <span className={selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
+                              {selectedNumber ? `#${selectedNumber}` : 'Select No. 1'}
+                            </span>
+                            {showGrid1 ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
                           </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (selectedDrawTimes.length === 0) {
-                              showAlert('Please select draw time(s) first.')
-                              return
-                            }
-                            setTempSelectedNumber2(selectedNumber2)
-                            setShowGrid2(!showGrid2); setShowGrid1(false)
-                          }}
-                          className="w-full bg-background border border-border px-3 py-2.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
-                        >
-                          <span className={selectedNumber2 ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
-                            {selectedNumber2 ? `#${selectedNumber2}` : 'Select Number 2'}
-                          </span>
-                          {showGrid2 ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-                        </button>
-                        {showGrid2 && (
-                          <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                            <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn shadow-2xl">
-                              <h3 className="font-black text-2xl text-white mb-4">Pick Bet No. 2</h3>
-                              <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
-                                {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => (
-                                  <button
-                                    key={numStr}
-                                    type="button"
-                                    onClick={() => { setTempSelectedNumber2(numStr) }}
-                                    className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${tempSelectedNumber2 === numStr
-                                      ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
-                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
-                                      }`}
-                                  >
-                                    {numStr}
-                                  </button>
-                                ))}
-                              </div>
-                              <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
-                                <Button variant="outline" onClick={() => setShowGrid2(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
-                                <Button onClick={() => { setSelectedNumber2(tempSelectedNumber2); setShowGrid2(false); }} className="bg-[#468a35] hover:bg-[#3a7526] text-white font-bold rounded-xl shadow-sm border border-white">Done</Button>
-                              </div>
+
+                        {/* Bet No. 2 Mobile */}
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">Bet No. 2</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (selectedDrawTimes.length === 0) {
+                                showAlert('Please select draw time(s) first.')
+                                return
+                              }
+                              setTempSelectedNumber2(selectedNumber2)
+                              setShowGrid2(!showGrid2); setShowGrid1(false)
+                            }}
+                            className="w-full bg-background border border-border px-2 py-1.5 rounded-lg flex items-center justify-between font-bold text-xs text-foreground"
+                          >
+                            <span className={selectedNumber2 ? 'text-primary font-extrabold' : 'text-muted-foreground'}>
+                              {selectedNumber2 ? `#${selectedNumber2}` : 'Select No. 2'}
+                            </span>
+                            {showGrid2 ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Grid modals remain full-screen */}
+                      {showGrid1 && (
+                        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                          <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn shadow-2xl">
+                            <h3 className="font-black text-2xl text-white mb-4">Pick Bet No. 1</h3>
+                            <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                              {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => (
+                                <button
+                                  key={numStr}
+                                  type="button"
+                                  onClick={() => { setTempSelectedNumber(numStr) }}
+                                  className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${tempSelectedNumber === numStr
+                                    ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
+                                    }`}
+                                >
+                                  {numStr}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
+                              <Button variant="outline" onClick={() => setShowGrid1(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
+                              <Button onClick={() => { setSelectedNumber(tempSelectedNumber); setShowGrid1(false); }} className="bg-[#468a35] hover:bg-[#3a7526] text-white font-bold rounded-xl shadow-sm border border-white">Done</Button>
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+                      {showGrid2 && (
+                        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                          <div className="bg-fortune-card border border-border/60 rounded-2xl w-full max-w-sm p-6 flex flex-col relative animate-fadeIn shadow-2xl">
+                            <h3 className="font-black text-2xl text-white mb-4">Pick Bet No. 2</h3>
+                            <div className="grid grid-cols-6 gap-1.5 mb-6 max-h-[50vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                              {Array.from({ length: 36 }, (_, i) => String(i + 1).padStart(2, '0')).map((numStr) => (
+                                <button
+                                  key={numStr}
+                                  type="button"
+                                  onClick={() => { setTempSelectedNumber2(numStr) }}
+                                  className={`aspect-square rounded-lg flex items-center justify-center font-bold text-sm border transition-all ${tempSelectedNumber2 === numStr
+                                    ? 'border-primary bg-primary text-primary-foreground font-black shadow-[0_0_15px_rgba(224,172,44,0.3)] scale-105'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/50 hover:text-white'
+                                    }`}
+                                >
+                                  {numStr}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border/40">
+                              <Button variant="outline" onClick={() => setShowGrid2(false)} className="border-neutral-800 bg-transparent text-muted-foreground hover:bg-neutral-900 rounded-xl">Cancel</Button>
+                              <Button onClick={() => { setSelectedNumber2(tempSelectedNumber2); setShowGrid2(false); }} className="bg-[#468a35] hover:bg-[#3a7526] text-white font-bold rounded-xl shadow-sm border border-white">Done</Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
                   {/* Enter Bet Amounts */}
-                  <Card className="bg-fortune-card border border-border/60 py-3 gap-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0 mt-2">
                     <CardContent className="px-3 py-1 space-y-1">
                       <h3 className="font-extrabold text-sm text-foreground">ENTER YOUR BET AMOUNT</h3>
                       <div className="grid grid-cols-1 gap-2">
