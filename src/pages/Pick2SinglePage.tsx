@@ -689,27 +689,27 @@ export function Pick2SinglePage() {
         {/* Action Tabs */}
         <div className="relative mb-2 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
-          {([
-            { id: 'buy', label: 'Buy Tickets' },
-            { id: 'prize', label: 'Prize Structure' },
-            { id: 'how', label: 'How to Play' },
-            { id: 'soldout', label: 'Sold Out Numbers', hide: !isTabEnabled('sold_out') },
-            { id: 'recent', label: 'Recent Draws', hide: !isTabEnabled('recent_draws') },
-          ] as const).filter(tab => !('hide' in tab) || !tab.hide).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'buy'|'prize'|'how'|'soldout'|'recent')}
-              className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
-                ? 'lottery-tab-active-gold'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+            {([
+              { id: 'buy', label: 'Buy Tickets' },
+              { id: 'prize', label: 'Prize Structure' },
+              { id: 'how', label: 'How to Play' },
+              { id: 'soldout', label: 'Sold Out Numbers', hide: !isTabEnabled('sold_out') },
+              { id: 'recent', label: 'Recent Draws', hide: !isTabEnabled('recent_draws') },
+            ] as const).filter(tab => !('hide' in tab) || !tab.hide).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'buy' | 'prize' | 'how' | 'soldout' | 'recent')}
+                className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
+                  ? 'lottery-tab-active-gold'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
           {/* Scroll Hint Arrow for Mobile */}
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               const container = e.currentTarget.previousElementSibling;
@@ -1172,47 +1172,50 @@ export function Pick2SinglePage() {
                           }
 
                           return (
-                            <div key={game.id} className="flex flex-col space-y-1.5">
+                            <div key={game.id} className="flex flex-col space-y-1">
                               <span className={`text-[10px] font-bold text-center ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
                                 {game.name}
                               </span>
-                              <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
-                                <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
-                                <input
-                                  type="text"
-                                  inputMode="none"
-                                  readOnly
-                                  placeholder="0.00"
-                                  value={amount}
-                                  disabled={isDisabled}
-                                  onClick={(e) => {
-                                    if (!isDisabled) {
-                                      e.preventDefault();
-                                      if (!selectedNumber) {
-                                        showAlert('Please select draw time(s) and bet number first.');
-                                        return;
+                              <div className="flex gap-2 items-stretch">
+                                <div className={`flex-1 flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
+                                  <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
+                                  <input
+                                    type="text"
+                                    inputMode="none"
+                                    readOnly
+                                    placeholder="0.00"
+                                    value={amount}
+                                    disabled={isDisabled}
+                                    onClick={(e) => {
+                                      if (!isDisabled) {
+                                        e.preventDefault();
+                                        if (!selectedNumber) {
+                                          showAlert('Please select draw time(s) and bet number first.');
+                                          return;
+                                        }
+                                        setTempBetAmount(betAmounts[game.id] || '');
+                                        setEditingGameAmount(game.id);
                                       }
-                                      setTempBetAmount(betAmounts[game.id] || '');
-                                      setEditingGameAmount(game.id);
+                                    }}
+                                    className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={isDisabled}
+                                  onClick={() => {
+                                    if (!selectedNumber) {
+                                      showAlert('Please select draw time(s) and bet number first.')
+                                      return
                                     }
+                                    setTempBetAmount(betAmounts[game.id] || '')
+                                    setEditingGameAmount(game.id)
                                   }}
-                                  className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
-                                />
+                                  className={`px-8 py-1 text-[10px] font-bold rounded-md flex items-center justify-center gap-1 transition-all shrink-0 pick-2-amount-btn ${isDisabled
+                                    ? 'add-sub-btn-disabled'
+                                    : 'add-sub-btn-gold'}`}
+                                >+ ADD</button>
                               </div>
-                              <button
-                                type="button"
-                                disabled={isDisabled}
-                                onClick={() => {
-                                  if (!selectedNumber) {
-                                    showAlert('Please select draw time(s) and bet number first.')
-                                    return
-                                  }
-                                  setEditingGameAmount(game.id)
-                                }}
-                                className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
-                                  ? 'add-sub-btn-disabled'
-                                  : 'add-sub-btn-gold'}`}
-                              >+ ADD</button>
                             </div>
                           )
                         })}
@@ -1283,7 +1286,7 @@ export function Pick2SinglePage() {
                             } else {
                               newVal += val;
                             }
-                            
+
                             const game = config.games.find((g: any) => g.id === editingGameAmount);
                             if (game?.presets && game.presets.length > 0) {
                               const maxAllowed = Math.max(...game.presets.map(Number));
@@ -1293,7 +1296,7 @@ export function Pick2SinglePage() {
                             }
                             setTempBetAmount(newVal);
                           };
-                          
+
                           return (
                             <div className="grid grid-cols-4 gap-1.5 mb-5">
                               <button onClick={() => handleKeypadPress('1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
@@ -1497,7 +1500,7 @@ export function Pick2SinglePage() {
             <CardContent className="p-8 space-y-6">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground">How to Play {config.name}</h2>
               {howToPlayData ? (
-                <div 
+                <div
                   className="text-muted-foreground text-base whitespace-pre-wrap leading-relaxed how-to-play-content"
                   dangerouslySetInnerHTML={{ __html: howToPlayData }}
                 />
@@ -1567,8 +1570,8 @@ export function Pick2SinglePage() {
                         <div
                           key={item.ticket_number}
                           className={`p-3 border rounded-xl flex flex-col items-center justify-between text-center transition-all bg-[#0a0a0a] ${isSoldOut
-                              ? 'border-red-500/30 hover:border-red-500/50'
-                              : 'border-border/60 hover:border-primary/40'
+                            ? 'border-red-500/30 hover:border-red-500/50'
+                            : 'border-border/60 hover:border-primary/40'
                             }`}
                         >
                           <span className={`text-base font-black ${isSoldOut ? 'text-red-400' : 'text-foreground'}`}>

@@ -790,27 +790,27 @@ export function Pick2DoublePage() {
         {/* Action Tabs */}
         <div className="relative mb-2 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
-          {([
-            { id: 'buy', label: 'Buy Tickets' },
-            { id: 'prize', label: 'Prize Structure' },
-            { id: 'how', label: 'How to Play' },
-            { id: 'soldout', label: 'Sold Out Numbers', hide: !isTabEnabled('sold_out') },
-            { id: 'recent', label: 'Recent Draws', hide: !isTabEnabled('recent_draws') },
-          ] as const).filter(tab => !('hide' in tab) || !tab.hide).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'buy'|'prize'|'how'|'soldout'|'recent')}
-              className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
-                ? 'lottery-tab-active-gold'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+            {([
+              { id: 'buy', label: 'Buy Tickets' },
+              { id: 'prize', label: 'Prize Structure' },
+              { id: 'how', label: 'How to Play' },
+              { id: 'soldout', label: 'Sold Out Numbers', hide: !isTabEnabled('sold_out') },
+              { id: 'recent', label: 'Recent Draws', hide: !isTabEnabled('recent_draws') },
+            ] as const).filter(tab => !('hide' in tab) || !tab.hide).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'buy' | 'prize' | 'how' | 'soldout' | 'recent')}
+                className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${activeTab === tab.id
+                  ? 'lottery-tab-active-gold'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
           {/* Scroll Hint Arrow for Mobile */}
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               const container = e.currentTarget.previousElementSibling;
@@ -873,10 +873,10 @@ export function Pick2DoublePage() {
                                 disabled={isPassed}
                                 onClick={() => toggleDrawTime(time)}
                                 className={`py-3.5 px-2 text-base font-bold rounded-xl border transition-all ${isPassed
-                                    ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                    : isSelected
-                                      ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
-                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
+                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : isSelected
+                                    ? 'border-primary bg-primary/15 text-primary shadow-[0_0_10px_rgba(224,172,44,0.15)]'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90 hover:border-primary/30 hover:text-white'
                                   }`}
                               >
                                 {formatDrawTimeToLocal(time).display.split(' (')[0]}
@@ -1247,10 +1247,10 @@ export function Pick2DoublePage() {
                                 disabled={isPassed}
                                 onClick={() => toggleDrawTime(time)}
                                 className={`py-1.5 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
-                                    ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
-                                    : isSelected
-                                      ? 'border-primary bg-primary/15 text-primary'
-                                      : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
+                                  ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : isSelected
+                                    ? 'border-primary bg-primary/15 text-primary'
+                                    : 'border-neutral-800 bg-[#0d0d0d] text-white/90'
                                   }`}
                               >
                                 {formatDrawTimeToLocal(time).display.split(' (')[0]}
@@ -1400,48 +1400,50 @@ export function Pick2DoublePage() {
                           }
 
                           return (
-                            <div key={game.id} className="flex flex-col space-y-1.5">
+                            <div key={game.id} className="flex flex-col space-y-1">
                               <span className={`text-[10px] font-bold text-center ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
                                 {game.name}
                               </span>
-                              <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
-                                <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
-                                <input
-                                  type="text"
-                                  inputMode="none"
-                                  readOnly
-                                  placeholder="0.00"
-                                  value={amount}
-                                  disabled={isDisabled}
-                                  onClick={(e) => {
-                                    if (!isDisabled) {
-                                      e.preventDefault();
-                                      if (!selectedNumber || !selectedNumber2) {
-                                        showAlert('Please select draw time(s) and bet number(s) first.');
-                                        return;
+                              <div className="flex gap-2 items-stretch">
+                                <div className={`flex-1 flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
+                                  <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
+                                  <input
+                                    type="text"
+                                    inputMode="none"
+                                    readOnly
+                                    placeholder="0.00"
+                                    value={amount}
+                                    disabled={isDisabled}
+                                    onClick={(e) => {
+                                      if (!isDisabled) {
+                                        e.preventDefault();
+                                        if (!selectedNumber || !selectedNumber2) {
+                                          showAlert('Please select draw time(s) and bet number(s) first.');
+                                          return;
+                                        }
+                                        setTempBetAmount(betAmounts[game.id] || '');
+                                        setEditingGameAmount(game.id);
                                       }
-                                      setTempBetAmount(betAmounts[game.id] || '');
-                                      setEditingGameAmount(game.id);
+                                    }}
+                                    className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={isDisabled}
+                                  onClick={() => {
+                                    if (!selectedNumber || !selectedNumber2) {
+                                      showAlert('Please select draw time(s) and bet number(s) first.')
+                                      return
                                     }
+                                    setTempBetAmount(betAmounts[game.id] || '')
+                                    setEditingGameAmount(game.id)
                                   }}
-                                  className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
-                                />
+                                  className={`px-8 py-1 text-[10px] font-bold rounded-md flex items-center justify-center gap-1 transition-all shrink-0 pick-2-amount-btn ${isDisabled
+                                    ? 'add-sub-btn-disabled'
+                                    : 'add-sub-btn-gold'}`}
+                                >+ ADD</button>
                               </div>
-                              <button
-                                type="button"
-                                disabled={isDisabled}
-                                onClick={() => {
-                                  if (!selectedNumber || !selectedNumber2) {
-                                    showAlert('Please select draw time(s) and bet number(s) first.')
-                                    return
-                                  }
-                                  setTempBetAmount(betAmounts[game.id] || '')
-                                  setEditingGameAmount(game.id)
-                                }}
-                                className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
-                                  ? 'add-sub-btn-disabled'
-                                  : 'add-sub-btn-gold'}`}
-                              >+ ADD</button>
                             </div>
                           )
                         })}
@@ -1471,86 +1473,86 @@ export function Pick2DoublePage() {
                       onClick={() => setShowCartModal(true)}
                       className="total-bets-btn-black w-full"
                     >
-                            Total Bets View ({groupedCart.length})
-                          </Button>
+                      Total Bets View ({groupedCart.length})
+                    </Button>
+                  </div>
+
+                  {/* Custom Amount Pad Popup */}
+                  {editingGameAmount && (
+                    <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                      <div className="bg-fortune-card border border-border/60 rounded-3xl w-full max-w-[300px] p-5 flex flex-col relative animate-fadeIn shadow-2xl">
+                        <h3 className="font-extrabold text-base text-foreground mb-0.5 tracking-wide">
+                          {config.games.find((g: any) => g.id === editingGameAmount)?.name}
+                        </h3>
+                        <p className="text-muted-foreground text-[10px] mb-3">Enter the Amount</p>
+
+                        <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner">
+                          <span className="text-primary/70 mr-2">$</span>
+                          {tempBetAmount || '0.00'}
                         </div>
 
-                        {/* Custom Amount Pad Popup */}
-                        {editingGameAmount && (
-                          <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                            <div className="bg-fortune-card border border-border/60 rounded-3xl w-full max-w-[300px] p-5 flex flex-col relative animate-fadeIn shadow-2xl">
-                              <h3 className="font-extrabold text-base text-foreground mb-0.5 tracking-wide">
-                                {config.games.find((g: any) => g.id === editingGameAmount)?.name}
-                              </h3>
-                              <p className="text-muted-foreground text-[10px] mb-3">Enter the Amount</p>
+                        <div className="flex gap-2 mb-4">
+                          {config.games.find((g: any) => g.id === editingGameAmount)?.presets.map((val: string) => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setTempBetAmount(val)}
+                              className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
+                            >
+                              $ {val}
+                            </button>
+                          ))}
+                        </div>
 
-                              <div className="bg-[#0d0d0d] border border-primary/30 rounded-xl px-4 py-3 text-lg font-bold text-primary mb-4 flex items-center shadow-inner">
-                                <span className="text-primary/70 mr-2">$</span>
-                                {tempBetAmount || '0.00'}
-                              </div>
+                        {(() => {
+                          const handleKeypadPress = (val: string) => {
+                            let newVal = tempBetAmount;
+                            if (val === 'clear') {
+                              newVal = '';
+                            } else if (val === '.') {
+                              if (!newVal.includes('.')) newVal += '.';
+                            } else {
+                              newVal += val;
+                            }
 
-                              <div className="flex gap-2 mb-4">
-                                {config.games.find((g: any) => g.id === editingGameAmount)?.presets.map((val: string) => (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() => setTempBetAmount(val)}
-                                    className="px-3 py-1.5 bg-[#0d0d0d] border border-primary/30 text-foreground font-bold rounded-lg text-[10px] hover:border-primary transition-colors"
-                                  >
-                                    $ {val}
-                                  </button>
-                                ))}
-                              </div>
+                            const game = config.games.find((g: any) => g.id === editingGameAmount);
+                            if (game?.presets && game.presets.length > 0) {
+                              const maxAllowed = Math.max(...game.presets.map(Number));
+                              if (newVal !== '' && parseFloat(newVal) > maxAllowed) {
+                                newVal = maxAllowed.toString();
+                              }
+                            }
+                            setTempBetAmount(newVal);
+                          };
 
-                              {(() => {
-                                const handleKeypadPress = (val: string) => {
-                                  let newVal = tempBetAmount;
-                                  if (val === 'clear') {
-                                    newVal = '';
-                                  } else if (val === '.') {
-                                    if (!newVal.includes('.')) newVal += '.';
-                                  } else {
-                                    newVal += val;
-                                  }
-                                  
-                                  const game = config.games.find((g: any) => g.id === editingGameAmount);
-                                  if (game?.presets && game.presets.length > 0) {
-                                    const maxAllowed = Math.max(...game.presets.map(Number));
-                                    if (newVal !== '' && parseFloat(newVal) > maxAllowed) {
-                                      newVal = maxAllowed.toString();
-                                    }
-                                  }
-                                  setTempBetAmount(newVal);
-                                };
-                                
-                                return (
-                                  <div className="grid grid-cols-4 gap-1.5 mb-5">
-                                    <button onClick={() => handleKeypadPress('1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
-                                    <button onClick={() => handleKeypadPress('2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
-                                    <button onClick={() => handleKeypadPress('3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
-                                    <button onClick={() => handleKeypadPress('.')} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
+                          return (
+                            <div className="grid grid-cols-4 gap-1.5 mb-5">
+                              <button onClick={() => handleKeypadPress('1')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">1</button>
+                              <button onClick={() => handleKeypadPress('2')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">2</button>
+                              <button onClick={() => handleKeypadPress('3')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">3</button>
+                              <button onClick={() => handleKeypadPress('.')} className="bg-transparent border border-neutral-800 rounded-xl text-2xl font-bold text-foreground py-3 row-span-2 hover:bg-neutral-900 transition-colors">.</button>
 
-                                    <button onClick={() => handleKeypadPress('4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
-                                    <button onClick={() => handleKeypadPress('5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
-                                    <button onClick={() => handleKeypadPress('6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
+                              <button onClick={() => handleKeypadPress('4')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">4</button>
+                              <button onClick={() => handleKeypadPress('5')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">5</button>
+                              <button onClick={() => handleKeypadPress('6')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">6</button>
 
-                                    <button onClick={() => handleKeypadPress('7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
-                                    <button onClick={() => handleKeypadPress('8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
-                                    <button onClick={() => handleKeypadPress('9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
-                                    <button onClick={() => handleKeypadPress('clear')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
+                              <button onClick={() => handleKeypadPress('7')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">7</button>
+                              <button onClick={() => handleKeypadPress('8')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">8</button>
+                              <button onClick={() => handleKeypadPress('9')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 hover:bg-neutral-900 transition-colors">9</button>
+                              <button onClick={() => handleKeypadPress('clear')} className="bg-transparent border border-neutral-800 rounded-xl text-xs font-bold text-red-400 py-3 row-span-2 hover:bg-neutral-900 transition-colors">Clear</button>
 
-                                    <button onClick={() => handleKeypadPress('0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
-                                  </div>
-                                );
-                              })()}
-
-                              <div className="flex justify-between items-center gap-3">
-                                <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
-                                <button type="button" onClick={() => { updateBetAmount(editingGameAmount, tempBetAmount); setEditingGameAmount(null); }} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
-                              </div>
+                              <button onClick={() => handleKeypadPress('0')} className="bg-transparent border border-neutral-800 rounded-xl text-lg font-bold text-foreground py-3 col-span-3 hover:bg-neutral-900 transition-colors">0</button>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
+
+                        <div className="flex justify-between items-center gap-3">
+                          <button type="button" onClick={() => setEditingGameAmount(null)} className="w-1/2 bg-transparent text-muted-foreground text-xs hover:text-foreground font-extrabold pb-1">Cancel</button>
+                          <button type="button" onClick={() => { updateBetAmount(editingGameAmount, tempBetAmount); setEditingGameAmount(null); }} className="w-1/2 bet-add-btn-green text-fortune-navy text-sm font-bold py-3.5 rounded-xl gold-glow transition-all">Done</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Full Screen Cart View on Mobile */}
                   {showCartModal && (
@@ -1734,7 +1736,7 @@ export function Pick2DoublePage() {
             <CardContent className="p-8 space-y-6">
               <h2 className="text-3xl font-extrabold tracking-tight text-foreground">How to Play {config.name}</h2>
               {howToPlayData ? (
-                <div 
+                <div
                   className="text-muted-foreground text-base whitespace-pre-wrap leading-relaxed how-to-play-content"
                   dangerouslySetInnerHTML={{ __html: howToPlayData }}
                 />
@@ -1808,8 +1810,8 @@ export function Pick2DoublePage() {
                             <div
                               key={item.ticket_number}
                               className={`p-3 border rounded-xl flex flex-col items-center justify-between text-center transition-all bg-[#0a0a0a] ${isSoldOut
-                                  ? 'border-red-500/30 hover:border-red-500/50'
-                                  : 'border-border/60 hover:border-primary/40'
+                                ? 'border-red-500/30 hover:border-red-500/50'
+                                : 'border-border/60 hover:border-primary/40'
                                 }`}
                             >
                               <span className={`text-base font-black ${isSoldOut ? 'text-red-400' : 'text-foreground'}`}>
@@ -1837,8 +1839,8 @@ export function Pick2DoublePage() {
                             <div
                               key={item.ticket_number}
                               className={`p-3 border rounded-xl flex flex-col items-center justify-between text-center transition-all bg-[#0a0a0a] ${isSoldOut
-                                  ? 'border-red-500/30 hover:border-red-500/50'
-                                  : 'border-border/60 hover:border-primary/40'
+                                ? 'border-red-500/30 hover:border-red-500/50'
+                                : 'border-border/60 hover:border-primary/40'
                                 }`}
                             >
                               <span className={`text-base font-black ${isSoldOut ? 'text-red-400' : 'text-foreground'}`}>

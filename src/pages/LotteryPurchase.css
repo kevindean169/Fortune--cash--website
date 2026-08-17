@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
   text-transform: uppercase !important;
-  box-shadow: 
+  box-shadow:
     inset 2px 2px 5px rgba(255, 255, 255, 0.4),
     inset -2px -2px 4px rgba(0, 0, 0, 0.2),
     0 4px 8px rgba(0, 0, 0, 0.3) !important;
@@ -70,7 +70,8 @@
   border-radius: 8px !important;
   text-transform: uppercase !important;
   font-size: 16px !important;
-  padding: 8px 0 !important;
+  padding-top: 8px;
+  padding-bottom: 8px;
   /* Force consistent height */
   box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
 }
@@ -83,13 +84,20 @@
   border-radius: 8px !important;
   text-transform: uppercase !important;
   font-size: 16px !important;
-  padding: 8px 0 !important;
+  padding-top: 8px;
+  padding-bottom: 8px;
   /* Force consistent height */
   cursor: not-allowed !important;
 }
 
 .add-sub-btn-gold:hover {
   background: linear-gradient(to bottom, #FFEA00, #FFD700) !important;
+}
+
+/* Custom override for Pick 2 page amount buttons to keep them very short */
+.pick-2-amount-btn {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
 }
 
 /* Total Bets View Black/Gold Button */
