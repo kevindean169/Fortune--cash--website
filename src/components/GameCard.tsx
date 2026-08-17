@@ -67,15 +67,15 @@ export function GameCard({ game }: { game: APILottery }) {
       {/* Right: Content */}
       <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between z-20 min-h-[160px]">
         {/* Badge & Title */}
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex flex-col gap-1 items-start">
+        <div className="flex justify-between items-start mb-3 gap-2">
+          <div className="flex flex-col gap-1 items-start shrink-0">
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); routerNavigate(infoPath) }}
               className="px-2.5 py-0.5 bg-[#e0ac2c]/10 border border-[#e0ac2c]/20 text-[#e0ac2c] rounded text-[10px] font-bold whitespace-nowrap uppercase tracking-wider hover:bg-[#e0ac2c]/20 hover:border-[#e0ac2c]/40 transition-all cursor-pointer"
               title={`Learn about ${game.type}`}
             >
-              {game.type}
+              {game.type?.toUpperCase() === 'CASHPOT MONEY TIME' ? 'MONEY TIME' : game.type}
             </button>
             {game.schedule && (
               <span className="text-[9px] text-[#e0ac2c]/70 font-bold uppercase tracking-wider pl-0.5">
@@ -83,7 +83,7 @@ export function GameCard({ game }: { game: APILottery }) {
               </span>
             )}
           </div>
-          <h3 className="font-extrabold text-foreground text-sm text-right pl-2 leading-tight uppercase tracking-wider">
+          <h3 className="font-extrabold text-foreground text-sm text-right pl-2 leading-tight uppercase tracking-wider min-w-0 break-words flex-1">
             {game.name}
           </h3>
         </div>

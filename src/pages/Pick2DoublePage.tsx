@@ -738,7 +738,7 @@ export function Pick2DoublePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Lottery Header styled like App */}
-        <Card className="border border-border/60 mb-4 overflow-hidden relative min-h-[48px] flex items-center bg-[#0c0c0c]">
+        <Card className="border border-border/60 mb-2 overflow-hidden relative min-h-[40px] flex items-center bg-[#0c0c0c]">
           {/* Background Image covering full card */}
           <div className="absolute inset-0 w-full h-full">
             <img
@@ -749,21 +749,21 @@ export function Pick2DoublePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
 
-          <CardContent className="p-2 md:p-3 flex flex-row items-center justify-between gap-4 w-full relative z-10">
+          <CardContent className="p-1.5 md:p-2.5 flex flex-row items-center justify-between gap-4 w-full relative z-10">
             {/* Left side: Back button + Name and Type in one row */}
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={() => navigate('lotteries')}
-                className="size-10 bg-background/80 backdrop-blur border border-border rounded-xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
+                className="size-8 bg-background/80 backdrop-blur border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
               >
-                <ArrowLeft className="size-4" />
+                <ArrowLeft className="size-3.5" />
               </button>
 
               <div className="min-w-0">
-                <h1 className="text-base sm:text-xl font-black text-white uppercase tracking-wide truncate">
+                <h1 className="text-sm sm:text-lg font-black text-white uppercase tracking-wide truncate">
                   {config.name}
                 </h1>
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">
+                <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wider truncate">
                   Type: <span className="text-primary">{config.type}</span>
                 </p>
               </div>
@@ -774,7 +774,7 @@ export function Pick2DoublePage() {
               <span className="text-[9px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
                 Next Draw:
               </span>
-              <div className="flex items-center gap-1 text-[11px] sm:text-xs lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2.5 py-1.5 lg:px-4 lg:py-2 rounded-xl text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
+              <div className="flex items-center gap-1 text-[10px] sm:text-xs lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2 py-1 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
                 <span className="text-primary">{d}d</span>
                 <span className="text-muted-foreground/60">:</span>
                 <span>{h}h</span>
@@ -788,7 +788,7 @@ export function Pick2DoublePage() {
         </Card>
 
         {/* Action Tabs */}
-        <div className="relative mb-3 group">
+        <div className="relative mb-2 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
           {([
             { id: 'buy', label: 'Buy Tickets' },
@@ -1227,7 +1227,7 @@ export function Pick2DoublePage() {
                 </div>
 
                 {/* Mobile Responsive Stepped View */}
-                <div className="lg:hidden space-y-2 pb-36">
+                <div className="lg:hidden space-y-1.5 pb-36">
                   {/* Draws selection */}
                   <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
