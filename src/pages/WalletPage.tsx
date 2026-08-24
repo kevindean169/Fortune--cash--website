@@ -7,8 +7,8 @@ import {
 import { useAuth } from '@/context/AuthContext'
 import { formatUsd } from '@/lib/currency'
 
-const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'https://node.rglabs.net/api/v1'
-const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e'
+const BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'https://api.moneytimeja.com/api/v1'
+const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794'
 
 interface Transaction {
   id: string

@@ -165,7 +165,7 @@ export function Pick2DoublePage() {
     }
 
     const headers: any = {
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794',
     }
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`
@@ -195,7 +195,7 @@ export function Pick2DoublePage() {
     setError(null)
 
     const headers: any = {
-      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+      'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794',
     }
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`
@@ -301,7 +301,7 @@ export function Pick2DoublePage() {
   useEffect(() => {
     if (activeTab === 'soldout' && lotteryId && selectedSoldOutTime) {
       const headers: any = {
-        'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+        'X-App-Key': import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794',
       }
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`
@@ -669,7 +669,7 @@ export function Pick2DoublePage() {
         baseUrl: import.meta.env.VITE_API_URL || '',
         authBaseUrl: import.meta.env.VITE_AUTH_API_URL || '',
         accessToken,
-        appKey: import.meta.env.VITE_AUTH_API_KEY || 'c326d53a97bc32972cc7de9d4f03d27845efc9a81d8f1e7af347f3da42cbd52e',
+        appKey: import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794',
         lotteryId,
         cart,
         purchasePath: `/api/customer/picktwodouble-purchase/${lotteryId}`,
