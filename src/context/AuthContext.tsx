@@ -82,10 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const params = new URLSearchParams(window.location.search)
       const urlToken = params.get('token') || params.get('accessToken')
 
-      let tokenToUse = urlToken
+      let tokenToUse = null
       let userToUse = null
+      let autoLoginSuccess = false
 
       if (urlToken) {
+        console.log('Detected auto-login token in URL, validating...')
         try {
           const res = await fetch(`${BASE_URL}/auth/me`, {
             headers: {
@@ -97,12 +99,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const resData = await res.json()
             if (resData.success && resData.data) {
               userToUse = resData.data
+              tokenToUse = urlToken
+              autoLoginSuccess = true
               localStorage.setItem('fortune_user', JSON.stringify(userToUse))
               localStorage.setItem('fortune_access_token', urlToken)
+              console.log('Auto-login successful for user:', userToUse.username)
+            } else {
+              console.error('URL token validation failed on server:', resData.message || 'No success status')
+              setError('Auto-login failed: ' + (resData.message || 'Invalid token response'))
             }
+          } else {
+            const errText = await res.text().catch(() => 'No response body')
+            console.error('URL token validation HTTP error:', res.status, errText)
+            setError(`Auto-login HTTP error ${res.status}: ${errText}`)
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error('Error fetching user info using URL token:', err)
+          setError('Auto-login network error: ' + (err.message || err))
         }
 
         // Clean URL parameter so token doesn't leak or stay in address bar
@@ -126,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             userToUse = JSON.parse(storedUser)
             tokenToUse = storedToken
           } catch (e) {
+            console.error('Stale auth data in localStorage, clearing...')
             clearSession(false)
           }
         }
@@ -156,7 +170,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await originalFetch(...args)
       const [input, init] = args
 
-      if (accessToken && requestHasAuthorization(input, init) && (response.status === 401 || response.status === 403)) {
+      // Get request URL safely
+      const url = typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url
+
+      // Only clear session on 401/403 if the request is actually to our core Auth API
+      if (
+        accessToken &&
+        requestHasAuthorization(input, init) &&
+        url.startsWith(BASE_URL) &&
+        (response.status === 401 || response.status === 403)
+      ) {
+        console.warn('Unauthorized request to Auth API, clearing session...')
         clearSession(true)
       }
 
