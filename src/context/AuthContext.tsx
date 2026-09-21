@@ -84,7 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       let tokenToUse = null
       let userToUse = null
-      let autoLoginSuccess = false
 
       if (urlToken) {
         console.log('Detected auto-login token in URL, validating...')
@@ -100,7 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (resData.success && resData.data) {
               userToUse = resData.data
               tokenToUse = urlToken
-              autoLoginSuccess = true
               localStorage.setItem('fortune_user', JSON.stringify(userToUse))
               localStorage.setItem('fortune_access_token', urlToken)
               console.log('Auto-login successful for user:', userToUse.username)
