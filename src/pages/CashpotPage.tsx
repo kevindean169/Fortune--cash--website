@@ -693,7 +693,7 @@ export function CashpotPage() {
   }
 
   return (
-    <div className="min-h-0 py-4 md:py-10">
+    <div className="min-h-0 py-1.5 sm:py-4 md:py-10">
       {/* Success Modal */}
       {payoutSuccess && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
@@ -709,10 +709,10 @@ export function CashpotPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
 
         {/* Lottery Header styled like App */}
-        <Card className="border border-border/60 mb-2 overflow-hidden relative min-h-[40px] flex items-center bg-[#0c0c0c]">
+        <Card className="border border-border/60 mb-2 overflow-hidden relative py-0 gap-0 min-h-0 h-20 sm:h-24 md:h-28 flex items-center bg-[#0c0c0c]">
           {/* Background Image covering full card */}
           <div className="absolute inset-0 w-full h-full">
             <img
@@ -723,32 +723,32 @@ export function CashpotPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
 
-          <CardContent className="p-1.5 md:p-2.5 flex flex-row items-center justify-between gap-4 w-full relative z-10">
+          <CardContent className="p-3 sm:p-4 md:p-5 flex flex-row items-center justify-between gap-2 sm:gap-4 w-full relative z-10">
             {/* Left side: Back button + Name and Type in one row */}
             <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={() => navigate('lotteries')}
-                className="size-8 bg-background/80 backdrop-blur border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
+                className="size-8 sm:size-9 bg-background/80 backdrop-blur border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
               >
-                <ArrowLeft className="size-3.5" />
+                <ArrowLeft className="size-4" />
               </button>
 
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-lg font-black text-white uppercase tracking-wide truncate">
+                <h1 className="text-sm sm:text-lg md:text-xl font-black text-white uppercase tracking-wide truncate leading-tight">
                   {config.name}
                 </h1>
-                <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider truncate leading-none mt-0.5">
                   Type: <span className="text-primary">{config.type}</span>
                 </p>
               </div>
             </div>
 
             {/* Right side: Timer in one compact row */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[9px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              <span className="text-[10px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
                 Next Draw:
               </span>
-              <div className="flex items-center gap-1 text-[10px] sm:text-xs lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2 py-1 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
+              <div className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-sm lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2 py-1 sm:px-2.5 sm:py-1.5 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
                 <span className="text-primary">{d}d</span>
                 <span className="text-muted-foreground/60">:</span>
                 <span>{h}h</span>
@@ -1118,13 +1118,13 @@ export function CashpotPage() {
                 </div>
 
                 {/* Mobile Responsive Single Page View */}
-                <div className="lg:hidden space-y-1.5 pb-36">
+                <div className="lg:hidden space-y-1 pb-20">
                   {/* Draws selection */}
                   <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
                       <div className="flex justify-between items-center mb-1 pb-1 border-b border-border/40">
-                        <span className="text-xs text-primary font-black uppercase tracking-wider">Draw Schedule</span>
-                        <span className="text-base text-primary font-bold border border-primary px-2 py-0.5 rounded">{selectedDrawTimes.length} Selected</span>
+                        <span className="text-[11px] text-primary font-black uppercase tracking-wider">Draw Schedule</span>
+                        <span className="text-xs text-primary font-bold border border-primary px-1.5 py-0.5 rounded">{selectedDrawTimes.length} Selected</span>
                       </div>
                       <div className="max-h-[82px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
                         <div className="grid grid-cols-4 gap-1.5">
@@ -1137,7 +1137,7 @@ export function CashpotPage() {
                                 type="button"
                                 disabled={isPassed}
                                 onClick={() => toggleDrawTime(time)}
-                                className={`py-1.5 px-1 text-xs sm:text-sm font-bold rounded-lg border text-center transition-all ${isPassed
+                                className={`py-1 px-1 text-[11px] sm:text-xs font-bold rounded-lg border text-center transition-all ${isPassed
                                     ? 'border-neutral-800 bg-neutral-950/50 text-muted-foreground/50 cursor-not-allowed'
                                     : isSelected
                                       ? 'border-primary bg-primary/15 text-primary'
@@ -1156,8 +1156,8 @@ export function CashpotPage() {
                   {/* Pick Number */}
                   <Card className="bg-fortune-card border border-border/60 py-0">
                     <CardContent className="px-3 py-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="lottery-heading-white shrink-0 w-1/2">PICK YOUR BET<br />NUMBER</h3>
+                      <div className="flex items-center justify-between gap-2.5">
+                        <h3 className="lottery-heading-white shrink-0">PICK YOUR BET NUMBER</h3>
                         <button
                           type="button"
                           onClick={() => {
@@ -1168,12 +1168,12 @@ export function CashpotPage() {
                             setTempSelectedNumber(selectedNumber)
                             setShowNumberGrid(!showNumberGrid)
                           }}
-                          className="flex-1 px-3 py-1.5 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
+                          className="flex-1 px-2.5 py-1 flex items-center justify-between transition-all min-w-0 selected-number-dropdown"
                         >
-                          <span className={`truncate ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
-                            {selectedNumber ? `#${selectedNumber}` : 'Select Number'}
+                          <span className={`truncate text-xs ${selectedNumber ? 'text-primary font-extrabold' : 'text-muted-foreground'}`}>
+                            {selectedNumber ? `#${selectedNumber}` : 'Select ...'}
                           </span>
-                          {showNumberGrid ? <ChevronUp className="size-4 shrink-0 ml-2" /> : <ChevronDown className="size-4 shrink-0 ml-2" />}
+                          {showNumberGrid ? <ChevronUp className="size-3.5 shrink-0 ml-1" /> : <ChevronDown className="size-3.5 shrink-0 ml-1" />}
                         </button>
                       </div>
 
@@ -1210,10 +1210,10 @@ export function CashpotPage() {
                   </Card>
 
                   {/* Enter Bet Amounts */}
-                  <Card className="bg-fortune-card border border-border/60 py-0 mt-2">
+                  <Card className="bg-fortune-card border border-border/60 py-0 mt-1">
                     <CardContent className="px-3 py-1 space-y-1">
-                      <h3 className="font-extrabold text-sm text-foreground">ENTER YOUR BET AMOUNT</h3>
-                      <div className="grid grid-cols-3 gap-2">
+                      <h3 className="font-black text-[11px] text-foreground tracking-wider uppercase">ENTER YOUR BET AMOUNT</h3>
+                      <div className="grid grid-cols-3 gap-1.5">
                         {config.games.map((game: { id: string; name: string; presets: string[] }, index: number) => {
                           const amount = betAmounts[game.id] || ''
                           let isDisabled = false;
@@ -1224,12 +1224,12 @@ export function CashpotPage() {
                           }
 
                           return (
-                            <div key={game.id} className="flex flex-col space-y-1.5">
-                              <span className={`text-[10px] font-bold text-center ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                            <div key={game.id} className="flex flex-col space-y-1">
+                              <span className={`text-[9px] font-bold text-center ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
                                 {game.name}
                               </span>
-                              <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1.5 px-2 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
-                                <span className="text-muted-foreground text-sm font-bold mr-1">$</span>
+                              <div className={`flex items-center bg-[#0d0d0d] border rounded-md py-1 px-1.5 transition-all ${isDisabled ? 'border-primary/20 opacity-40 cursor-not-allowed' : 'border-primary/50'}`}>
+                                <span className="text-muted-foreground text-xs font-bold mr-1">$</span>
                                 <input
                                   type="text"
                                   inputMode="none"
@@ -1248,7 +1248,7 @@ export function CashpotPage() {
                                       setEditingGameAmount(game.id);
                                     }
                                   }}
-                                  className={`bg-transparent w-full outline-none text-sm font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
+                                  className={`bg-transparent w-full outline-none text-xs font-bold cursor-pointer ${isDisabled ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground'}`}
                                 />
                               </div>
                               <button
@@ -1262,7 +1262,7 @@ export function CashpotPage() {
                                   setTempBetAmount(betAmounts[game.id] || '')
                                   setEditingGameAmount(game.id)
                                 }}
-                                className={`rounded-md py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
+                                className={`rounded-md py-1 text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${isDisabled
                                   ? 'add-sub-btn-disabled'
                                   : 'add-sub-btn-gold'}`}
                               >+ ADD</button>
@@ -1274,7 +1274,7 @@ export function CashpotPage() {
                   </Card>
 
                   {/* Fixed Bottom Action Buttons */}
-                  <div className="fixed bottom-[80px] left-4 right-4 sm:left-6 sm:right-6 z-40 bg-[#0c0c0c]/95 backdrop-blur-xl border border-border/40 rounded-xl shadow-[0_-10px_30px_rgba(0,0,0,0.8)] p-3 flex flex-col gap-2 animate-slideUp">
+                  <div className="fixed bottom-[65px] sm:bottom-[80px] left-3 right-3 sm:left-6 sm:right-6 z-40 bg-[#0c0c0c]/95 backdrop-blur-xl border border-border/40 rounded-xl shadow-[0_-10px_30px_rgba(0,0,0,0.8)] p-2 sm:p-3 flex flex-col gap-1.5 sm:gap-2 animate-slideUp">
                     <div className="flex gap-2">
                       <Button
                         type="button"

@@ -372,7 +372,7 @@ export function HomePage() {
                 step: '03',
                 icon: <Zap className="size-6 text-primary" />,
                 title: 'Set Your Bet Amount',
-                desc: 'Bet from just $1.00. Use quick presets ($5, $10, $25) or enter a custom amount.',
+                desc: 'Bet from just $0.25. Use quick presets ($5, $10, $25) or enter a custom amount.',
               },
               {
                 step: '04',
@@ -413,7 +413,7 @@ export function HomePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { name: 'Cashpot', desc: 'Pick 01–36. Win up to 26× your bet. Add Mega & Monsta balls for bigger prizes.', path: 'cashpot' },
+                  { name: 'Cashpot', desc: 'Pick 01–36. Win up to 30× your bet. Add Mega & Monsta balls for bigger prizes.', path: 'cashpot' },
                   { name: 'Money Time', desc: 'Special Cashpot draws at fixed daily time slots. Same rules, extra chances.', path: 'money-time' },
                   { name: 'Pick 2 Single', desc: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.', path: 'pick-2-single' },
                   { name: 'Pick 2 Double', desc: 'Bet on two numbers. Win straight, box, or single-match combinations.', path: 'pick-2-double' },

@@ -47,13 +47,13 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     howManyNumbers: 1,
     drawFrequency: 'Multiple times daily',
     drawTimes: '08:30 AM · 10:30 AM · 01:00 PM · 05:00 PM · 08:25 PM',
-    minBet: '$5',
+    minBet: '$0.25',
     maxBet: 'Varies by draw (subject to bet limit)',
     betOptions: [
       {
         name: 'Cashpot',
         description: 'Standard bet on your chosen number. Win if it matches the draw.',
-        payout: '26× your stake',
+        payout: '30× your stake',
         color: '#e0ac2c',
       },
       {
@@ -102,7 +102,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     faq: [
       { q: 'Can I bet on the same number for all draws?', a: 'Yes! Simply select multiple draw time slots and one number — all slots will carry the same bet.' },
       { q: 'What happens if a draw time passes while I have bets in my cart?', a: 'Passed draw times are automatically removed from your cart and you are alerted. Your remaining bets are unaffected.' },
-      { q: 'Is there a minimum Megaball bet?', a: 'Megaball minimum is $5 (same as Cashpot), but cannot exceed your Cashpot stake for that draw.' },
+      { q: 'Is there a minimum Megaball bet?', a: 'Megaball minimum is $0.25 (same as Cashpot), but cannot exceed your Cashpot stake for that draw.' },
       { q: 'Are winnings paid instantly?', a: 'Yes, winnings are credited to your Fortune wallet balance the moment results are confirmed.' },
     ],
   },
@@ -119,13 +119,13 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     howManyNumbers: 1,
     drawFrequency: 'Daily at fixed special time slots',
     drawTimes: "Check the schedule tab for today's active Money Time draws",
-    minBet: '$5',
+    minBet: '$0.25',
     maxBet: 'Varies by draw (subject to bet limit)',
     betOptions: [
       {
         name: 'Cashpot',
         description: 'Standard Cashpot-style bet on your chosen number.',
-        payout: '26× your stake',
+        payout: '30× your stake',
         color: '#e0ac2c',
       },
       {
@@ -189,7 +189,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     howManyNumbers: 1,
     drawFrequency: 'Daily and Weekly',
     drawTimes: 'Multiple draws — check the game schedule',
-    minBet: '$5',
+    minBet: '$0.25',
     maxBet: 'Varies per draw (bet limit applies)',
     betOptions: [
       {
@@ -237,7 +237,7 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     howManyNumbers: 2,
     drawFrequency: 'Daily and Weekly',
     drawTimes: 'Multiple draws — check the game schedule',
-    minBet: '$5',
+    minBet: '$0.25',
     maxBet: 'Varies per draw (bet limit applies)',
     betOptions: [
       {

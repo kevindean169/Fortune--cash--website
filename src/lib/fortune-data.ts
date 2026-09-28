@@ -82,7 +82,7 @@ export const GAMES: Game[] = [
     icon: '💎',
     maxPick: 1,
     poolSize: 36,
-    description: 'Pick 01–36. Win up to 26× your bet. Add Mega & Monsta balls for bigger prizes.',
+    description: 'Pick 01–36. Win up to 30× your bet. Add Mega & Monsta balls for bigger prizes.',
   },
   {
     id: 'money-time',
