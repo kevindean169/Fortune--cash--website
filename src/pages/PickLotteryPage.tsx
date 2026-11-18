@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Clock, Trash2, X, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Clock, Trash2, X, AlertCircle, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { LotterySkeleton } from '@/components/LotterySkeleton'
@@ -427,7 +427,7 @@ export function PickLotteryPage() {
     }
 
     // Check sold out
-    const isSoldOut = selectedDrawTimes.some((dt) => soldOutNumbers.includes(trimmedNum))
+    const isSoldOut = selectedDrawTimes.length > 0 && soldOutNumbers.includes(trimmedNum)
     if (isSoldOut) {
       showAlert(`Number ${trimmedNum} is currently sold out for one or more selected draw times. Please select another number.`)
       return
@@ -804,7 +804,7 @@ export function PickLotteryPage() {
         <Card className="border border-border/60 mb-4 overflow-hidden relative py-0 gap-0 min-h-0 h-20 sm:h-24 md:h-28 flex items-center bg-[#0c0c0c] rounded-2xl shadow-lg">
           <div className="absolute inset-0 w-full h-full flex justify-end">
             <img
-              src="/lachica_bigpot.png"
+              src={lotteryImage}
               alt={lotteryName}
               onError={(e) => { e.currentTarget.src = '/lachica_bigpot.png' }}
               className="h-full object-contain p-2 opacity-90 z-0"
