@@ -22,10 +22,16 @@ const mapTypeToPath = (type: string, name?: string): string => {
   if (t.includes('double') || n.includes('double')) return 'pick-2-double'
   if (t.includes('single') || n.includes('single')) return 'pick-2-single'
   if (t.includes('money time') || n.includes('money time') || t.includes('moneytime') || n.includes('moneytime')) return 'money-time'
+  if (t.includes('lachica') || n.includes('lachica') || t.includes('bigpot') || n.includes('bigpot') || t.includes('manual') || n.includes('manual') || t.includes('pick 3') || n.includes('pick 3') || t.includes('pick 4') || n.includes('pick 4')) return 'pick-lottery'
   return 'cashpot'
 }
 
-const getImageUrl = (imagePath: string) => {
+const getImageUrl = (imagePath: string, type?: string, name?: string) => {
+  const t = type?.toLowerCase() || ''
+  const n = name?.toLowerCase() || ''
+  if (t.includes('lachica') || n.includes('lachica') || t.includes('bigpot') || n.includes('bigpot') || t.includes('pick 3') || t.includes('pick 4')) {
+    return '/lachica_bigpot.png'
+  }
   if (!imagePath) return '/lottery_machine.jpg'
   if (imagePath.startsWith('http')) return imagePath
   const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
@@ -44,6 +50,7 @@ export function GameCard({ game }: { game: APILottery }) {
   const displayNotStarted = notStarted || isZero
   const path = mapTypeToPath(game.type, game.name)
   const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
+  const isLachica = (game.type?.toLowerCase() || '').includes('lachica') || (game.name?.toLowerCase() || '').includes('lachica') || (game.type?.toLowerCase() || '').includes('bigpot') || (game.name?.toLowerCase() || '').includes('bigpot') || (game.type?.toLowerCase() || '').includes('pick 3') || (game.type?.toLowerCase() || '').includes('pick 4')
 
   return (
     <div
@@ -53,9 +60,9 @@ export function GameCard({ game }: { game: APILottery }) {
       {/* Left: Image */}
       <div className="w-[38%] sm:w-[32%] relative shrink-0 bg-background overflow-hidden">
         <img
-          src={getImageUrl(game.image)}
+          src={getImageUrl(game.image, game.type, game.name)}
           alt={game.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className={`absolute inset-0 w-full h-full ${isLachica ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
         />
         {/* slant overlay */}
         <div

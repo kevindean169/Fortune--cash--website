@@ -97,6 +97,12 @@ export function GamesPage({ navigate }: GamesPageProps) {
                   return '/pick2_single.png?v=6'
                 case 'pick-2-double':
                   return '/pick2_double.png?v=6'
+                case 'pick-3':
+                  return '/pick3_logo.png'
+                case 'pick-4':
+                  return '/pick4_logo.png'
+                case 'pick-lottery':
+                  return '/lachica_bigpot.png'
                 default:
                   return null
               }

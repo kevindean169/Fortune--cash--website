@@ -288,12 +288,76 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
       { q: 'What if both numbers win in the same draw?', a: 'Both wins are paid out! You collect the payout for each matching number.' },
     ],
   },
+
+  'lachica-bigpot': {
+    key: 'lachica-bigpot',
+    name: 'LaChica BIGPOT',
+    type: 'LaChica BIGPOT (Pick 3 & Pick 4)',
+    tagline: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets',
+    accentColor: '#10b981',
+    glowColor: 'rgba(16,185,129,0.25)',
+    logoSrc: '/lachica_bigpot.png',
+    numberRange: { from: 0, to: 9999, label: '3 or 4 Digits' },
+    howManyNumbers: 3,
+    drawFrequency: 'Daily',
+    drawTimes: 'Multiple draws daily — check live slots',
+    minBet: '$1.00',
+    maxBet: 'Varies per draw (bet limit applies)',
+    betOptions: [
+      {
+        name: 'Pick 3 Straight / Box',
+        description: 'Pick 3 digits. Straight matches exact order (500x). Box matches any order (80x-160x).',
+        payout: 'Up to 500x',
+        color: '#10b981',
+      },
+      {
+        name: 'Pick 4 Straight / Box',
+        description: 'Pick 4 digits. Straight matches exact order (5,000x). Box matches any order (up to 400x).',
+        payout: 'Up to 5,000x',
+        color: '#3b82f6',
+      },
+      {
+        name: 'Megaball & Monstaball',
+        description: 'Bonus multiplier drawn alongside your winning numbers for amplified returns.',
+        payout: 'Multiplier bonus',
+        color: '#e0ac2c',
+      },
+    ],
+    howToPlay: [
+      { step: '01', title: 'Select Draw Slot', desc: 'Choose your desired upcoming draw slot time.' },
+      { step: '02', title: 'Choose Pick 3 or Pick 4', desc: 'Select 3 digits or 4 digits game mode.' },
+      { step: '03', title: 'Enter Lucky Number', desc: 'Type your 3-digit or 4-digit number.' },
+      { step: '04', title: 'Set Stake & Submit', desc: 'Enter amounts for Straight, Box, Mega, or Monsta and place bets.' },
+    ],
+    winningRules: [
+      {
+        rule: 'Straight Match',
+        desc: 'All digits match the winning draw numbers in exact order.',
+        icon: <Target className="size-5 text-[#10b981]" />,
+      },
+      {
+        rule: 'Box Match',
+        desc: 'All digits match the winning draw numbers in any permutation order.',
+        icon: <Trophy className="size-5 text-[#3b82f6]" />,
+      },
+    ],
+    tips: [
+      'Straight offers the highest payout (500x for Pick 3, 5,000x for Pick 4).',
+      'Box gives you multiple winning combinations for your numbers.',
+      'Check remaining bet limits per draw before placing bets.',
+    ],
+    faq: [
+      { q: 'Can I bet on both Pick 3 and Pick 4?', a: 'Yes, you can queue both Pick 3 and Pick 4 bets in the same bet slip.' },
+      { q: 'How does Megaball and Monstaball work?', a: 'When you bet on Mega or Monsta, if that bonus ball is drawn for the slot, you receive the winning bonus payout.' },
+    ],
+  },
 }
 
 /* Helper: derive which info data to show from URL param or type string */
 function resolveInfoKey(typeParam: string | null): string {
   if (!typeParam) return 'cashpot'
   const t = typeParam.toLowerCase()
+  if (t.includes('lachica') || t.includes('bigpot') || t.includes('pick 3') || t.includes('pick 4') || t.includes('manual')) return 'lachica-bigpot'
   if (t.includes('double')) return 'pick-2-double'
   if (t.includes('single')) return 'pick-2-single'
   if (t.includes('money') || t.includes('time')) return 'money-time'
@@ -419,7 +483,7 @@ export function LotteryInfoPage() {
             {/* Play Now Button */}
             <div className="shrink-0 mb-1 mt-1 sm:mt-0">
               <button
-                onClick={() => navigate(`lotteries-by-type?type=${encodeURIComponent(infoKey)}`)}
+                onClick={() => navigate(infoKey === 'lachica-bigpot' ? 'pick-lottery' : `lotteries-by-type?type=${encodeURIComponent(infoKey)}`)}
                 className="px-8 py-3.5 gold-gradient text-white font-extrabold rounded-xl hover:opacity-90 transition-all text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.3)] border border-primary/20"
               >
                 Play Now

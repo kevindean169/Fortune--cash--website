@@ -16,6 +16,7 @@ import { TermsPage } from '@/pages/TermsPage'
 import { AboutPage } from '@/pages/AboutPage'
 import { LotteryInfoPage } from '@/pages/LotteryInfoPage'
 import { LogoutPage } from '@/pages/LogoutPage'
+import { PickLotteryPage } from '@/pages/PickLotteryPage'
 
 export const publicRoutes: RouteObject[] = [
   { index: true, element: <HomePage /> },
@@ -26,6 +27,10 @@ export const publicRoutes: RouteObject[] = [
   { path: 'money-time', element: <MoneyTimePage /> },
   { path: 'pick-2-single', element: <Pick2SinglePage /> },
   { path: 'pick-2-double', element: <Pick2DoublePage /> },
+  { path: 'pick-lottery', element: <PickLotteryPage /> },
+  { path: 'pick-3', element: <PickLotteryPage /> },
+  { path: 'pick-4', element: <PickLotteryPage /> },
+  { path: 'manual-pick', element: <PickLotteryPage /> },
   { path: 'results', element: <ResultsPage /> },
   { path: 'winners', element: <WinnersPage /> },
   { path: 'responsible-gaming', element: <ResponsibleGamingPage /> },

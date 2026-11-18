@@ -295,7 +295,7 @@ export function HomePage() {
               All Lotteries <ArrowRight className="size-4" />
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {GAMES.map(game => {
               const getGameLogoSrc = (id: string) => {
                 switch (id) {
@@ -307,6 +307,8 @@ export function HomePage() {
                     return '/pick2_single.png?v=6'
                   case 'pick-2-double':
                     return '/pick2_double.png?v=6'
+                  case 'pick-lottery':
+                    return '/lachica_bigpot.png'
                   default:
                     return null
                 }
@@ -315,7 +317,13 @@ export function HomePage() {
               return (
                 <button
                   key={game.id}
-                  onClick={() => navigate(`lottery-info?type=${game.id}`)}
+                  onClick={() => {
+                    if (game.id === 'pick-lottery') {
+                      navigate('pick-lottery')
+                    } else {
+                      navigate(`lottery-info?type=${game.id}`)
+                    }
+                  }}
                   className="group text-left"
                 >
                   <Card className="bg-[#050505] border border-primary/20 hover:border-primary/60 transition-all h-full overflow-hidden group/card relative rounded-2xl">
@@ -417,6 +425,7 @@ export function HomePage() {
                   { name: 'Money Time', desc: 'Special Cashpot draws at fixed daily time slots. Same rules, extra chances.', path: 'money-time' },
                   { name: 'Pick 2 Single', desc: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.', path: 'pick-2-single' },
                   { name: 'Pick 2 Double', desc: 'Bet on two numbers. Win straight, box, or single-match combinations.', path: 'pick-2-double' },
+                  { name: 'LaChica BIGPOT', desc: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets.', path: 'pick-lottery' },
                 ].map((game) => (
                   <div
                     key={game.name}
@@ -426,7 +435,7 @@ export function HomePage() {
                     <div className="size-24 -mx-4 -my-4 flex-shrink-0 relative">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,172,44,0.1)_0%,transparent_70%)]" />
                       <img
-                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=6' : game.path === 'money-time' ? '/moneytime_logo.png?v=6' : game.path === 'pick-2-single' ? '/pick2_single.png?v=6' : '/pick2_double.png?v=6'}
+                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=6' : game.path === 'money-time' ? '/moneytime_logo.png?v=6' : game.path === 'pick-2-single' ? '/pick2_single.png?v=6' : game.path === 'pick-2-double' ? '/pick2_double.png?v=6' : '/lachica_bigpot.png'}
                         alt={game.name}
                         className="w-full h-full object-contain relative z-10"
                       />

@@ -9,6 +9,8 @@ const tabs = [
   { id: 'moneytime', name: 'Money Time', apiType: 'money-time' },
   { id: 'pick2single', name: 'Pick 2 Single', apiType: 'pick2-single' },
   { id: 'pick2double', name: 'Pick 2 Double', apiType: 'pick2-double' },
+  { id: 'pick3', name: 'Pick 3', apiType: 'pick3' },
+  { id: 'pick4', name: 'Pick 4', apiType: 'pick4' },
 ]
 
 const getTabIcon = (id: string) => {
@@ -21,6 +23,10 @@ const getTabIcon = (id: string) => {
       return <img src="/pick2_single.png?v=6" alt="Pick 2 Single" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick2double':
       return <img src="/pick2_double.png?v=6" alt="Pick 2 Double" className="w-12 h-12 -m-1.5 object-contain" />
+    case 'pick3':
+      return <img src="/pick3_logo.png" alt="Pick 3" className="w-12 h-12 -m-1.5 object-contain" />
+    case 'pick4':
+      return <img src="/pick4_logo.png" alt="Pick 4" className="w-12 h-12 -m-1.5 object-contain" />
     default:
       return null
   }

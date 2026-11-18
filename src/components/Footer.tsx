@@ -34,6 +34,7 @@ export function Footer() {
                 { id: 'money-time' as PageId, label: 'Money Time', logo: '/moneytime_logo.png?v=6' },
                 { id: 'pick-2-single' as PageId, label: 'Pick 2 Single', logo: '/pick2_single.png?v=6' },
                 { id: 'pick-2-double' as PageId, label: 'Pick 2 Double', logo: '/pick2_double.png?v=6' },
+                { id: 'pick-lottery' as PageId, label: 'LaChica BIGPOT', logo: '/lachica_bigpot.png' },
               ].map(g => (
                 <li key={g.id}>
                   <Link 

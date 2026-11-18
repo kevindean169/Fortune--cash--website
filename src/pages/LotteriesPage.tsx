@@ -81,8 +81,8 @@ export function LotteriesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lotteries.map((game) => (
-              <GameCard key={game.id} game={game} />
+            {lotteries.map((game, index) => (
+              <GameCard key={`${game.type || 'lottery'}-${game.id}-${index}`} game={game} />
             ))}
           </div>
         )}

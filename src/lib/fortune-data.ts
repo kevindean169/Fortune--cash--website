@@ -5,6 +5,7 @@ export type PageId =
   | 'money-time'
   | 'pick-2-single'
   | 'pick-2-double'
+  | 'pick-lottery'
   | 'results'
   | 'dashboard'
   | 'tickets'
@@ -128,6 +129,21 @@ export const GAMES: Game[] = [
     maxPick: 2,
     poolSize: 10,
     description: 'Bet on two numbers. Win straight, box, or single-match combinations.',
+  },
+  {
+    id: 'pick-lottery',
+    name: 'LaChica BIGPOT',
+    tagline: 'Pick 3 & Pick 4 Lottery',
+    jackpot: '$1,500,000',
+    nextDraw: 'Daily',
+    drawTime: 'Multiple times daily',
+    price: '$100',
+    color: 'from-amber-500 to-yellow-600',
+    bgClass: 'bg-amber-500',
+    icon: '🎰',
+    maxPick: 4,
+    poolSize: 10,
+    description: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball options.',
   },
 ]
 

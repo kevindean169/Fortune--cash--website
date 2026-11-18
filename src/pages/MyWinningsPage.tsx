@@ -32,6 +32,9 @@ const getLotteryLogo = (winning: ApiWinningOrder | null) => {
   if (searchStr.includes('money time') || searchStr.includes('moneytime')) return '/moneytime_logo.png?v=6';
   if (searchStr.includes('pick 2 double') || searchStr.includes('pick-2-double') || searchStr.includes('pick2double')) return '/pick2_double.png?v=6';
   if (searchStr.includes('pick 2 single') || searchStr.includes('pick-2-single') || searchStr.includes('pick2single') || searchStr.includes('pick 2') || searchStr.includes('pick2')) return '/pick2_single.png?v=6';
+  if (searchStr.includes('pick 4') || searchStr.includes('pick4')) return '/pick4_logo.png';
+  if (searchStr.includes('pick 3') || searchStr.includes('pick3')) return '/pick3_logo.png';
+  if (searchStr.includes('lachica') || searchStr.includes('bigpot')) return '/lachica_bigpot.png';
 
   // Default fallback (Cashpot)
   return '/cashpot_logo.png?v=6';
