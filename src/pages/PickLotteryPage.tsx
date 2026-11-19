@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { LotterySkeleton } from '@/components/LotterySkeleton'
 import { formatUsd } from '@/lib/currency'
+import { getAdmin1BaseUrl, getAdmin2BaseUrl } from '@/lib/apiConfig'
 
 interface BetRow {
   id: string
@@ -20,7 +21,7 @@ interface BetRow {
 }
 
 const getManualPickBaseUrl = () => {
-  return (import.meta.env.VITE_MANUAL_PICK_API_URL || 'http://localhost/manual-pick').replace(/\/$/, '')
+  return getAdmin2BaseUrl()
 }
 
 function formatDrawTimeToLocal(timeStr: string): { display: string; timeOnly: string; original: string } {
@@ -679,7 +680,7 @@ export function PickLotteryPage() {
           const debitAmount = debitData?.data?.amount
 
           // Step 4: Record Central Transaction Log in Admin 1
-          const admin1BaseUrl = import.meta.env.VITE_API_URL || ''
+          const admin1BaseUrl = getAdmin1BaseUrl()
           const customerId = user?.id || ''
           if (admin1BaseUrl && customerId && transactionId) {
             const adminLogUrl = `${admin1BaseUrl.replace(/\/$/, '')}/api/customer/store-transaction-bet/${customerId}?amount=${debitAmount || grandTotal}&trx=${transactionId}`

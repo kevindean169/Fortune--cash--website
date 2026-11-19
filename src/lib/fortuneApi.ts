@@ -1,4 +1,5 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+import { getAdmin1BaseUrl } from '@/lib/apiConfig'
+
 const AUTH_API_BASE_URL = (import.meta.env.VITE_AUTH_API_URL || 'https://api.moneytimeja.com/api/v1').replace(/\/$/, '')
 const APP_KEY = import.meta.env.VITE_AUTH_API_KEY || '3f8a178ff8b15c4255dfa95cc85b41b29ff5fec509f8f56ce5bb1529ea8ab794'
 
@@ -314,7 +315,8 @@ function authHeaders(token?: string): HeadersInit {
 }
 
 async function request(endpoint: string, token?: string): Promise<unknown> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const baseUrl = getAdmin1BaseUrl()
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     headers: {
       Accept: 'application/json',
       ...authHeaders(token),
