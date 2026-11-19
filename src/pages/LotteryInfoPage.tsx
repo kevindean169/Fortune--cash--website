@@ -22,7 +22,7 @@ interface LotteryInfoData {
   glowColor: string
   logoSrc: string
   numberRange: { from: number; to: number; label: string }
-  howManyNumbers: number
+  howManyNumbers: number | string
   drawFrequency: string
   drawTimes: string
   minBet: string
@@ -294,70 +294,126 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     name: 'LaChica BIGPOT',
     type: 'LaChica BIGPOT (Pick 3 & Pick 4)',
     tagline: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets',
-    accentColor: '#10b981',
-    glowColor: 'rgba(16,185,129,0.25)',
+    accentColor: '#e0ac2c',
+    glowColor: 'rgba(224,172,44,0.25)',
     logoSrc: '/lachica_bigpot.png',
-    numberRange: { from: 0, to: 9999, label: '3 or 4 Digits' },
-    howManyNumbers: 3,
-    drawFrequency: 'Daily',
-    drawTimes: 'Multiple draws daily — check live slots',
+    numberRange: { from: 0, to: 9999, label: '3 or 4 Digits (000–9999)' },
+    howManyNumbers: '3 or 4',
+    drawFrequency: 'Multiple draws daily',
+    drawTimes: 'Live upcoming slots — 08:30 AM · 10:30 AM · 01:00 PM · 05:00 PM · 08:25 PM',
     minBet: '$1.00',
-    maxBet: 'Varies per draw (bet limit applies)',
+    maxBet: 'Varies by draw (subject to bet limit)',
     betOptions: [
       {
-        name: 'Pick 3 Straight / Box',
-        description: 'Pick 3 digits. Straight matches exact order (500x). Box matches any order (80x-160x).',
-        payout: 'Up to 500x',
-        color: '#10b981',
-      },
-      {
-        name: 'Pick 4 Straight / Box',
-        description: 'Pick 4 digits. Straight matches exact order (5,000x). Box matches any order (up to 400x).',
-        payout: 'Up to 5,000x',
-        color: '#3b82f6',
-      },
-      {
-        name: 'Megaball & Monstaball',
-        description: 'Bonus multiplier drawn alongside your winning numbers for amplified returns.',
-        payout: 'Multiplier bonus',
+        name: 'Pick 3 Straight',
+        description: 'Choose 3 digits (000–999). Win if all digits match the winning draw numbers in exact sequence order.',
+        payout: '500× stake',
         color: '#e0ac2c',
+      },
+      {
+        name: 'Pick 3 Box',
+        description: 'Choose 3 digits. Win if the digits match the draw numbers in any order (3-way or 6-way permutation).',
+        payout: '80× – 160× stake',
+        color: '#e0ac2c',
+      },
+      {
+        name: 'Pick 4 Straight',
+        description: 'Choose 4 digits (0000–9999). Match all 4 digits in exact order for the top lottery multiplier jackpot.',
+        payout: '5,000× stake',
+        color: '#e0ac2c',
+      },
+      {
+        name: 'Pick 4 Box',
+        description: 'Choose 4 digits. Win if your digits match the drawn numbers in any combination order (up to 24-way).',
+        payout: 'Up to 400× stake',
+        color: '#e0ac2c',
+      },
+      {
+        name: 'Megaball Multiplier',
+        description: 'Side-bet add-on. When the Megaball is drawn alongside your numbers, collect amplified bonus payouts.',
+        payout: 'Multiplier bonus',
+        color: '#d4a017',
+      },
+      {
+        name: 'Monstaball Multiplier',
+        description: 'Super add-on multiplier. Boosts your winnings with high-impact bonus multipliers on qualifying draws.',
+        payout: 'Super multiplier',
+        color: '#c79844',
       },
     ],
     howToPlay: [
-      { step: '01', title: 'Select Draw Slot', desc: 'Choose your desired upcoming draw slot time.' },
-      { step: '02', title: 'Choose Pick 3 or Pick 4', desc: 'Select 3 digits or 4 digits game mode.' },
-      { step: '03', title: 'Enter Lucky Number', desc: 'Type your 3-digit or 4-digit number.' },
-      { step: '04', title: 'Set Stake & Submit', desc: 'Enter amounts for Straight, Box, Mega, or Monsta and place bets.' },
+      { step: '01', title: 'Select Draw Times', desc: 'Choose one or more active upcoming draw slots. Your ticket will be entered into all chosen draws.' },
+      { step: '02', title: 'Choose Game Mode', desc: 'Select Pick 3 (3-digit number from 000–999) or Pick 4 (4-digit number from 0000–9999).' },
+      { step: '03', title: 'Enter Lucky Number', desc: 'Type your chosen 3-digit or 4-digit number into the Bet No. input.' },
+      { step: '04', title: 'Set Stakes & Add-ons', desc: 'Enter stake amounts for Straight, Box, Megaball, and Monstaball as desired.' },
+      { step: '05', title: 'Add to Cart & Place Bets', desc: 'Tap "Add Bet +" to queue tickets in your bet slip, then tap "Place Bets". Winnings credit automatically to your wallet.' },
     ],
     winningRules: [
       {
-        rule: 'Straight Match',
-        desc: 'All digits match the winning draw numbers in exact order.',
-        icon: <Target className="size-5 text-[#10b981]" />,
+        rule: 'Pick 3 Straight Match',
+        desc: 'All 3 digits match the winning draw numbers in exact order (500× your stake).',
+        icon: <Trophy className="size-5 text-[#e0ac2c]" />,
       },
       {
-        rule: 'Box Match',
-        desc: 'All digits match the winning draw numbers in any permutation order.',
-        icon: <Trophy className="size-5 text-[#3b82f6]" />,
+        rule: 'Pick 3 Box Match',
+        desc: 'All 3 digits match in any order. 3-way (two identical digits) pays 160×; 6-way (unique digits) pays 80×.',
+        icon: <Target className="size-5 text-[#e0ac2c]" />,
+      },
+      {
+        rule: 'Pick 4 Straight Match',
+        desc: 'All 4 digits match the winning draw numbers in exact sequence for the massive 5,000× top multiplier.',
+        icon: <Trophy className="size-5 text-[#e0ac2c]" />,
+      },
+      {
+        rule: 'Pick 4 Box Match',
+        desc: 'All 4 digits match in any permutation order (4-way, 6-way, 12-way, or 24-way combinations).',
+        icon: <Target className="size-5 text-[#e0ac2c]" />,
+      },
+      {
+        rule: 'Megaball & Monstaball Wins',
+        desc: 'Bonus balls drawn alongside winning results trigger extra multiplier cash bonuses on qualifying tickets.',
+        icon: <Zap className="size-5 text-[#d4a017]" />,
       },
     ],
     tips: [
-      'Straight offers the highest payout (500x for Pick 3, 5,000x for Pick 4).',
-      'Box gives you multiple winning combinations for your numbers.',
-      'Check remaining bet limits per draw before placing bets.',
+      'Straight bets deliver the biggest single-play multipliers: 500× for Pick 3 and 5,000× for Pick 4.',
+      'Box bets cover all permutations of your numbers, giving you many more ways to win.',
+      'You can combine multiple Pick 3 and Pick 4 bets across different draw times in one checkout.',
+      'Check remaining bet limits per draw slot before confirming; limits automatically reset for each slot.',
+      'Adding Megaball and Monstaball unlocks special bonus multiplier ball payouts.',
     ],
     faq: [
-      { q: 'Can I bet on both Pick 3 and Pick 4?', a: 'Yes, you can queue both Pick 3 and Pick 4 bets in the same bet slip.' },
-      { q: 'How does Megaball and Monstaball work?', a: 'When you bet on Mega or Monsta, if that bonus ball is drawn for the slot, you receive the winning bonus payout.' },
+      { q: 'Can I bet on both Pick 3 and Pick 4 in the same ticket or bet slip?', a: 'Yes! You can add multiple Pick 3 and Pick 4 bets across various draw times and submit them all together.' },
+      { q: 'What is the difference between Straight and Box bets?', a: 'Straight requires your numbers to match the winning draw in exact order. Box wins if the drawn digits match your numbers in any permutation order.' },
+      { q: 'How does Box payout differ in Pick 3?', a: 'If your number has two identical digits (e.g., 112), it has 3 possible orders (3-way Box, 160×). If all digits are unique (e.g., 123), it has 6 orders (6-way Box, 80×).' },
+      { q: 'How do Megaball and Monstaball work?', a: 'Megaball and Monstaball are bonus multiplier balls. If that bonus ball is drawn for the draw slot, tickets with active side bets receive extra bonus winnings.' },
+      { q: 'Are winnings credited to my wallet automatically?', a: 'Yes, as soon as draw results are verified, your winnings are instantly added to your Fortune wallet balance.' },
     ],
   },
 }
 
+INFO_MAP['pick-lottery'] = INFO_MAP['lachica-bigpot']
+
 /* Helper: derive which info data to show from URL param or type string */
 function resolveInfoKey(typeParam: string | null): string {
   if (!typeParam) return 'cashpot'
-  const t = typeParam.toLowerCase()
-  if (t.includes('lachica') || t.includes('bigpot') || t.includes('pick 3') || t.includes('pick 4') || t.includes('manual')) return 'lachica-bigpot'
+  const t = typeParam.toLowerCase().trim()
+  if (
+    t.includes('lachica') ||
+    t.includes('bigpot') ||
+    t.includes('big pot') ||
+    t.includes('pick 3') ||
+    t.includes('pick 4') ||
+    t.includes('pick3') ||
+    t.includes('pick4') ||
+    t.includes('manual') ||
+    t.includes('pick-lottery') ||
+    t.includes('pick_lottery') ||
+    t === 'pick-lottery' ||
+    t === 'pick_lottery' ||
+    t === 'pick-3' ||
+    t === 'pick-4'
+  ) return 'lachica-bigpot'
   if (t.includes('double')) return 'pick-2-double'
   if (t.includes('single')) return 'pick-2-single'
   if (t.includes('money') || t.includes('time')) return 'money-time'
@@ -402,10 +458,35 @@ export function LotteryInfoPage() {
   }, [typeParam])
 
   const stats = [
-    { icon: <Hash className="size-4" style={{ color: info.accentColor }} />, label: 'Numbers per Bet', value: info.howManyNumbers === 1 ? '1' : String(info.howManyNumbers) },
-    { icon: <Target className="size-4" style={{ color: info.accentColor }} />, label: 'Number Range', value: info.numberRange.label },
-    { icon: <Clock className="size-4" style={{ color: info.accentColor }} />, label: 'Draw Frequency', value: info.drawFrequency },
+    {
+      icon: <Hash className="size-4" style={{ color: info.accentColor }} />,
+      label: 'Numbers per Bet',
+      value: typeof info.howManyNumbers === 'string' ? info.howManyNumbers : (info.howManyNumbers === 1 ? '1' : String(info.howManyNumbers)),
+    },
+    {
+      icon: <Target className="size-4" style={{ color: info.accentColor }} />,
+      label: 'Number Range',
+      value: info.numberRange.label,
+    },
+    {
+      icon: <Clock className="size-4" style={{ color: info.accentColor }} />,
+      label: 'Draw Frequency',
+      value: info.drawFrequency,
+    },
+    {
+      icon: <Trophy className="size-4" style={{ color: info.accentColor }} />,
+      label: 'Starting Bet',
+      value: info.minBet,
+    },
   ]
+
+  const handlePlayNow = () => {
+    if (infoKey === 'lachica-bigpot' || infoKey === 'pick-lottery') {
+      navigate('pick-lottery')
+    } else {
+      navigate(`lotteries-by-type?type=${encodeURIComponent(infoKey)}`)
+    }
+  }
 
   return (
     <div className="bg-background">
@@ -483,7 +564,7 @@ export function LotteryInfoPage() {
             {/* Play Now Button */}
             <div className="shrink-0 mb-1 mt-1 sm:mt-0">
               <button
-                onClick={() => navigate(infoKey === 'lachica-bigpot' ? 'pick-lottery' : `lotteries-by-type?type=${encodeURIComponent(infoKey)}`)}
+                onClick={handlePlayNow}
                 className="px-8 py-3.5 gold-gradient text-white font-extrabold rounded-xl hover:opacity-90 transition-all text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(224,172,44,0.15)] hover:shadow-[0_0_25px_rgba(224,172,44,0.3)] border border-primary/20"
               >
                 Play Now
@@ -528,7 +609,7 @@ export function LotteryInfoPage() {
             {info.betOptions.map((opt, idx) => (
               <div
                 key={opt.name}
-                className="relative rounded-2xl p-5 border overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                className="relative rounded-2xl p-5 border overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between"
                 style={{
                   background: `linear-gradient(145deg, #0e0e0e, ${opt.color}07)`,
                   borderColor: `${opt.color}28`,
@@ -540,20 +621,32 @@ export function LotteryInfoPage() {
                   className="absolute top-0 right-0 w-20 h-20 rounded-full blur-[35px] opacity-20 pointer-events-none"
                   style={{ background: opt.color }}
                 />
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
-                    style={{ background: `${opt.color}20`, color: opt.color, border: `1px solid ${opt.color}45` }}
-                  >
-                    {String(idx + 1).padStart(2, '0')}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                        style={{ background: `${opt.color}20`, color: opt.color, border: `1px solid ${opt.color}45` }}
+                      >
+                        {String(idx + 1).padStart(2, '0')}
+                      </div>
+                      <span className="font-black text-sm text-foreground uppercase tracking-wide">{opt.name}</span>
+                    </div>
+                    {opt.payout && (
+                      <span
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 border"
+                        style={{ background: `${opt.color}15`, color: opt.color, borderColor: `${opt.color}40` }}
+                      >
+                        {opt.payout}
+                      </span>
+                    )}
                   </div>
-                  <span className="font-black text-sm text-foreground uppercase tracking-wide">{opt.name}</span>
+                  <div
+                    className="w-10 h-0.5 rounded-full mb-3"
+                    style={{ background: `linear-gradient(to right, ${opt.color}, transparent)` }}
+                  />
+                  <p className="text-xs text-muted-foreground leading-relaxed">{opt.description}</p>
                 </div>
-                <div
-                  className="w-10 h-0.5 rounded-full mb-3"
-                  style={{ background: `linear-gradient(to right, ${opt.color}, transparent)` }}
-                />
-                <p className="text-xs text-muted-foreground leading-relaxed">{opt.description}</p>
               </div>
             ))}
           </div>
@@ -759,6 +852,37 @@ export function LotteryInfoPage() {
                 )}
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ── Bottom CTA ── */}
+        <section className="pb-8">
+          <div
+            className="relative rounded-2xl p-8 sm:p-10 border overflow-hidden text-center"
+            style={{
+              background: 'linear-gradient(135deg, #0e0e0e 0%, #161616 100%)',
+              borderColor: `${info.accentColor}35`,
+              boxShadow: `0 0 30px ${info.accentColor}10`,
+            }}
+          >
+            <div
+              className="absolute inset-0 opacity-10 pointer-events-none"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${info.accentColor}, transparent 70%)`,
+              }}
+            />
+            <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-2">
+              Ready to Play {info.name}?
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              Pick your lucky numbers, select upcoming draw slots, and win cash prizes with instant wallet payouts.
+            </p>
+            <button
+              onClick={handlePlayNow}
+              className="px-10 py-4 gold-gradient text-white font-extrabold rounded-xl hover:opacity-90 transition-all text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(224,172,44,0.25)] hover:shadow-[0_0_35px_rgba(224,172,44,0.4)] border border-primary/20"
+            >
+              Play {info.name} Now
+            </button>
           </div>
         </section>
 

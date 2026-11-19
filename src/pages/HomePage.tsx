@@ -318,11 +318,7 @@ export function HomePage() {
                 <button
                   key={game.id}
                   onClick={() => {
-                    if (game.id === 'pick-lottery') {
-                      navigate('pick-lottery')
-                    } else {
-                      navigate(`lottery-info?type=${game.id}`)
-                    }
+                    navigate(`lottery-info?type=${game.id}`)
                   }}
                   className="group text-left"
                 >
