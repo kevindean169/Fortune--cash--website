@@ -102,6 +102,7 @@ export function MyTicketsPage() {
       case 'purchased':
       case 'unvoid':
       case '0':
+      case 'pending':
         return (
           <Badge className="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
             <CheckCircle className="size-3" /> Purchase

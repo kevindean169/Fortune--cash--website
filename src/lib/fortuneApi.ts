@@ -305,7 +305,7 @@ function normalizeTicketStatus(status: string): string {
   const normalized = status.toLowerCase().trim()
 
   if (normalized === '1' || normalized === 'void') return 'void'
-  if (normalized === '0' || normalized === 'unvoid' || normalized === 'purchase' || normalized === 'purchased') return 'purchase'
+  if (normalized === '0' || normalized === 'unvoid' || normalized === 'purchase' || normalized === 'purchased' || normalized === 'pending') return 'purchase'
 
   return normalized || 'purchase'
 }
