@@ -797,7 +797,7 @@ export function PickLotteryPage() {
           metadata: {
             multiplier: 1.0,
             type: 'purchase',
-            message: 'LaChica BIGPOT Purchased successfully',
+            message: 'Pick 3 & Pick 4 Purchased successfully',
             order_id: String(orderNo),
             lottery_id: String(lotteryId),
           },
@@ -857,8 +857,8 @@ export function PickLotteryPage() {
     }
   }
 
-  const lotteryImage = lotteryData?.image || '/lachica_bigpot.png'
-  const lotteryName = lotteryData?.name || 'LaChica BIGPOT'
+  const lotteryImage = '/pick3_pick4_logo.png'
+  const lotteryName = 'Pick 3 & Pick 4'
   const scheduleType = lotteryData?.schedule?.toUpperCase() || 'DAILY'
 
   // Extract real dynamic price/multiplier data for Pick 3 and Pick 4
@@ -1010,7 +1010,7 @@ export function PickLotteryPage() {
                 ✓
               </div>
               <h3 className="text-2xl font-bold text-foreground mb-1">Purchase Successful!</h3>
-              <p className="text-muted-foreground text-xs mb-3">Your LaChica BIGPOT tickets have been registered.</p>
+              <p className="text-muted-foreground text-xs mb-3">Your Pick 3 & Pick 4 tickets have been registered.</p>
               <div className="bg-neutral-900 border border-primary/30 rounded-lg p-2.5 mb-4">
                 <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">Order Number</span>
                 <span className="font-mono text-primary font-black text-lg">#{successOrderNo}</span>
@@ -1065,7 +1065,7 @@ export function PickLotteryPage() {
             <img
               src={lotteryImage}
               alt={lotteryName}
-              onError={(e) => { e.currentTarget.src = '/lachica_bigpot.png' }}
+              onError={(e) => { e.currentTarget.src = '/pick3_pick4_logo.png' }}
               className="h-full object-contain p-1 sm:p-2 opacity-90 z-0"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-transparent" />
@@ -1085,7 +1085,7 @@ export function PickLotteryPage() {
                   {lotteryName}
                 </h1>
                 <p className="text-[9px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider truncate leading-none mt-0.5">
-                  Type: <span className="text-primary">LaChica BIGPOT (Pick 3 & Pick 4)</span>
+                  Type: <span className="text-primary">Pick 3 & Pick 4</span>
                 </p>
               </div>
             </div>
@@ -1794,7 +1794,7 @@ export function PickLotteryPage() {
               {howToPlayData ? (
                 <div
                   className="text-muted-foreground text-sm sm:text-base whitespace-pre-wrap leading-relaxed how-to-play-content"
-                  dangerouslySetInnerHTML={{ __html: howToPlayData }}
+                  dangerouslySetInnerHTML={{ __html: howToPlayData.replace(/LaChica BIGPOT/gi, 'Pick 3 & Pick 4').replace(/LaChica/gi, 'Pick 3 & Pick 4') }}
                 />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">

@@ -10,7 +10,8 @@ function formatTypeName(type: string | null): string {
   const t = type.toLowerCase()
   if (t === 'cashpot') return 'Cashpot'
   if (t === 'money-time') return 'Money Time'
-  if (t === 'pick-2-single') return 'Pick 2 Single'
+  if (t === 'pick-2-single') return 'LaChica BIGPOT'
+  if (t === 'pick-lottery' || t === 'lachica-bigpot') return 'Pick 3 & Pick 4'
   if (t === 'pick-2-double') return 'Pick 2 Double'
   return type.charAt(0).toUpperCase() + type.slice(1)
 }

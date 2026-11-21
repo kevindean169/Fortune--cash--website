@@ -21,13 +21,6 @@ interface BetItem {
   batchId?: string
 }
 
-const getImageUrl = (imagePath: string) => {
-  if (!imagePath) return '/favicon.png'
-  if (imagePath.startsWith('http')) return imagePath
-  const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
-  return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
-}
-
 function formatDrawTimeToLocal(timeStr: string): { display: string; original: string } {
   if (!timeStr) return { display: '-', original: '' }
 
@@ -146,12 +139,12 @@ export function Pick2SinglePage() {
 
   // Local configurations fallback
   const localConfig = {
-    name: 'Pick 2 Single',
-    type: 'Pick 2 Single',
+    name: 'LaChica BIGPOT',
+    type: 'LaChica BIGPOT',
     range: 99,
     isGrid: false,
     betOptions: [
-      { id: '4', name: 'Pick 2 Single', rate: 'Based on match' },
+      { id: '4', name: 'LaChica BIGPOT', rate: 'Based on match' },
     ],
     drawTimes: ['09:00 AM', '01:00 PM', '07:00 PM'],
   }
@@ -248,8 +241,8 @@ export function Pick2SinglePage() {
 
   // Dynamic config construction
   const config = {
-    name: lotteryData?.name || localConfig.name,
-    type: lotteryData?.type || localConfig.type,
+    name: 'LaChica BIGPOT',
+    type: 'LaChica BIGPOT',
     range: 99,
     isGrid: false,
     drawTimes: lotteryData?.drawDetails?.map((d: any) => d.draw_time) || localConfig.drawTimes,
@@ -257,9 +250,10 @@ export function Pick2SinglePage() {
       (lotteryData?.gameDetails || priceData?.gameDetails).map((game: any) => {
         const lotGame = lotteryData?.gameDetails?.find((g: any) => g.game_id === game.game_id);
         const presets = game.bet_option || lotGame?.bet_option || [];
+        const isSingleOrPick2 = game.game_name?.toLowerCase().includes('single') || game.game_name?.toLowerCase().includes('pick 2');
         return {
           id: game.game_id.toString(),
-          name: game.game_name,
+          name: isSingleOrPick2 ? 'LaChica BIGPOT' : game.game_name,
           defaultAmount: game.bet_amount,
           defaultAmountMonsta: game.bet_amount_monsta,
           presets: presets.length > 0 ? presets : ['5', '10', '25', '50', '100'],
@@ -456,7 +450,7 @@ export function Pick2SinglePage() {
     if (!selectedNumber) { showAlert('Please select or enter Bet No. 1'); return }
     const val = parseInt(selectedNumber, 10)
     if (isNaN(val) || val < 0 || val > 99) {
-      showAlert('For Pick 2 Single, number must be between 00 and 99.')
+      showAlert('For LaChica BIGPOT, number must be between 00 and 99.')
       return
     }
 
@@ -629,7 +623,7 @@ export function Pick2SinglePage() {
                 ✓
               </div>
               <h3 className="text-2xl font-bold text-foreground mb-1">Purchase Successful!</h3>
-              <p className="text-muted-foreground text-xs mb-3">Your Pick 2 Single tickets have been registered.</p>
+              <p className="text-muted-foreground text-xs mb-3">Your LaChica BIGPOT tickets have been registered.</p>
               {successOrderNo && (
                 <div className="bg-neutral-900 border border-primary/30 rounded-lg p-2.5 mb-4">
                   <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">Order Number</span>
@@ -664,11 +658,11 @@ export function Pick2SinglePage() {
         {/* Lottery Header styled like App */}
         <Card className="border border-border/60 mb-2 overflow-hidden relative py-0 gap-0 min-h-0 h-20 sm:h-24 md:h-28 flex items-center bg-[#0c0c0c]">
           {/* Background Image covering full card */}
-          <div className="absolute inset-0 w-full h-full">
+          <div className="absolute inset-0 w-full h-full flex justify-end">
             <img
-              src={getImageUrl(lotteryData?.image)}
+              src="/lachica_bigpot.png"
               alt={config.name}
-              className="w-full h-full object-cover opacity-80"
+              className="h-full object-contain p-2 opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
@@ -1480,6 +1474,8 @@ export function Pick2SinglePage() {
                 {(priceData?.gameDetails || lotteryData?.gameDetails) ? (
                   (priceData?.gameDetails || lotteryData?.gameDetails).map((game: any, idx: number) => {
                     const numStr = String(idx + 1).padStart(2, '0')
+                    const isSingleOrPick2 = game.game_name?.toLowerCase().includes('single') || game.game_name?.toLowerCase().includes('pick 2');
+                    const displayName = isSingleOrPick2 ? 'LaChica BIGPOT' : game.game_name;
 
                     const payouts: { label?: string; value: any }[] = []
                     payouts.push({ label: 'Straight Match', value: game.bet_amount })
@@ -1491,7 +1487,7 @@ export function Pick2SinglePage() {
                             <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-extrabold text-sm text-primary shrink-0">
                               {numStr}
                             </div>
-                            <h4 className="font-extrabold text-base text-foreground">{game.game_name}</h4>
+                            <h4 className="font-extrabold text-base text-foreground">{displayName}</h4>
                           </div>
                           <span className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-widest">Payout Details</span>
                         </div>
@@ -1527,7 +1523,7 @@ export function Pick2SinglePage() {
               {howToPlayData ? (
                 <div
                   className="text-muted-foreground text-base whitespace-pre-wrap leading-relaxed how-to-play-content"
-                  dangerouslySetInnerHTML={{ __html: howToPlayData }}
+                  dangerouslySetInnerHTML={{ __html: howToPlayData.replace(/Pick 2 Single/gi, 'LaChica BIGPOT').replace(/Pick 2/gi, 'LaChica BIGPOT') }}
                 />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">

@@ -29,8 +29,11 @@ const mapTypeToPath = (type: string, name?: string): string => {
 const getImageUrl = (imagePath: string, type?: string, name?: string) => {
   const t = type?.toLowerCase() || ''
   const n = name?.toLowerCase() || ''
-  if (t.includes('lachica') || n.includes('lachica') || t.includes('bigpot') || n.includes('bigpot') || t.includes('pick 3') || t.includes('pick 4')) {
+  if (t.includes('single') || n.includes('single')) {
     return '/lachica_bigpot.png'
+  }
+  if (t.includes('lachica') || n.includes('lachica') || t.includes('bigpot') || n.includes('bigpot') || t.includes('pick 3') || n.includes('pick 3') || t.includes('pick 4') || n.includes('pick 4')) {
+    return '/pick3_pick4_logo.png'
   }
   if (!imagePath) return '/lottery_machine.jpg'
   if (imagePath.startsWith('http')) return imagePath
@@ -50,7 +53,11 @@ export function GameCard({ game }: { game: APILottery }) {
   const displayNotStarted = notStarted || isZero
   const path = mapTypeToPath(game.type, game.name)
   const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
-  const isLachica = (game.type?.toLowerCase() || '').includes('lachica') || (game.name?.toLowerCase() || '').includes('lachica') || (game.type?.toLowerCase() || '').includes('bigpot') || (game.name?.toLowerCase() || '').includes('bigpot') || (game.type?.toLowerCase() || '').includes('pick 3') || (game.type?.toLowerCase() || '').includes('pick 4')
+  const isPickSingle = (game.type?.toLowerCase() || '').includes('single') || (game.name?.toLowerCase() || '').includes('single')
+  const isPick34 = (game.type?.toLowerCase() || '').includes('lachica') || (game.name?.toLowerCase() || '').includes('lachica') || (game.type?.toLowerCase() || '').includes('bigpot') || (game.name?.toLowerCase() || '').includes('bigpot') || (game.type?.toLowerCase() || '').includes('pick 3') || (game.name?.toLowerCase() || '').includes('pick 3') || (game.type?.toLowerCase() || '').includes('pick 4') || (game.name?.toLowerCase() || '').includes('pick 4')
+  const isTransparentLogo = isPickSingle || isPick34
+  const displayType = isPickSingle ? 'LACHICA BIGPOT' : isPick34 ? 'PICK 3 & PICK 4' : (game.type?.toUpperCase() === 'CASHPOT MONEY TIME' ? 'MONEY TIME' : game.type)
+  const displayName = isPickSingle ? 'LaChica BIGPOT' : isPick34 ? 'Pick 3 & Pick 4' : game.name
 
   return (
     <div
@@ -61,8 +68,8 @@ export function GameCard({ game }: { game: APILottery }) {
       <div className="w-[38%] sm:w-[32%] relative shrink-0 bg-background overflow-hidden">
         <img
           src={getImageUrl(game.image, game.type, game.name)}
-          alt={game.name}
-          className={`absolute inset-0 w-full h-full ${isLachica ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
+          alt={displayName}
+          className={`absolute inset-0 w-full h-full ${isTransparentLogo ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
         />
         {/* slant overlay */}
         <div
@@ -80,9 +87,9 @@ export function GameCard({ game }: { game: APILottery }) {
               type="button"
               onClick={(e) => { e.stopPropagation(); routerNavigate(infoPath) }}
               className="px-2.5 py-0.5 bg-[#e0ac2c]/10 border border-[#e0ac2c]/20 text-[#e0ac2c] rounded text-[10px] font-bold whitespace-nowrap uppercase tracking-wider hover:bg-[#e0ac2c]/20 hover:border-[#e0ac2c]/40 transition-all cursor-pointer"
-              title={`Learn about ${game.type}`}
+              title={`Learn about ${displayType}`}
             >
-              {game.type?.toUpperCase() === 'CASHPOT MONEY TIME' ? 'MONEY TIME' : game.type}
+              {displayType}
             </button>
             {game.schedule && (
               <span className="text-[9px] text-[#e0ac2c]/70 font-bold uppercase tracking-wider pl-0.5">
@@ -91,7 +98,7 @@ export function GameCard({ game }: { game: APILottery }) {
             )}
           </div>
           <h3 className="font-extrabold text-foreground text-sm text-right pl-2 leading-tight uppercase tracking-wider min-w-0 break-words flex-1">
-            {game.name}
+            {displayName}
           </h3>
         </div>
 

@@ -390,15 +390,20 @@ function mapTicket(raw: unknown): ApiTicketOrder {
 
   // Format virtual prefix: PP- for Pick 3/4 & LaChica BIGPOT, CP- for Cashpot / Pick 2
   let orderNo = rawOrderNo
-  if (orderNo && orderNo !== '-') {
-    const isLachica =
-      rawLotteryType.toLowerCase().includes('lachica') ||
-      rawLotteryType.toLowerCase().includes('bigpot') ||
-      rawLotteryType.toLowerCase().includes('pick 3') ||
-      rawLotteryType.toLowerCase().includes('pick 4') ||
-      rawLotteryName.toLowerCase().includes('lachica') ||
-      rawLotteryName.toLowerCase().includes('bigpot')
+  const isLachica =
+    rawLotteryType.toLowerCase().includes('lachica') ||
+    rawLotteryType.toLowerCase().includes('bigpot') ||
+    rawLotteryType.toLowerCase().includes('pick 3') ||
+    rawLotteryType.toLowerCase().includes('pick 4') ||
+    rawLotteryType.toLowerCase().includes('pick-lottery') ||
+    rawLotteryName.toLowerCase().includes('lachica') ||
+    rawLotteryName.toLowerCase().includes('bigpot') ||
+    rawLotteryName.toLowerCase().includes('pick 3') ||
+    rawLotteryName.toLowerCase().includes('pick 4') ||
+    rawLotteryName.toLowerCase().includes('pick three') ||
+    rawLotteryName.toLowerCase().includes('pick four')
 
+  if (orderNo && orderNo !== '-') {
     if (isLachica) {
       if (!orderNo.startsWith('PP-')) {
         orderNo = `PP-${orderNo.replace(/^(CP-|LP-|PP-)/i, '')}`
@@ -407,6 +412,27 @@ function mapTicket(raw: unknown): ApiTicketOrder {
       if (!orderNo.startsWith('CP-') && !orderNo.startsWith('PP-') && !orderNo.startsWith('LP-')) {
         orderNo = `CP-${orderNo}`
       }
+    }
+  }
+
+  // Display name normalization (Frontend rename):
+  // Admin 2 (previously LaChica BIGPOT / Pick 3 / Pick 4) -> 'Pick 3 & Pick 4'
+  // Admin 1 Pick 2 Single -> 'LaChica BIGPOT'
+  let displayLotteryName = rawLotteryName
+  let displayLotteryType = rawLotteryType
+  if (isLachica) {
+    if (displayLotteryType.toLowerCase().includes('lachica') || displayLotteryType.toLowerCase().includes('bigpot')) {
+      displayLotteryType = 'Pick 3 & Pick 4'
+    }
+    if (displayLotteryName.toLowerCase().includes('lachica') || displayLotteryName.toLowerCase().includes('bigpot')) {
+      displayLotteryName = 'Pick 3 & Pick 4'
+    }
+  } else {
+    if (displayLotteryType.toLowerCase().includes('single')) {
+      displayLotteryType = 'LaChica BIGPOT'
+    }
+    if (displayLotteryName.toLowerCase().includes('single')) {
+      displayLotteryName = 'LaChica BIGPOT'
     }
   }
   const fallbackGames = games.length > 0 ? games : [{
@@ -436,8 +462,8 @@ function mapTicket(raw: unknown): ApiTicketOrder {
     card_id: pickString(raw, ['card_id', 'card_no'], ''),
     transaction_id: pickString(raw, ['transaction_id', 'txn_id', 'receipt_id'], orderNo),
     status: normalizeTicketStatus(pickString(raw, ['status'], '0')),
-    lottery_name: pickString(raw, ['lottery_name', 'lottery'], pickString(lottery, ['name', 'title'], 'Lottery')),
-    lottery_type: pickString(raw, ['lottery_type', 'type'], pickString(lottery, ['type'], '')),
+    lottery_name: displayLotteryName,
+    lottery_type: displayLotteryType,
     customer_name: pickString(raw, ['customer_name', 'name'], pickString(customer, ['name', 'username'], '-')),
     customer_contact: pickString(raw, ['customer_contact', 'phone', 'mobile'], pickString(customer, ['phone', 'mobile'], '')),
     created_at: normalizeDate(pickString(raw, ['created_at', 'createdAt', 'purchased_on', 'date'], '')),
@@ -592,15 +618,20 @@ function mapWinning(raw: unknown): ApiWinningOrder {
 
   // Format virtual prefix: PP- for Pick 3/4 & LaChica BIGPOT, CP- for Cashpot / Pick 2
   let orderNo = rawOrderNo
-  if (orderNo && orderNo !== '-') {
-    const isLachica =
-      rawLotteryType.toLowerCase().includes('lachica') ||
-      rawLotteryType.toLowerCase().includes('bigpot') ||
-      rawLotteryType.toLowerCase().includes('pick 3') ||
-      rawLotteryType.toLowerCase().includes('pick 4') ||
-      rawLotteryName.toLowerCase().includes('lachica') ||
-      rawLotteryName.toLowerCase().includes('bigpot')
+  const isLachica =
+    rawLotteryType.toLowerCase().includes('lachica') ||
+    rawLotteryType.toLowerCase().includes('bigpot') ||
+    rawLotteryType.toLowerCase().includes('pick 3') ||
+    rawLotteryType.toLowerCase().includes('pick 4') ||
+    rawLotteryType.toLowerCase().includes('pick-lottery') ||
+    rawLotteryName.toLowerCase().includes('lachica') ||
+    rawLotteryName.toLowerCase().includes('bigpot') ||
+    rawLotteryName.toLowerCase().includes('pick 3') ||
+    rawLotteryName.toLowerCase().includes('pick 4') ||
+    rawLotteryName.toLowerCase().includes('pick three') ||
+    rawLotteryName.toLowerCase().includes('pick four')
 
+  if (orderNo && orderNo !== '-') {
     if (isLachica) {
       if (!orderNo.startsWith('PP-')) {
         orderNo = `PP-${orderNo.replace(/^(CP-|LP-|PP-)/i, '')}`
@@ -612,6 +643,27 @@ function mapWinning(raw: unknown): ApiWinningOrder {
     }
   }
 
+  // Display name normalization (Frontend rename):
+  // Admin 2 (previously LaChica BIGPOT / Pick 3 / Pick 4) -> 'Pick 3 & Pick 4'
+  // Admin 1 Pick 2 Single -> 'LaChica BIGPOT'
+  let displayLotteryName = rawLotteryName
+  let displayLotteryType = rawLotteryType
+  if (isLachica) {
+    if (displayLotteryType.toLowerCase().includes('lachica') || displayLotteryType.toLowerCase().includes('bigpot')) {
+      displayLotteryType = 'Pick 3 & Pick 4'
+    }
+    if (displayLotteryName.toLowerCase().includes('lachica') || displayLotteryName.toLowerCase().includes('bigpot')) {
+      displayLotteryName = 'Pick 3 & Pick 4'
+    }
+  } else {
+    if (displayLotteryType.toLowerCase().includes('single')) {
+      displayLotteryType = 'LaChica BIGPOT'
+    }
+    if (displayLotteryName.toLowerCase().includes('single')) {
+      displayLotteryName = 'LaChica BIGPOT'
+    }
+  }
+
   return {
     lottery_id: pickNumber(raw, ['lottery_id'], 0),
     order_no: orderNo,
@@ -619,7 +671,7 @@ function mapWinning(raw: unknown): ApiWinningOrder {
     status: pickString(raw, ['status', 'payment_status'], 'paid'),
     paid_by: pickString(raw, ['paid_by', 'paid_via', 'payout_by'], ''),
     agent_name: pickString(raw, ['agent_name', 'agent'], ''),
-    lottery_name: rawLotteryName,
+    lottery_name: displayLotteryName,
     customer_name: pickString(raw, ['customer_name', 'name'], pickString(customer, ['name', 'username'], '-')),
     customer_contact: pickString(raw, ['customer_contact', 'phone', 'mobile'], pickString(customer, ['phone', 'mobile'], '')),
     created_at: normalizeDate(pickString(raw, ['created_at', 'createdAt', 'date'], '')),

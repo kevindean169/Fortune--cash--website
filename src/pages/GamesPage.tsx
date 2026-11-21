@@ -94,7 +94,7 @@ export function GamesPage({ navigate }: GamesPageProps) {
                 case 'money-time':
                   return '/moneytime_logo.png?v=6'
                 case 'pick-2-single':
-                  return '/pick2_single.png?v=6'
+                  return '/lachica_bigpot.png'
                 case 'pick-2-double':
                   return '/pick2_double.png?v=6'
                 case 'pick-3':
@@ -102,7 +102,7 @@ export function GamesPage({ navigate }: GamesPageProps) {
                 case 'pick-4':
                   return '/pick4_logo.png'
                 case 'pick-lottery':
-                  return '/lachica_bigpot.png'
+                  return '/pick3_pick4_logo.png'
                 default:
                   return null
               }

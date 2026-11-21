@@ -31,7 +31,8 @@ export function MobileAppHeader() {
   if (currentPath === '/tickets') title = 'My Tickets'
   if (currentPath === '/cashpot') title = 'Jamaica Cashpot'
   if (currentPath === '/money-time') title = 'Money Time'
-  if (currentPath === '/pick-2-single') title = 'Pick 2 Single'
+  if (currentPath === '/pick-2-single') title = 'LaChica BIGPOT'
+  if (currentPath === '/pick-lottery') title = 'Pick 3 & Pick 4'
   if (currentPath === '/pick-2-double') title = 'P2 Double Digit'
 
   return (

@@ -102,7 +102,7 @@ export const GAMES: Game[] = [
   },
   {
     id: 'pick-2-single',
-    name: 'Pick 2 Single',
+    name: 'LaChica BIGPOT',
     tagline: 'One two-digit number',
     jackpot: '$120,000',
     nextDraw: 'Daily',
@@ -132,7 +132,7 @@ export const GAMES: Game[] = [
   },
   {
     id: 'pick-lottery',
-    name: 'LaChica BIGPOT',
+    name: 'Pick 3 & Pick 4',
     tagline: 'Pick 3 & Pick 4 Lottery',
     jackpot: '$1,500,000',
     nextDraw: 'Daily',
@@ -150,7 +150,7 @@ export const GAMES: Game[] = [
 export const RECENT_RESULTS: DrawResult[] = [
   { date: 'Today, 7:29 PM', game: 'Cashpot', numbers: [24], megaBall: 12, monstaBall: 7, jackpot: '$850,000', winners: 4 },
   { date: 'Today, 7:29 PM', game: 'Money Time', numbers: [15], jackpot: '$240,000', winners: 12 },
-  { date: 'Today, 7:29 PM', game: 'Pick 2 Single', numbers: [89], jackpot: '$120,000', winners: 87 },
+  { date: 'Today, 7:29 PM', game: 'LaChica BIGPOT', numbers: [89], jackpot: '$120,000', winners: 87 },
   { date: 'Today, 4:00 PM', game: 'Pick 2 Double', numbers: [1, 2], jackpot: '$120,000', winners: 2 },
   { date: 'Yesterday, 7:29 PM', game: 'Cashpot', numbers: [3], megaBall: 27, monstaBall: 14, jackpot: '$850,000', winners: 1 },
   { date: 'Yesterday, 7:29 PM', game: 'Money Time', numbers: [27], jackpot: '$240,000', winners: 8 },
@@ -257,6 +257,6 @@ export const PROMOTIONS = [
 export const WINNERS = [
   { initials: 'J.K.', name: 'James K.', location: 'Kingston', prize: '$850,000', game: 'Cashpot', date: 'Jun 02' },
   { initials: 'M.R.', name: 'Maria R.', location: 'Montego Bay', prize: '$240,000', game: 'Money Time', date: 'Jun 01' },
-  { initials: 'A.T.', name: 'Andrew T.', location: 'Ocho Rios', prize: '$120,000', game: 'Pick 2 Single', date: 'Jun 01' },
+  { initials: 'A.T.', name: 'Andrew T.', location: 'Ocho Rios', prize: '$120,000', game: 'LaChica BIGPOT', date: 'Jun 01' },
   { initials: 'D.S.', name: 'David S.', location: 'Negril', prize: '$850,000', game: 'Cashpot', date: 'May 31' },
 ]

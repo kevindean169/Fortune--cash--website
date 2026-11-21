@@ -179,12 +179,12 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
 
   'pick-2-single': {
     key: 'pick-2-single',
-    name: 'Pick 2 Single',
-    type: 'Pick 2 Single',
+    name: 'LaChica BIGPOT',
+    type: 'LaChica BIGPOT',
     tagline: 'Pick one two-digit number from 00–99 and win big',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/pick2_single.png?v=6',
+    logoSrc: '/lachica_bigpot.png',
     numberRange: { from: 0, to: 99, label: '00 – 99' },
     howManyNumbers: 1,
     drawFrequency: 'Daily and Weekly',
@@ -193,14 +193,14 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
     maxBet: 'Varies per draw (bet limit applies)',
     betOptions: [
       {
-        name: 'Pick 2 Single',
+        name: 'LaChica BIGPOT',
         description: 'Choose one two-digit number from 00 to 99. If your number matches the drawn result, you win.',
         payout: 'Based on bet amount & draw result',
         color: '#e0ac2c',
       },
     ],
     howToPlay: [
-      { step: '01', title: 'Enter Your Two-Digit Number', desc: 'Type any number from 00 to 99. This is your single Pick 2 bet.' },
+      { step: '01', title: 'Enter Your Two-Digit Number', desc: 'Type any number from 00 to 99. This is your single LaChica BIGPOT bet.' },
       { step: '02', title: 'Choose Draw Times', desc: 'Select one or more upcoming draw slots. Your bet applies to each chosen draw.' },
       { step: '03', title: 'Set Bet Amount', desc: 'Enter your stake amount for the bet.' },
       { step: '04', title: 'Review & Submit', desc: 'Check your bet slip and confirm. Winnings are credited to your wallet instantly if you win.' },
@@ -219,8 +219,8 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
       'Each draw is independent — a missed draw does not affect other selected slots.',
     ],
     faq: [
-      { q: 'What is the difference between Pick 2 Single and Pick 2 Double?', a: 'Pick 2 Single requires you to select one two-digit number per ticket. Pick 2 Double lets you place bets on two separate numbers on the same ticket.' },
-      { q: 'Does "00" count as a valid number?', a: 'Yes — 00 through 09 are fully valid two-digit entries in Pick 2.' },
+      { q: 'What is the difference between LaChica BIGPOT and Pick 2 Double?', a: 'LaChica BIGPOT requires you to select one two-digit number per ticket. Pick 2 Double lets you place bets on two separate numbers on the same ticket.' },
+      { q: 'Does "00" count as a valid number?', a: 'Yes — 00 through 09 are fully valid two-digit entries in LaChica BIGPOT.' },
       { q: 'Are winnings paid instantly?', a: 'Yes, winnings are credited to your Fortune wallet balance the moment results are confirmed.' },
     ],
   },
@@ -291,12 +291,12 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
 
   'lachica-bigpot': {
     key: 'lachica-bigpot',
-    name: 'LaChica BIGPOT',
-    type: 'LaChica BIGPOT (Pick 3 & Pick 4)',
+    name: 'Pick 3 & Pick 4',
+    type: 'Pick 3 & Pick 4',
     tagline: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets',
     accentColor: '#e0ac2c',
     glowColor: 'rgba(224,172,44,0.25)',
-    logoSrc: '/lachica_bigpot.png',
+    logoSrc: '/pick3_pick4_logo.png',
     numberRange: { from: 0, to: 9999, label: '3 or 4 Digits (000–9999)' },
     howManyNumbers: '3 or 4',
     drawFrequency: 'Multiple draws daily',
@@ -399,9 +399,6 @@ function resolveInfoKey(typeParam: string | null): string {
   if (!typeParam) return 'cashpot'
   const t = typeParam.toLowerCase().trim()
   if (
-    t.includes('lachica') ||
-    t.includes('bigpot') ||
-    t.includes('big pot') ||
     t.includes('pick 3') ||
     t.includes('pick 4') ||
     t.includes('pick3') ||
@@ -415,7 +412,14 @@ function resolveInfoKey(typeParam: string | null): string {
     t === 'pick-4'
   ) return 'lachica-bigpot'
   if (t.includes('double')) return 'pick-2-double'
-  if (t.includes('single')) return 'pick-2-single'
+  if (
+    t.includes('single') ||
+    t.includes('lachica') ||
+    t.includes('bigpot') ||
+    t.includes('big pot') ||
+    t.includes('pick-2-single') ||
+    t === 'pick-2-single'
+  ) return 'pick-2-single'
   if (t.includes('money') || t.includes('time')) return 'money-time'
   if (t.includes('cashpot')) return 'cashpot'
   if (INFO_MAP[t]) return t
@@ -483,6 +487,8 @@ export function LotteryInfoPage() {
   const handlePlayNow = () => {
     if (infoKey === 'lachica-bigpot' || infoKey === 'pick-lottery') {
       navigate('pick-lottery')
+    } else if (infoKey === 'pick-2-single') {
+      navigate('pick-2-single')
     } else {
       navigate(`lotteries-by-type?type=${encodeURIComponent(infoKey)}`)
     }

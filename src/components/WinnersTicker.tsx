@@ -27,7 +27,7 @@ export function WinnersTicker() {
       { game: 'Money Time Megaball Win', time: '09:00 PM', name: '84628', prize: '$30', number: '27' },
       { game: 'Money Time Monstaball Win', time: '08:00 PM', name: '29381', prize: '$23', number: '12' },
       { game: 'Pick 2 Double', time: '04:30 PM', name: '74820', prize: '$110', number: '07-36' },
-      { game: 'Pick 2 Single', time: '10:00 AM', name: '93721', prize: '$150', number: '63' },
+      { game: 'LaChica BIGPOT', time: '10:00 AM', name: '93721', prize: '$150', number: '63' },
       { game: 'Money Time Megaball Win', time: '11:00 AM', name: '10582', prize: '$300', number: '15' },
       { game: 'Money Time Monstaball Win', time: '07:30 PM', name: '63810', prize: '$180', number: '29' }
     ];

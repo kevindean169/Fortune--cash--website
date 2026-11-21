@@ -8,12 +8,12 @@ const recentWinners = [
   { name: 'Maria G.', amount: '$900', game: 'Cashpot', number: '22', date: '25 May' },
   { name: 'Robert T.', amount: '$2,500', game: 'Money Time', number: '07', date: '22 May' },
   { name: 'Sarah K.', amount: '$650', game: 'Cashpot', number: '31', date: '20 May' },
-  { name: 'David M.', amount: '$1,100', game: 'Pick 2 Single', number: '45', date: '18 May' },
+  { name: 'David M.', amount: '$1,100', game: 'LaChica BIGPOT', number: '45', date: '18 May' },
   { name: 'Lisa P.', amount: '$3,200', game: 'Cashpot', number: '08', date: '15 May' },
   { name: 'Carlos B.', amount: '$750', game: 'Pick 2 Double', number: '12,33', date: '14 May' },
   { name: 'Emma S.', amount: '$1,800', game: 'Money Time', number: '19', date: '12 May' },
   { name: 'Tom H.', amount: '$2,100', game: 'Cashpot', number: '11', date: '10 May' },
-  { name: 'Julie W.', amount: '$500', game: 'Pick 2 Single', number: '99', date: '08 May' },
+  { name: 'Julie W.', amount: '$500', game: 'LaChica BIGPOT', number: '99', date: '08 May' },
 ]
 
 export function WinnersPage() {

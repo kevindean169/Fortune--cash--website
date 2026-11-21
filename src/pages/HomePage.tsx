@@ -196,7 +196,7 @@ export function HomePage() {
                   {" "}Repeat
                 </p>
                 <p className="text-xs lg:text-sm xl:text-base text-white/80 leading-snug mt-1 max-w-[200px] lg:max-w-md drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
-                  Cashpot, Money Time, Pick 2 Sigle<br /> and Pick 2 Double.<br />
+                  Cashpot, Money Time, LaChica BIGPOT,<br /> Pick 2 Double, Pick 3 & Pick 4.<br />
                   Winners happen daily!
                 </p>
               </div>
@@ -304,11 +304,11 @@ export function HomePage() {
                   case 'money-time':
                     return '/moneytime_logo.png?v=6'
                   case 'pick-2-single':
-                    return '/pick2_single.png?v=6'
+                    return '/lachica_bigpot.png'
                   case 'pick-2-double':
                     return '/pick2_double.png?v=6'
                   case 'pick-lottery':
-                    return '/lachica_bigpot.png'
+                    return '/pick3_pick4_logo.png'
                   default:
                     return null
                 }
@@ -364,13 +364,13 @@ export function HomePage() {
                 step: '01',
                 icon: <Play className="size-6 text-primary" />,
                 title: 'Choose Your Game',
-                desc: 'Select from Jamaica Cashpot, Money Time, Pick 2 Single, or Pick 2 Double.',
+                desc: 'Select from Jamaica Cashpot, Money Time, LaChica BIGPOT, Pick 2 Double, or Pick 3 & Pick 4.',
               },
               {
                 step: '02',
                 icon: <Star className="size-6 text-primary" />,
                 title: 'Pick Your Number',
-                desc: 'Choose from 01–36 for Cashpot, or 00–99 for Pick 2. Add Mega & Monsta options.',
+                desc: 'Choose from 01–36 for Cashpot, or 00–99 for LaChica BIGPOT & Pick 2. Add Mega & Monsta options.',
               },
               {
                 step: '03',
@@ -419,9 +419,9 @@ export function HomePage() {
                 {[
                   { name: 'Cashpot', desc: 'Pick 01–36. Win up to 30× your bet. Add Mega & Monsta balls for bigger prizes.', path: 'cashpot' },
                   { name: 'Money Time', desc: 'Special Cashpot draws at fixed daily time slots. Same rules, extra chances.', path: 'money-time' },
-                  { name: 'Pick 2 Single', desc: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.', path: 'pick-2-single' },
+                  { name: 'LaChica BIGPOT', desc: 'Select one two-digit number from 00–99. Simple, clean, great payout ratio.', path: 'pick-2-single' },
                   { name: 'Pick 2 Double', desc: 'Bet on two numbers. Win straight, box, or single-match combinations.', path: 'pick-2-double' },
-                  { name: 'LaChica BIGPOT', desc: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets.', path: 'pick-lottery' },
+                  { name: 'Pick 3 & Pick 4', desc: 'Play Pick 3 and Pick 4 with Straight, Box, Megaball, and Monstaball bets.', path: 'pick-lottery' },
                 ].map((game) => (
                   <div
                     key={game.name}
@@ -431,7 +431,7 @@ export function HomePage() {
                     <div className="size-24 -mx-4 -my-4 flex-shrink-0 relative">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,172,44,0.1)_0%,transparent_70%)]" />
                       <img
-                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=6' : game.path === 'money-time' ? '/moneytime_logo.png?v=6' : game.path === 'pick-2-single' ? '/pick2_single.png?v=6' : game.path === 'pick-2-double' ? '/pick2_double.png?v=6' : '/lachica_bigpot.png'}
+                        src={game.path === 'cashpot' ? '/cashpot_logo.png?v=6' : game.path === 'money-time' ? '/moneytime_logo.png?v=6' : game.path === 'pick-2-single' ? '/lachica_bigpot.png' : game.path === 'pick-2-double' ? '/pick2_double.png?v=6' : '/pick3_pick4_logo.png'}
                         alt={game.name}
                         className="w-full h-full object-contain relative z-10"
                       />

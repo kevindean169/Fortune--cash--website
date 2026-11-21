@@ -7,7 +7,7 @@ import { fetchResults, type ApiDrawResult } from '@/lib/fortuneApi'
 const tabs = [
   { id: 'cashpot', name: 'Cashpot', apiType: 'cashpot' },
   { id: 'moneytime', name: 'Money Time', apiType: 'money-time' },
-  { id: 'pick2single', name: 'Pick 2 Single', apiType: 'pick2-single' },
+  { id: 'pick2single', name: 'LaChica BIGPOT', apiType: 'pick2-single' },
   { id: 'pick2double', name: 'Pick 2 Double', apiType: 'pick2-double' },
   { id: 'pick3', name: 'Pick 3', apiType: 'pick3' },
   { id: 'pick4', name: 'Pick 4', apiType: 'pick4' },
@@ -20,7 +20,7 @@ const getTabIcon = (id: string) => {
     case 'moneytime':
       return <img src="/moneytime_logo.png?v=6" alt="Money Time" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick2single':
-      return <img src="/pick2_single.png?v=6" alt="Pick 2 Single" className="w-12 h-12 -m-1.5 object-contain" />
+      return <img src="/lachica_bigpot.png" alt="LaChica BIGPOT" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick2double':
       return <img src="/pick2_double.png?v=6" alt="Pick 2 Double" className="w-12 h-12 -m-1.5 object-contain" />
     case 'pick3':
