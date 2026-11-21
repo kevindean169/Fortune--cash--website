@@ -230,9 +230,9 @@ export function MyWinningsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {winnings.map((winning) => (
+                  {winnings.map((winning, index) => (
                     <TableRow
-                      key={winning.order_no}
+                      key={`${winning.order_no}-${winning.card_id || index}-${winning.draw_date || ''}-${winning.draw_time || ''}`}
                       className="border-b border-border/20 hover:bg-muted/10 transition-colors"
                     >
                       <TableCell
@@ -285,8 +285,8 @@ export function MyWinningsPage() {
             </div>
 
             <div className="md:hidden flex flex-col divide-y divide-border/20">
-              {winnings.map((winning) => (
-                <div key={winning.order_no} className="p-4 space-y-3 hover:bg-muted/5 active:bg-muted/10 transition-colors cursor-pointer" onClick={() => setSelectedWinning(winning)}>
+              {winnings.map((winning, index) => (
+                <div key={`${winning.order_no}-${winning.card_id || index}-${winning.draw_date || ''}-${winning.draw_time || ''}`} className="p-4 space-y-3 hover:bg-muted/5 active:bg-muted/10 transition-colors cursor-pointer" onClick={() => setSelectedWinning(winning)}>
                   <div className="flex justify-between items-start gap-2">
                     <div>
                       <span className="font-bold text-sm text-primary">#{winning.order_no}</span>

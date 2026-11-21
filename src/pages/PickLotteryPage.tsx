@@ -839,7 +839,11 @@ export function PickLotteryPage() {
       await fetchWallet()
 
       // Step 6: Show success modal, reset cart and refresh data
-      setSuccessOrderNo(String(orderNo))
+      let finalOrderNo = String(orderNo)
+      if (finalOrderNo && !finalOrderNo.startsWith('PP-') && !finalOrderNo.startsWith('CP-')) {
+        finalOrderNo = `PP-${finalOrderNo}`
+      }
+      setSuccessOrderNo(finalOrderNo)
       setPayoutSuccess(true)
       setCart([])
       setShowBetsModal(false)
@@ -1011,12 +1015,24 @@ export function PickLotteryPage() {
                 <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">Order Number</span>
                 <span className="font-mono text-primary font-black text-lg">#{successOrderNo}</span>
               </div>
-              <Button
-                onClick={() => setPayoutSuccess(false)}
-                className="w-full gold-gradient text-white font-bold rounded-lg"
-              >
-                Continue Playing
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => setPayoutSuccess(false)}
+                  className="w-full gold-gradient text-white font-bold rounded-lg cursor-pointer"
+                >
+                  Continue Playing
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setPayoutSuccess(false)
+                    navigate('/tickets')
+                  }}
+                  className="w-full text-xs text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  View My Tickets →
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

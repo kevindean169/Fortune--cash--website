@@ -160,7 +160,8 @@ export async function submitLotteryPurchase({
     throw new Error('Purchase completed, but order number was not returned.')
   }
 
-  const printStatusResponse = await fetch(`${baseUrl}${printStatusPath}/${orderNo}`, {
+  const numericOrderNo = String(orderNo).replace(/\D/g, '') || orderNo
+  const printStatusResponse = await fetch(`${baseUrl}${printStatusPath}/${numericOrderNo}`, {
     method: 'GET',
     headers,
   })

@@ -64,6 +64,7 @@ export function MoneyTimePage() {
   const [amountInputWarnings, setAmountInputWarnings] = useState<Record<string, string>>({})
   const [cart, setCart] = useState<BetItem[]>([])
   const [payoutSuccess, setPayoutSuccess] = useState(false)
+  const [successOrderNo, setSuccessOrderNo] = useState<string | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string; isLoginRedirect?: boolean }>({ isOpen: false, message: '', isLoginRedirect: false })
   const showAlert = (message: string, isLoginRedirect = false) => setAlertModal({ isOpen: true, message, isLoginRedirect })
@@ -898,7 +899,7 @@ export function MoneyTimePage() {
 
     setCheckoutLoading(true)
     try {
-      await submitLotteryPurchase({
+      const purchaseResult = await submitLotteryPurchase({
         baseUrl: import.meta.env.VITE_API_URL || '',
         authBaseUrl: import.meta.env.VITE_AUTH_API_URL || '',
         accessToken,
@@ -914,14 +915,14 @@ export function MoneyTimePage() {
         },
       })
 
+      const rawOrderNo = purchaseResult?.orderNo || ''
+      const displayOrderNo = rawOrderNo ? (String(rawOrderNo).startsWith('CP-') ? String(rawOrderNo) : `CP-${rawOrderNo}`) : ''
+      setSuccessOrderNo(displayOrderNo)
       setPayoutSuccess(true)
       fetchWallet()
-      setTimeout(() => {
-        setPayoutSuccess(false)
-        setCart([])
-        handleClearData()
-        setShowCartModal(false)
-      }, 3000)
+      setCart([])
+      handleClearData()
+      setShowCartModal(false)
     } catch (err: any) {
       console.error('Purchase error:', err)
       const errMsg = err.message || 'An error occurred while submitting purchase request.'
@@ -955,13 +956,37 @@ export function MoneyTimePage() {
       {/* Success Modal */}
       {payoutSuccess && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
-          <Card className="max-w-sm w-full bg-fortune-card border border-green-500/30">
-            <CardContent className="p-8 text-center">
+          <Card className="max-w-sm w-full bg-[#0c0c0c] border border-green-500/40 text-center">
+            <CardContent className="p-8">
               <div className="w-16 h-16 bg-green-500/20 border-2 border-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400 text-3xl animate-bounce">
                 ✓
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">Bet Placed!</h3>
-              <p className="text-muted-foreground text-sm">Your tickets have been registered successfully. Balance updated.</p>
+              <h3 className="text-2xl font-bold text-foreground mb-1">Purchase Successful!</h3>
+              <p className="text-muted-foreground text-xs mb-3">Your Money Time tickets have been registered.</p>
+              {successOrderNo && (
+                <div className="bg-neutral-900 border border-primary/30 rounded-lg p-2.5 mb-4">
+                  <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">Order Number</span>
+                  <span className="font-mono text-primary font-black text-lg">#{successOrderNo}</span>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Button
+                  onClick={() => setPayoutSuccess(false)}
+                  className="w-full gold-gradient text-white font-bold rounded-lg cursor-pointer"
+                >
+                  Continue Playing
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setPayoutSuccess(false)
+                    navigate('/tickets')
+                  }}
+                  className="w-full text-xs text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  View My Tickets →
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
