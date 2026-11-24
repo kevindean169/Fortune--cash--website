@@ -57,7 +57,7 @@ export function GameCard({ game }: { game: APILottery }) {
   const isPick34 = (game.type?.toLowerCase() || '').includes('lachica') || (game.name?.toLowerCase() || '').includes('lachica') || (game.type?.toLowerCase() || '').includes('bigpot') || (game.name?.toLowerCase() || '').includes('bigpot') || (game.type?.toLowerCase() || '').includes('pick 3') || (game.name?.toLowerCase() || '').includes('pick 3') || (game.type?.toLowerCase() || '').includes('pick 4') || (game.name?.toLowerCase() || '').includes('pick 4')
   const isTransparentLogo = isPickSingle || isPick34
   const displayType = isPickSingle ? 'LACHICA BIGPOT' : isPick34 ? 'PICK 3 & PICK 4' : (game.type?.toUpperCase() === 'CASHPOT MONEY TIME' ? 'MONEY TIME' : game.type)
-  const displayName = isPickSingle ? 'LaChica BIGPOT' : isPick34 ? 'Pick 3 & Pick 4' : game.name
+  const displayName = game.name || (isPickSingle ? 'LaChica BIGPOT' : isPick34 ? 'Pick 3 & Pick 4' : game.type || 'Lottery')
 
   return (
     <div
