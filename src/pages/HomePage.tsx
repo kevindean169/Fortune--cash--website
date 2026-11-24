@@ -8,7 +8,6 @@ import {
   User, Lock, EyeOff, ShieldCheck, CalendarDays
 } from 'lucide-react'
 import { GAMES } from '@/lib/fortune-data'
-import type { PageId } from '@/lib/fortune-data'
 import { useNavigate } from 'react-router-dom'
 import { useTabManagement } from '@/context/TabManagementContext'
 
@@ -426,7 +425,7 @@ export function HomePage() {
                   <div
                     key={game.name}
                     className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
-                    onClick={() => navigate(game.path as PageId)}
+                    onClick={() => navigate(`lotteries-by-type?type=${game.path}`)}
                   >
                     <div className="size-24 -mx-4 -my-4 flex-shrink-0 relative">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,172,44,0.1)_0%,transparent_70%)]" />
