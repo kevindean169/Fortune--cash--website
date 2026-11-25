@@ -26,7 +26,13 @@ const mapTypeToPath = (type: string, name?: string): string => {
   return 'cashpot'
 }
 
-const getImageUrl = (imagePath: string, type?: string, name?: string) => {
+const getImageUrl = (imagePath?: string, type?: string, name?: string) => {
+  if (imagePath && imagePath !== '/lachica_bigpot.png' && imagePath !== '/pick3_pick4_logo.png' && imagePath !== '/lottery_machine.jpg') {
+    if (imagePath.startsWith('http')) return imagePath
+    const baseUrl = (import.meta.env.VITE_API_URL || 'https://fortunescash.com').replace(/\/$/, '')
+    return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
+  }
+
   const t = type?.toLowerCase() || ''
   const n = name?.toLowerCase() || ''
   if (t.includes('single') || n.includes('single')) {
@@ -55,7 +61,8 @@ export function GameCard({ game }: { game: APILottery }) {
   const infoPath = `/lottery-info?type=${encodeURIComponent(game.type || game.name)}`
   const isPickSingle = (game.type?.toLowerCase() || '').includes('single') || (game.name?.toLowerCase() || '').includes('single')
   const isPick34 = (game.type?.toLowerCase() || '').includes('lachica') || (game.name?.toLowerCase() || '').includes('lachica') || (game.type?.toLowerCase() || '').includes('bigpot') || (game.name?.toLowerCase() || '').includes('bigpot') || (game.type?.toLowerCase() || '').includes('pick 3') || (game.name?.toLowerCase() || '').includes('pick 3') || (game.type?.toLowerCase() || '').includes('pick 4') || (game.name?.toLowerCase() || '').includes('pick 4')
-  const isTransparentLogo = isPickSingle || isPick34
+  const imageUrl = getImageUrl(game.image, game.type, game.name)
+  const isFallbackLogo = imageUrl === '/lachica_bigpot.png' || imageUrl === '/pick3_pick4_logo.png'
   const displayType = isPickSingle ? 'LACHICA BIGPOT' : isPick34 ? 'PICK 3 & PICK 4' : (game.type?.toUpperCase() === 'CASHPOT MONEY TIME' ? 'MONEY TIME' : game.type)
   const displayName = game.name || (isPickSingle ? 'LaChica BIGPOT' : isPick34 ? 'Pick 3 & Pick 4' : game.type || 'Lottery')
 
@@ -67,9 +74,9 @@ export function GameCard({ game }: { game: APILottery }) {
       {/* Left: Image */}
       <div className="w-[38%] sm:w-[32%] relative shrink-0 bg-background overflow-hidden">
         <img
-          src={getImageUrl(game.image, game.type, game.name)}
+          src={imageUrl}
           alt={displayName}
-          className={`absolute inset-0 w-full h-full ${isTransparentLogo ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
+          className={`absolute inset-0 w-full h-full ${isFallbackLogo ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
         />
         {/* slant overlay */}
         <div
