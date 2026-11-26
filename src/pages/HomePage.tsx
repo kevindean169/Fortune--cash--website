@@ -111,8 +111,11 @@ export function HomePage() {
   const latestResults = homeData?.latest_results?.length
     ? homeData.latest_results.map((r: any) => {
       const gameTypeNormalized = r.type === 'Cashpot' ? 'Cashpot' : r.type === 'Cashpot Money Time' ? 'Money Time' : r.type;
+      const gameLabel = r.name && r.name.toLowerCase() !== (gameTypeNormalized || '').toLowerCase()
+        ? `${r.name} (${gameTypeNormalized})`
+        : (r.name || gameTypeNormalized);
       return {
-        game: r.name ? `${r.name} (${gameTypeNormalized})` : gameTypeNormalized,
+        game: gameLabel,
         date: r.draw_time ? formatToLocalTime(r.draw_time) : r.draw_time_human,
         drawNo: r.draw_no || 0,
         numbers: r.winning_numbers || [],
@@ -486,7 +489,7 @@ export function HomePage() {
                     </div>
                   </div>
                 ))
-              ) : latestResults.slice(0, 4).map((result, i) => (
+              ) : latestResults.slice(0, 6).map((result, i) => (
                 <Card key={i} className="bg-fortune-card border-border hover:border-border/80 transition-colors">
                   <CardContent className="p-6 md:px-8">
                     <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
