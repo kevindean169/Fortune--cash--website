@@ -23,16 +23,34 @@ import { formatUsd } from '@/lib/currency'
 const getLotteryLogo = (winning: ApiWinningOrder | null) => {
   if (!winning) return '/cashpot_logo.png?v=6';
 
-  // Combine lottery name and all game names into one big string to check
+  // Combine lottery name, order number, and all game names into one string to check
   const searchStr = [
     winning.lottery_name,
+    winning.order_no,
     ...(winning.games?.map(g => g.game_name) || [])
   ].join(' ').toLowerCase();
 
   if (searchStr.includes('money time') || searchStr.includes('moneytime')) return '/moneytime_logo.png?v=6';
   if (searchStr.includes('pick 2 double') || searchStr.includes('pick-2-double') || searchStr.includes('pick2double')) return '/pick2_double.png?v=6';
-  if (searchStr.includes('pick 4') || searchStr.includes('pick4') || searchStr.includes('pick 3') || searchStr.includes('pick3') || searchStr.includes('pick-lottery')) return '/pick3_pick4_logo.png';
-  if (searchStr.includes('pick 2 single') || searchStr.includes('pick-2-single') || searchStr.includes('pick2single') || searchStr.includes('single') || searchStr.includes('lachica') || searchStr.includes('bigpot')) return '/lachica_bigpot.png';
+  if (
+    searchStr.includes('pick 4') ||
+    searchStr.includes('pick4') ||
+    searchStr.includes('pick 3') ||
+    searchStr.includes('pick3') ||
+    searchStr.includes('pick-lottery') ||
+    searchStr.includes('pick three') ||
+    searchStr.includes('pick four') ||
+    searchStr.includes('three merge') ||
+    searchStr.includes('four merge') ||
+    searchStr.includes('straight') ||
+    searchStr.includes('box') ||
+    searchStr.includes('megaball') ||
+    searchStr.includes('monstaball') ||
+    (winning.order_no && String(winning.order_no).startsWith('PP-'))
+  ) {
+    return '/pick3_pick4_logo.png';
+  }
+  if (searchStr.includes('pick 2 single') || searchStr.includes('pick-2-single') || searchStr.includes('pick2single') || searchStr.includes('lachica') || searchStr.includes('bigpot')) return '/lachica_bigpot.png';
 
   // Default fallback (Cashpot)
   return '/cashpot_logo.png?v=6';

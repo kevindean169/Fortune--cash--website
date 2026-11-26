@@ -865,11 +865,12 @@ export function PickLotteryPage() {
   const pick3Prices = priceData?.gameDetails?.[3] || lotteryData?.gameDetails?.[3] || []
   const pick4Prices = priceData?.gameDetails?.[4] || lotteryData?.gameDetails?.[4] || []
 
+  const isMonstaballEnabled = priceData?.customer_monstaball !== false
   const currentPrices = pickType === 3 ? pick3Prices : pick4Prices
   const straightGame = currentPrices.find((g: any) => g.game_id === 1)
   const boxGame = currentPrices.find((g: any) => g.game_id === 2)
   const megaballGame = currentPrices.find((g: any) => g.game_id === 3)
-  const monstaballGame = currentPrices.find((g: any) => g.game_id === 4)
+  const monstaballGame = isMonstaballEnabled ? currentPrices.find((g: any) => g.game_id === 4) : undefined
 
   const [editingGameKey, setEditingGameKey] = useState<string | null>(null)
   const [tempBetAmount, setTempBetAmount] = useState<string>('')
@@ -1856,7 +1857,7 @@ export function PickLotteryPage() {
                   {/* Special Bet Limits Cards (Megaball & Monstaball) */}
                   <div className="space-y-3">
                     <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Special Bet Limits</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className={`grid grid-cols-1 ${monstaballGame ? 'sm:grid-cols-2' : ''} gap-4`}>
                       <div className="p-4 border border-border rounded-xl bg-white/[0.02] flex justify-between items-center">
                         <div>
                           <h4 className="font-bold text-sm text-foreground">Megaball Bet Limit</h4>
@@ -1867,15 +1868,17 @@ export function PickLotteryPage() {
                         </span>
                       </div>
 
-                      <div className="p-4 border border-border rounded-xl bg-white/[0.02] flex justify-between items-center">
-                        <div>
-                          <h4 className="font-bold text-sm text-foreground">Monstaball Bet Limit</h4>
-                          <p className="text-[10px] text-muted-foreground">Remaining stake allowed</p>
+                      {monstaballGame && (
+                        <div className="p-4 border border-border rounded-xl bg-white/[0.02] flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-sm text-foreground">Monstaball Bet Limit</h4>
+                            <p className="text-[10px] text-muted-foreground">Remaining stake allowed</p>
+                          </div>
+                          <span className="px-3 py-1 font-bold rounded-lg text-xs border border-green-500/30 bg-green-500/10 text-green-400">
+                            ${currentDrawDetail?.p3_remaining_monstaball_bet_limit || currentDrawDetail?.p4_remaining_monstaball_bet_limit || '300.00'}
+                          </span>
                         </div>
-                        <span className="px-3 py-1 font-bold rounded-lg text-xs border border-green-500/30 bg-green-500/10 text-green-400">
-                          ${currentDrawDetail?.p3_remaining_monstaball_bet_limit || currentDrawDetail?.p4_remaining_monstaball_bet_limit || '300.00'}
-                        </span>
-                      </div>
+                      )}
                     </div>
                   </div>
 
