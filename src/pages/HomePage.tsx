@@ -138,9 +138,11 @@ export function HomePage() {
       })
       .map((w: any) => {
         const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
+        const winAmount = Number(w.win_amount || w.amount || 0);
+        const prizeText = winAmount > 0 ? (w.prize || `$${winAmount.toLocaleString()}`) : '';
         return {
           initials: getInitials(w.name || w.initials),
-          prize: w.prize || `$${(w.win_amount || w.amount || 0).toLocaleString()}`,
+          prize: prizeText,
           game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
           location: w.location || 'Kingston',
           date: w.date,
@@ -574,7 +576,7 @@ export function HomePage() {
                     )}
                   </div>
                   <p className="font-bold text-base text-foreground mt-2 mb-1">{w.name}</p>
-                  <p className="font-extrabold text-lg text-primary">{w.prize}</p>
+                  {w.prize && <p className="font-extrabold text-lg text-primary">{w.prize}</p>}
                   <p className="text-sm font-semibold text-muted-foreground">{w.game}</p>
                   <p className="text-xs text-muted-foreground mt-1">{w.date}</p>
                 </CardContent>
