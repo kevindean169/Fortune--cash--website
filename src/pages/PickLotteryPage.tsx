@@ -156,6 +156,11 @@ function isMonstaActive(val?: string): boolean {
 function getNextDrawTarget(lotteryData: any): string {
   if (!lotteryData) return ''
 
+  const startStr = lotteryData.startDateTime || (lotteryData.startDate && lotteryData.startTime ? `${lotteryData.startDate}T${lotteryData.startTime}:00` : null)
+  if (startStr && new Date().getTime() < new Date(startStr).getTime()) {
+    return startStr
+  }
+
   const drawTimes: string[] = lotteryData.drawDetails?.map((d: any) => d.draw_time) || []
   if (drawTimes.length > 0) {
     const now = new Date()
@@ -251,6 +256,25 @@ export function PickLotteryPage() {
   const showAlert = (message: string, isLoginRedirect = false) => {
     setAlertModal({ isOpen: true, message, isLoginRedirect })
   }
+
+  // Closed / Not Started checks (matches CashpotPage / Admin 1)
+  const isNotStarted = useMemo(() => {
+    if (!lotteryData) return false
+    const startStr = lotteryData.startDateTime || (lotteryData.startDate && lotteryData.startTime ? `${lotteryData.startDate}T${lotteryData.startTime}:00` : null)
+    if (!startStr) return false
+    return new Date().getTime() < new Date(startStr).getTime()
+  }, [lotteryData])
+
+  const isExpired = useMemo(() => {
+    if (!lotteryData) return false
+    const stopStr = lotteryData.stopDateTime || (lotteryData.stopDate && lotteryData.stopTime ? `${lotteryData.stopDate}T${lotteryData.stopTime}:00` : null)
+    if (!stopStr) return false
+    return new Date().getTime() > new Date(stopStr).getTime()
+  }, [lotteryData])
+
+  const isStatusClosed = lotteryData?.status === 2 || lotteryData?.status === '2' || lotteryData?.status === 'Deactive' || lotteryData?.status === 'Inactive'
+
+  const showCross = isNotStarted || isExpired || isStatusClosed
 
   // Dynamic countdown target
   const countdownTarget = useMemo(() => getNextDrawTarget(lotteryData), [lotteryData])
@@ -696,6 +720,11 @@ export function PickLotteryPage() {
       return
     }
 
+    if (showCross) {
+      showAlert(isNotStarted ? 'This lottery is not open for purchase yet.' : 'This lottery has ended and is closed.')
+      return
+    }
+
     if (cart.length === 0) {
       showAlert('Your bet cart is empty. Please add at least one bet.')
       return
@@ -1094,7 +1123,7 @@ export function PickLotteryPage() {
             {/* Timer */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <span className="text-[10px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
-                Next Draw:
+                {isNotStarted ? 'Draw Starts In:' : isExpired || isStatusClosed ? 'Lottery Closed:' : 'Next Draw:'}
               </span>
               <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-sm lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-1.5 py-0.5 sm:px-2.5 sm:py-1.5 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(224,172,44,0.15)]">
                 <span className="text-primary">{d}d</span>
@@ -1149,8 +1178,24 @@ export function PickLotteryPage() {
 
         {/* Tab 1: BUY TICKETS */}
         {activeTab === 'buy' && (
-          <>
-            {/* Desktop View (Unchanged for Web View) */}
+          <div>
+            {showCross ? (
+              <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
+                <div className="w-24 h-24 rounded-full border-2 border-red-500/50 flex items-center justify-center mb-6 bg-red-500/10">
+                  <X className="size-12 text-red-500" />
+                </div>
+                <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">
+                  {isNotStarted ? 'Lottery Not Started' : 'Lottery Closed'}
+                </h2>
+                <p className="text-muted-foreground text-sm max-w-sm text-center">
+                  {isNotStarted
+                    ? 'This lottery is not open for purchase yet. Please check back later.'
+                    : 'This lottery has ended and is no longer available for purchase.'}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Desktop View (Unchanged for Web View) */}
             <div className="hidden lg:grid grid-cols-3 gap-6">
               {/* Play Area (2 cols on desktop) */}
               <div className="lg:col-span-2 space-y-5">
@@ -1677,7 +1722,9 @@ export function PickLotteryPage() {
                 </div>
               )}
             </div>
-          </>
+              </>
+            )}
+          </div>
         )}
 
         {/* Tab 2: PRIZE STRUCTURE */}
@@ -2061,7 +2108,7 @@ export function PickLotteryPage() {
       </div>
 
       {/* Floating Bottom Bar: Total Bets View Button for Mobile (on other tabs when cart has items) */}
-      {activeTab !== 'buy' && cart.length > 0 && (
+      {activeTab !== 'buy' && cart.length > 0 && !showCross && (
         <div className="lg:hidden fixed bottom-[65px] left-3 right-3 z-40 bg-[#0c0c0c]/95 backdrop-blur-xl border border-border/40 rounded-xl shadow-[0_-10px_30px_rgba(0,0,0,0.8)] p-2">
           <Button
             type="button"
