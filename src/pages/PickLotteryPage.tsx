@@ -260,6 +260,7 @@ export function PickLotteryPage() {
   // Closed / Not Started checks (matches CashpotPage / Admin 1)
   const isNotStarted = useMemo(() => {
     if (!lotteryData) return false
+    if (lotteryData.status === 0 || lotteryData.status === '0') return true
     const startStr = lotteryData.startDateTime || (lotteryData.startDate && lotteryData.startTime ? `${lotteryData.startDate}T${lotteryData.startTime}:00` : null)
     if (!startStr) return false
     return new Date().getTime() < new Date(startStr).getTime()
@@ -267,14 +268,13 @@ export function PickLotteryPage() {
 
   const isExpired = useMemo(() => {
     if (!lotteryData) return false
+    if (lotteryData.status === 1 || lotteryData.status === '1' || lotteryData.status === 'Deactive' || lotteryData.status === 'Inactive') return true
     const stopStr = lotteryData.stopDateTime || (lotteryData.stopDate && lotteryData.stopTime ? `${lotteryData.stopDate}T${lotteryData.stopTime}:00` : null)
     if (!stopStr) return false
     return new Date().getTime() > new Date(stopStr).getTime()
   }, [lotteryData])
 
-  const isStatusClosed = lotteryData?.status === 2 || lotteryData?.status === '2' || lotteryData?.status === 'Deactive' || lotteryData?.status === 'Inactive'
-
-  const showCross = isNotStarted || isExpired || isStatusClosed
+  const showCross = isNotStarted || isExpired
 
   // Dynamic countdown target
   const countdownTarget = useMemo(() => getNextDrawTarget(lotteryData), [lotteryData])
@@ -1123,7 +1123,7 @@ export function PickLotteryPage() {
             {/* Timer */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <span className="text-[10px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
-                {isNotStarted ? 'Draw Starts In:' : isExpired || isStatusClosed ? 'Lottery Closed:' : 'Next Draw:'}
+                {isNotStarted ? 'Draw Starts In:' : isExpired ? 'Lottery Closed:' : 'Next Draw:'}
               </span>
               <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-sm lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-1.5 py-0.5 sm:px-2.5 sm:py-1.5 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(224,172,44,0.15)]">
                 <span className="text-primary">{d}d</span>
