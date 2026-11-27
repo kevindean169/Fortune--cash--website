@@ -561,7 +561,15 @@ function normalizeResultNumbers(type: string, directNumber: string, winningNumbe
 
 function mapResult(raw: unknown): ApiDrawResult {
   const type = pickString(raw, ['type_key', 'type', 'lottery_type', 'game_type'], '')
-  const lotteryName = pickString(raw, ['lottery_name', 'name', 'game_name', 'lottery'], type || 'Result')
+  const rawLotteryName = pickString(raw, ['lottery_name', 'name', 'game_name', 'lottery'], type || 'Result')
+  const isPick2Single =
+    rawLotteryName === 'Pick 2 Single' ||
+    rawLotteryName.toLowerCase().includes('pick 2 single') ||
+    rawLotteryName.toLowerCase().includes('pick-2-single') ||
+    rawLotteryName.toLowerCase().includes('pick2single') ||
+    type === 'pick2-single' ||
+    type === 'Pick 2 Single'
+  const lotteryName = isPick2Single ? 'LaChica BIGPOT' : rawLotteryName
   const directNumber = pickString(raw, ['number', 'cashpot_no', 'winning_number', 'result', 'bet_no'], '')
   const winningNumbers = getArray(raw, ['winning_numbers', 'numbers', 'result_numbers'])
     .map((item) => (typeof item === 'string' || typeof item === 'number' ? String(item) : ''))
@@ -571,6 +579,17 @@ function mapResult(raw: unknown): ApiDrawResult {
   const rawDrawTime = pickString(raw, ['utc_draw_time', 'draw_at', 'created_at', 'date'], '')
   const fallbackDrawTime = pickString(raw, ['draw_datetime', 'draw_time_human', 'draw_date'], '')
   const drawAt = rawDrawTime ? normalizeDate(rawDrawTime) : fallbackDrawTime
+  const rawGameLabel = pickString(raw, ['game_label'], '')
+  const isCashpotOrMoneyTime =
+    type === 'Cashpot' ||
+    type === 'Cashpot Money Time' ||
+    type === 'cashpot' ||
+    type === 'money-time' ||
+    rawLotteryName.toLowerCase().includes('cashpot') ||
+    rawLotteryName.toLowerCase().includes('money time')
+  const gameLabel = (rawGameLabel === 'Single' || isPick2Single || isCashpotOrMoneyTime)
+    ? ''
+    : (rawGameLabel || (type === 'pick2-double' || type === 'Pick 2 Double' ? 'Double' : ''))
 
   return {
     id: pickString(raw, ['id', 'draw_no', 'draw_number'], `${lotteryName}-${drawAt}-${number}`),
@@ -578,7 +597,7 @@ function mapResult(raw: unknown): ApiDrawResult {
     lottery_name: lotteryName,
     draw_no: pickString(raw, ['draw_no', 'draw_number', 'drawNo'], ''),
     draw_time: drawAt || '-',
-    game_label: pickString(raw, ['game_label'], normalizedNumbers.length > 1 ? 'Double' : 'Single'),
+    game_label: gameLabel,
     number,
     numbers: normalizedNumbers,
     megaball: pickString(raw, ['megaball', 'mega_ball'], ''),

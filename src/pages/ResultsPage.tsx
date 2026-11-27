@@ -145,8 +145,23 @@ export function ResultsPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
               {results.map((result, i) => {
-                const isDouble = result.numbers.length > 1
                 const hasMegaMonsta = Boolean(result.megaball || result.monstaball)
+                const isPick2Single =
+                  activeTab === 'pick2single' ||
+                  result.lottery_name.toLowerCase().includes('pick 2 single') ||
+                  result.lottery_name.toLowerCase().includes('pick-2-single') ||
+                  result.lottery_name.toLowerCase().includes('pick2single') ||
+                  result.lottery_name.toLowerCase().includes('lachica')
+
+                const lotteryName = isPick2Single ? 'LaChica BIGPOT' : result.lottery_name
+
+                const hideTag =
+                  ['cashpot', 'moneytime', 'pick2single'].includes(activeTab) ||
+                  isPick2Single ||
+                  result.lottery_name.toLowerCase().includes('cashpot') ||
+                  result.lottery_name.toLowerCase().includes('money time')
+
+                const tagLabel = !hideTag ? (result.game_label || (activeTab === 'pick2double' ? 'Double' : '')) : ''
 
                 return (
                   <Card
@@ -159,11 +174,13 @@ export function ResultsPage() {
                         <div>
                           <span className="font-extrabold text-lg text-foreground">{result.draw_no ? `${result.draw_no}` : 'Draw Result'}</span>
                           <p className="text-[13px] text-muted-foreground mt-1">{result.draw_time}</p>
-                          <p className="text-[12px] text-primary/80 font-bold mt-1">{result.lottery_name}</p>
+                          <p className="text-[12px] text-primary/80 font-bold mt-1">{lotteryName}</p>
                         </div>
-                        <div className="bg-primary/10 text-primary px-2.5 py-1 rounded text-xs font-extrabold uppercase tracking-wider">
-                          {result.game_label || (isDouble ? 'Double' : 'Single')}
-                        </div>
+                        {tagLabel && (
+                          <div className="bg-primary/10 text-primary px-2.5 py-1 rounded text-xs font-extrabold uppercase tracking-wider">
+                            {tagLabel}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between mt-2 pt-4 border-t border-border/50 gap-4">

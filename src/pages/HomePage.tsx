@@ -110,10 +110,17 @@ export function HomePage() {
   // latest results with fallback to local mock data
   const latestResults = homeData?.latest_results?.length
     ? homeData.latest_results.map((r: any) => {
-      const gameTypeNormalized = r.type === 'Cashpot' ? 'Cashpot' : r.type === 'Cashpot Money Time' ? 'Money Time' : r.type;
-      const gameLabel = r.name && r.name.toLowerCase() !== (gameTypeNormalized || '').toLowerCase()
-        ? `${r.name} (${gameTypeNormalized})`
-        : (r.name || gameTypeNormalized);
+      const gameTypeNormalized = r.type === 'Cashpot'
+        ? 'Cashpot'
+        : r.type === 'Cashpot Money Time'
+          ? 'Money Time'
+          : (r.type === 'Pick 2 Single' || r.type === 'pick2-single')
+            ? 'LaChica BIGPOT'
+            : r.type;
+      const rawName = (r.name === 'Pick 2 Single' || r.name === 'pick2-single') ? 'LaChica BIGPOT' : r.name;
+      const gameLabel = rawName && rawName.toLowerCase() !== (gameTypeNormalized || '').toLowerCase()
+        ? `${rawName} (${gameTypeNormalized})`
+        : (rawName || gameTypeNormalized);
       return {
         game: gameLabel,
         date: r.draw_time ? formatToLocalTime(r.draw_time) : r.draw_time_human,
@@ -140,13 +147,20 @@ export function HomePage() {
         return true;
       })
       .map((w: any) => {
-        const gameTypeNormalized = w.lottery_type === 'Cashpot' ? 'Cashpot' : w.lottery_type === 'Cashpot Money Time' ? 'Money Time' : w.lottery_type;
+        const gameTypeNormalized = w.lottery_type === 'Cashpot'
+          ? 'Cashpot'
+          : w.lottery_type === 'Cashpot Money Time'
+            ? 'Money Time'
+            : (w.lottery_type === 'Pick 2 Single' || w.lottery_type === 'pick2-single')
+              ? 'LaChica BIGPOT'
+              : w.lottery_type;
+        const lotteryNameNormalized = (w.lottery_name || '').replace(/Pick 2 Single/gi, 'LaChica BIGPOT');
         const winAmount = Number(w.win_amount || w.amount || 0);
         const prizeText = winAmount > 0 ? (w.prize || `$${winAmount.toLocaleString()}`) : '';
         return {
           initials: getInitials(w.name || w.initials),
           prize: prizeText,
-          game: w.lottery_name ? `${w.lottery_name} (${gameTypeNormalized})` : gameTypeNormalized,
+          game: lotteryNameNormalized ? `${lotteryNameNormalized} (${gameTypeNormalized})` : gameTypeNormalized,
           location: w.location || 'Kingston',
           date: w.date,
           image: w.image,
