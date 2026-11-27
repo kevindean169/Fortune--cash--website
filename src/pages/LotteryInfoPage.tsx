@@ -53,19 +53,19 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
       {
         name: 'Cashpot',
         description: 'Standard bet on your chosen number. Win if it matches the draw.',
-        payout: '30× your stake',
+        payout: '30× Stake',
         color: '#e0ac2c',
       },
       {
         name: 'Megaball',
         description: 'Extra side bet added on top of Cashpot. Cannot exceed Cashpot amount.',
-        payout: '36× your Megaball stake',
+        payout: '36× Stake',
         color: '#e0ac2c',
       },
       {
         name: 'Monstaball',
         description: 'Ultimate add-on bet. Cannot exceed your Megaball stake.',
-        payout: '50× your Monstaball stake',
+        payout: '50× Stake',
         color: '#d4a017',
       },
     ],
@@ -125,19 +125,19 @@ const INFO_MAP: Record<string, LotteryInfoData> = {
       {
         name: 'Cashpot',
         description: 'Standard Cashpot-style bet on your chosen number.',
-        payout: '30× your stake',
+        payout: '30× Stake',
         color: '#e0ac2c',
       },
       {
         name: 'Megaball',
         description: 'Side bet on the Megaball result. Cannot exceed Cashpot amount.',
-        payout: '36× your Megaball stake',
+        payout: '36× Stake',
         color: '#e0ac2c',
       },
       {
         name: 'Monstaball',
         description: 'Premium add-on. Cannot exceed your Megaball stake.',
-        payout: '50× your Monstaball stake',
+        payout: '50× Stake',
         color: '#d4a017',
       },
     ],
@@ -429,16 +429,16 @@ function resolveInfoKey(typeParam: string | null): string {
 /* ── Section heading with accent divider ─────────────────────── */
 function SectionHeading({ icon, title, accent }: { icon: React.ReactNode; title: string; accent: string }) {
   return (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex items-center gap-3.5 mb-6 sm:mb-8">
       <div
-        className="size-9 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: `${accent}18`, border: `1px solid ${accent}35` }}
+        className="size-11 sm:size-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+        style={{ background: `${accent}18`, border: `1px solid ${accent}40` }}
       >
         {icon}
       </div>
-      <div className="flex-1 flex items-center gap-3 min-w-0">
-        <h2 className="text-sm font-black text-foreground uppercase tracking-widest whitespace-nowrap">{title}</h2>
-        <div className="flex-1 h-px min-w-0" style={{ background: `linear-gradient(to right, ${accent}50, transparent)` }} />
+      <div className="flex-1 flex items-center gap-3.5 min-w-0">
+        <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider whitespace-nowrap">{title}</h2>
+        <div className="flex-1 h-px min-w-0" style={{ background: `linear-gradient(to right, ${accent}60, transparent)` }} />
       </div>
     </div>
   )
@@ -485,13 +485,8 @@ export function LotteryInfoPage() {
   ]
 
   const handlePlayNow = () => {
-    if (infoKey === 'lachica-bigpot' || infoKey === 'pick-lottery') {
-      navigate('pick-lottery')
-    } else if (infoKey === 'pick-2-single') {
-      navigate('pick-2-single')
-    } else {
-      navigate(`lotteries-by-type?type=${encodeURIComponent(infoKey)}`)
-    }
+    const targetType = (infoKey === 'lachica-bigpot' || infoKey === 'pick-lottery') ? 'pick-lottery' : infoKey
+    navigate(`lotteries-by-type?type=${encodeURIComponent(targetType)}`)
   }
 
   return (
@@ -601,11 +596,11 @@ export function LotteryInfoPage() {
         {/* ── Bet Types ── */}
         <section>
           <SectionHeading
-            icon={<TrendingUp className="size-4" style={{ color: info.accentColor }} />}
+            icon={<TrendingUp className="size-5" style={{ color: info.accentColor }} />}
             title="Bet Types"
             accent={info.accentColor}
           />
-          <div className={`grid gap-4 ${
+          <div className={`grid gap-4 sm:gap-6 ${
             info.betOptions.length === 1
               ? 'grid-cols-1 max-w-sm'
               : info.betOptions.length === 2
@@ -615,7 +610,7 @@ export function LotteryInfoPage() {
             {info.betOptions.map((opt, idx) => (
               <div
                 key={opt.name}
-                className="relative rounded-2xl p-5 border overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between"
+                className="relative rounded-2xl p-5 sm:p-6 border overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between"
                 style={{
                   background: `linear-gradient(145deg, #0e0e0e, ${opt.color}07)`,
                   borderColor: `${opt.color}28`,
@@ -628,19 +623,19 @@ export function LotteryInfoPage() {
                   style={{ background: opt.color }}
                 />
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-2 mb-3.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <div
                         className="size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
                         style={{ background: `${opt.color}20`, color: opt.color, border: `1px solid ${opt.color}45` }}
                       >
                         {String(idx + 1).padStart(2, '0')}
                       </div>
-                      <span className="font-black text-sm text-foreground uppercase tracking-wide">{opt.name}</span>
+                      <span className="font-extrabold text-base text-white uppercase tracking-wide truncate">{opt.name}</span>
                     </div>
                     {opt.payout && (
                       <span
-                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 border"
+                        className="text-xs font-black px-2.5 py-1 rounded-full border whitespace-nowrap shrink-0"
                         style={{ background: `${opt.color}15`, color: opt.color, borderColor: `${opt.color}40` }}
                       >
                         {opt.payout}
@@ -651,7 +646,7 @@ export function LotteryInfoPage() {
                     className="w-10 h-0.5 rounded-full mb-3"
                     style={{ background: `linear-gradient(to right, ${opt.color}, transparent)` }}
                   />
-                  <p className="text-xs text-muted-foreground leading-relaxed">{opt.description}</p>
+                  <p className="text-sm text-gray-400 leading-relaxed font-normal">{opt.description}</p>
                 </div>
               </div>
             ))}
@@ -661,25 +656,25 @@ export function LotteryInfoPage() {
         {/* ── How to Play — vertical timeline ── */}
         <section>
           <SectionHeading
-            icon={<Info className="size-4" style={{ color: info.accentColor }} />}
+            icon={<Info className="size-5" style={{ color: info.accentColor }} />}
             title="How to Play"
             accent={info.accentColor}
           />
           <div className="relative pl-2">
             {/* Connector line */}
             <div
-              className="absolute left-[22px] top-9 w-px pointer-events-none"
+              className="absolute left-[20px] top-10 w-px pointer-events-none"
               style={{
-                height: `calc(100% - 72px)`,
+                height: `calc(100% - 76px)`,
                 background: `linear-gradient(to bottom, ${info.accentColor}70, transparent)`,
               }}
             />
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-5">
               {info.howToPlay.map((step, i) => (
                 <div key={step.step} className="flex items-start gap-4">
                   {/* Step bubble */}
                   <div
-                    className="relative size-[38px] rounded-full flex items-center justify-center font-black text-xs shrink-0 z-10 ring-4 ring-[#0e0e0e]"
+                    className="relative size-10 sm:size-11 rounded-full flex items-center justify-center font-black text-sm shrink-0 z-10 ring-4 ring-[#0e0e0e]"
                     style={{
                       background: `linear-gradient(135deg, ${info.accentColor}, ${info.accentColor}90)`,
                       color: '#000',
@@ -689,14 +684,14 @@ export function LotteryInfoPage() {
                   </div>
                   {/* Card */}
                   <div
-                    className="flex-1 rounded-xl p-4 border"
+                    className="flex-1 rounded-2xl p-5 border"
                     style={{
                       background: '#0c0c0c',
                       borderColor: i === 0 ? `${info.accentColor}35` : 'rgba(255,255,255,0.06)',
                     }}
                   >
-                    <h3 className="font-bold text-sm text-foreground mb-1">{step.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                    <h3 className="font-bold text-base sm:text-lg text-white mb-1">{step.title}</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed font-normal">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -705,20 +700,20 @@ export function LotteryInfoPage() {
         </section>
 
         {/* ── Single-column stack for content to avoid empty space ── */}
-        <div className="space-y-14">
+        <div className="space-y-14 sm:space-y-16">
 
           {/* Winning Rules */}
           <section>
             <SectionHeading
-              icon={<Trophy className="size-4" style={{ color: info.accentColor }} />}
+              icon={<Trophy className="size-5" style={{ color: info.accentColor }} />}
               title="How Winning Works"
               accent={info.accentColor}
             />
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-4">
               {info.winningRules.map((rule) => (
                 <div
                   key={rule.rule}
-                  className="flex items-start gap-4 p-4 rounded-xl border"
+                  className="flex items-start gap-4 p-5 rounded-2xl border"
                   style={{ background: '#0c0c0c', borderColor: 'rgba(255,255,255,0.07)' }}
                 >
                   <div
@@ -728,8 +723,8 @@ export function LotteryInfoPage() {
                     {rule.icon}
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-foreground mb-0.5">{rule.rule}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{rule.desc}</p>
+                    <h3 className="font-bold text-base text-white mb-1">{rule.rule}</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed font-normal">{rule.desc}</p>
                   </div>
                 </div>
               ))}
@@ -738,42 +733,41 @@ export function LotteryInfoPage() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Bet Limits */}
-            <section>
+            <section className="flex flex-col">
               <SectionHeading
-                icon={<Shield className="size-4" style={{ color: info.accentColor }} />}
+                icon={<Shield className="size-5" style={{ color: info.accentColor }} />}
                 title="Bet Limits"
                 accent={info.accentColor}
               />
               <div
-                className="rounded-xl overflow-hidden border h-[calc(100%-3.5rem)]"
+                className="rounded-2xl border divide-y divide-white/5 overflow-hidden flex-1"
                 style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0c0c' }}
               >
                 {[
                   {
-                    icon: <TrendingUp className="size-3.5" style={{ color: info.accentColor }} />,
+                    icon: <TrendingUp className="size-4" style={{ color: info.accentColor }} />,
                     title: 'Dynamic Maximum',
                     desc: 'Each draw has a total bet limit per number. Live remaining limits are shown on the game page.',
                   },
                   {
-                    icon: <Clock className="size-3.5" style={{ color: info.accentColor }} />,
+                    icon: <Clock className="size-4" style={{ color: info.accentColor }} />,
                     title: 'Limits Reset Per Draw',
                     desc: 'A limit reached for one draw slot does not affect another draw slot for the same number.',
                   },
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className={`flex items-start gap-3 p-4 ${i === 0 ? 'border-b' : ''}`}
-                    style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+                    className="flex items-start gap-3.5 p-4 sm:p-5"
                   >
                     <div
-                      className="size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                      className="size-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                       style={{ background: `${info.accentColor}15`, border: `1px solid ${info.accentColor}30` }}
                     >
                       {item.icon}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-foreground mb-0.5">{item.title}</p>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
+                      <p className="text-sm sm:text-base font-bold text-white mb-1">{item.title}</p>
+                      <p className="text-xs sm:text-sm text-gray-400 leading-relaxed font-normal">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -781,26 +775,26 @@ export function LotteryInfoPage() {
             </section>
 
             {/* Pro Tips */}
-            <section>
+            <section className="flex flex-col">
               <SectionHeading
-                icon={<Star className="size-4" style={{ color: info.accentColor }} />}
+                icon={<Star className="size-5" style={{ color: info.accentColor }} />}
                 title="Pro Tips"
                 accent={info.accentColor}
               />
-              <div className="space-y-2">
+              <div className="space-y-2.5 flex-1">
                 {info.tips.map((tip, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-3 px-3.5 py-3 rounded-xl border"
+                    className="flex items-start gap-3.5 px-4 py-3 rounded-2xl border"
                     style={{ background: '#0c0c0c', borderColor: 'rgba(255,255,255,0.07)' }}
                   >
                     <span
-                      className="size-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5"
+                      className="size-6 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 mt-0.5"
                       style={{ background: `${info.accentColor}20`, color: info.accentColor }}
                     >
                       {i + 1}
                     </span>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">{tip}</p>
+                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed font-normal">{tip}</p>
                   </div>
                 ))}
               </div>
@@ -811,13 +805,13 @@ export function LotteryInfoPage() {
         {/* ── FAQ — accordion ── */}
         <section className="pb-6">
           <SectionHeading
-            icon={<HelpCircle className="size-4" style={{ color: info.accentColor }} />}
+            icon={<HelpCircle className="size-5" style={{ color: info.accentColor }} />}
             title="Frequently Asked Questions"
             accent={info.accentColor}
           />
           <div
             className="rounded-2xl border divide-y divide-white/5 overflow-hidden"
-            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0b0b0b' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0c0c0c' }}
           >
             {info.faq.map((item, i) => (
               <div
@@ -827,16 +821,16 @@ export function LotteryInfoPage() {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.015] transition-colors"
+                  className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-white/[0.015] transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3.5">
                     <span
-                      className="shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded"
+                      className="shrink-0 text-xs font-black px-2 py-0.5 rounded"
                       style={{ color: info.accentColor, background: `${info.accentColor}18` }}
                     >
                       Q
                     </span>
-                    <span className="text-sm font-semibold text-foreground leading-snug">{item.q}</span>
+                    <span className="text-base font-bold text-white leading-snug">{item.q}</span>
                   </div>
                   <div className="shrink-0 text-muted-foreground/60">
                     {openFaq === i
@@ -846,14 +840,14 @@ export function LotteryInfoPage() {
                   </div>
                 </button>
                 {openFaq === i && (
-                  <div className="flex gap-3 px-5 pb-4 pt-0">
+                  <div className="flex gap-3.5 px-5 sm:px-6 pb-5 pt-0">
                     <span
-                      className="shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded h-fit mt-0.5"
+                      className="shrink-0 text-xs font-black px-2 py-0.5 rounded h-fit mt-0.5"
                       style={{ color: '#6b7280', background: 'rgba(255,255,255,0.05)' }}
                     >
                       A
                     </span>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{item.a}</p>
+                    <p className="text-sm text-gray-400 leading-relaxed font-normal">{item.a}</p>
                   </div>
                 )}
               </div>

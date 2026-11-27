@@ -97,8 +97,8 @@ export function ResultsPage() {
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border flex items-center gap-2.5 ${activeTab === tab.id
-                  ? 'gold-gradient shadow-md'
-                  : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                ? 'gold-gradient shadow-md'
+                : 'bg-fortune-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                 }`}
             >
               {getTabIcon(tab.id)}
@@ -125,12 +125,12 @@ export function ResultsPage() {
                   </div>
                   <div className="flex items-center justify-between mt-2 pt-4 border-t border-white/5 gap-4">
                     <div className="flex items-center gap-2">
-                       <div className="size-12 rounded-full bg-white/5" />
-                       <div className="size-12 rounded-full bg-white/5" />
+                      <div className="size-12 rounded-full bg-white/5" />
+                      <div className="size-12 rounded-full bg-white/5" />
                     </div>
                     <div className="flex items-center gap-2">
-                       <div className="size-10 rounded-full bg-white/5" />
-                       <div className="size-10 rounded-full bg-white/5" />
+                      <div className="size-10 rounded-full bg-white/5" />
+                      <div className="size-10 rounded-full bg-white/5" />
                     </div>
                   </div>
                 </CardContent>

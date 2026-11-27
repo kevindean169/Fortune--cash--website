@@ -76,6 +76,13 @@ export function GameCard({ game }: { game: APILottery }) {
         <img
           src={imageUrl}
           alt={displayName}
+          onError={(e) => {
+            const fallback = isPickSingle ? '/lachica_bigpot.png' : isPick34 ? '/pick3_pick4_logo.png' : '/lottery_machine.jpg'
+            if (e.currentTarget.src !== fallback) {
+              e.currentTarget.src = fallback
+              e.currentTarget.className = 'absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500'
+            }
+          }}
           className={`absolute inset-0 w-full h-full ${isFallbackLogo ? 'object-contain p-2' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
         />
         {/* slant overlay */}
