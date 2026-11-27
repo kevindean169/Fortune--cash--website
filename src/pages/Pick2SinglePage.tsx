@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, ChevronRight, Trash2 } from 'lucide-react'
+import { ArrowLeft, X, Ticket, Clock, Hash, ChevronDown, ChevronUp, ChevronRight, Trash2, Info } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTabManagement } from '@/context/TabManagementContext'
@@ -1618,8 +1618,8 @@ export function Pick2SinglePage() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-4">
           <Card className="max-w-sm w-full bg-fortune-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl animate-fadeIn">
             <CardContent className="p-6 text-center space-y-4">
-              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mx-auto text-primary text-xl">
-                ℹ
+              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mx-auto text-primary shadow-[0_0_15px_rgba(224,172,44,0.15)]">
+                <Info className="size-6 text-primary" strokeWidth={2.5} />
               </div>
               <p className="text-foreground text-sm font-semibold leading-relaxed">
                 {alertModal.message}

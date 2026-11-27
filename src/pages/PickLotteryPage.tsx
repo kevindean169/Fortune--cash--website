@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Clock, Trash2, X, AlertCircle, RefreshCw, Hash, Ticket, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Clock, Trash2, X, RefreshCw, Hash, Ticket, ChevronRight, Info } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useDateTimeCountdown } from '@/hooks/useDateTimeCountdown'
 import { LotterySkeleton } from '@/components/LotterySkeleton'
@@ -12,13 +12,13 @@ import './LotteryPurchase.css'
 
 interface BetRow {
   id: string
+  batchId: string
   pickType: 3 | 4
   number: string
   gameId: number
   gameName: string
-  drawTimes: string[]
+  drawTime: string
   amount: number
-  total: number
 }
 
 const getManualPickBaseUrl = () => {
@@ -151,6 +151,15 @@ function isMonstaActive(val?: string): boolean {
   if (!val) return false
   const s = String(val).toLowerCase()
   return s === 'red' || s === 'monsta' || s === 'r'
+}
+
+function formatPayoutMultiplier(val: any): string {
+  if (val === undefined || val === null || val === '') return '1'
+  const num = parseFloat(String(val))
+  if (isNaN(num)) return String(val)
+  if (Number.isInteger(num)) return String(num)
+  const rounded = Number(num.toFixed(2))
+  return String(rounded)
 }
 
 function getNextDrawTarget(lotteryData: any): string {
@@ -456,7 +465,7 @@ export function PickLotteryPage() {
       }
       const gameId = gameType === 'straight' ? 1 : 2
       const held = cart
-        .filter((c) => c.drawTimes.includes(drawTime) && c.number === trimmedNum && c.gameId === gameId)
+        .filter((c) => c.drawTime === drawTime && c.number === trimmedNum && c.gameId === gameId)
         .reduce((sum, c) => sum + c.amount, 0)
       return Math.max(0, baseLimit - held)
     }
@@ -466,7 +475,7 @@ export function PickLotteryPage() {
         ? (numberData ? numberData.p3_mega : parseFloat(detail.p3_remaining_megaball_bet_limit || '0'))
         : (numberData ? numberData.p4_mega : parseFloat(detail.p4_remaining_megaball_bet_limit || '0'))
       const held = cart
-        .filter((c) => c.drawTimes.includes(drawTime) && c.gameId === 3)
+        .filter((c) => c.drawTime === drawTime && c.gameId === 3)
         .reduce((sum, c) => sum + c.amount, 0)
       return Math.max(0, megaLimit - held)
     }
@@ -476,7 +485,7 @@ export function PickLotteryPage() {
         ? (numberData ? numberData.p3_monsta : parseFloat(detail.p3_remaining_monstaball_bet_limit || '0'))
         : (numberData ? numberData.p4_monsta : parseFloat(detail.p4_remaining_monstaball_bet_limit || '0'))
       const held = cart
-        .filter((c) => c.drawTimes.includes(drawTime) && c.gameId === 4)
+        .filter((c) => c.drawTime === drawTime && c.gameId === 4)
         .reduce((sum, c) => sum + c.amount, 0)
       return Math.max(0, monstaLimit - held)
     }
@@ -509,7 +518,7 @@ export function PickLotteryPage() {
     const interval = setInterval(() => {
       const passedSelected = selectedDrawTimes.filter((time) => isDrawTimePassed(time))
       const passedInCart = Array.from(
-        new Set(cart.flatMap((item) => item.drawTimes).filter((time) => isDrawTimePassed(time)))
+        new Set(cart.map((item) => item.drawTime).filter((time) => isDrawTimePassed(time)))
       )
 
       const allPassed = Array.from(new Set([...passedSelected, ...passedInCart]))
@@ -521,7 +530,7 @@ export function PickLotteryPage() {
         )
 
         setSelectedDrawTimes((prev) => prev.filter((t) => !allPassed.includes(t)))
-        setCart((prev) => prev.filter((item) => !item.drawTimes.some((t) => allPassed.includes(t))))
+        setCart((prev) => prev.filter((item) => !allPassed.includes(item.drawTime)))
       }
     }, 5000)
 
@@ -537,6 +546,17 @@ export function PickLotteryPage() {
     setSelectedDrawTimes((prev) =>
       prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
     )
+  }
+
+  // Quick Pick
+  const handleQuickPick = () => {
+    if (selectedDrawTimes.length === 0) {
+      showAlert('Please select draw time(s) first.')
+      return
+    }
+    const max = pickType === 3 ? 999 : 9999
+    const num = String(Math.floor(Math.random() * (max + 1))).padStart(pickType, '0')
+    setBetNumber(num)
   }
 
   // Clear inputs
@@ -592,12 +612,13 @@ export function PickLotteryPage() {
       showAlert('You cannot place bets on Megaball or Monstaball without placing a Straight or Box bet first.')
       return
     }
-    if (mega > (straight + box)) {
-      showAlert(`Megaball bet amount ($${mega}) cannot be greater than the main bet amount ($${straight + box}).`)
+    const mainBetTotal = Number((straight + box).toFixed(2))
+    if (mega > mainBetTotal) {
+      showAlert(`Megaball bet amount ($${mega.toFixed(2)}) cannot be greater than the main bet amount ($${mainBetTotal.toFixed(2)}).`)
       return
     }
-    if (monsta > (straight + box)) {
-      showAlert(`Monstaball bet amount ($${monsta}) cannot be greater than the main bet amount ($${straight + box}).`)
+    if (monsta > mainBetTotal) {
+      showAlert(`Monstaball bet amount ($${monsta.toFixed(2)}) cannot be greater than the main bet amount ($${mainBetTotal.toFixed(2)}).`)
       return
     }
 
@@ -607,7 +628,7 @@ export function PickLotteryPage() {
         const lim = getGameRemainingLimit('straight', time, trimmedNum)
         if (straight > lim) {
           const displayTime = formatDrawTimeToLocal(time).timeOnly || time
-          showAlert(`Cannot place bet. Bet amount of $${straight} for Straight exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
+          showAlert(`Cannot place bet. Bet amount of $${straight.toFixed(2)} for Straight exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
           return
         }
       }
@@ -619,7 +640,7 @@ export function PickLotteryPage() {
         const lim = getGameRemainingLimit('box', time, trimmedNum)
         if (box > lim) {
           const displayTime = formatDrawTimeToLocal(time).timeOnly || time
-          showAlert(`Cannot place bet. Bet amount of $${box} for Box exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
+          showAlert(`Cannot place bet. Bet amount of $${box.toFixed(2)} for Box exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
           return
         }
       }
@@ -631,7 +652,7 @@ export function PickLotteryPage() {
         const lim = getGameRemainingLimit('mega', time, trimmedNum)
         if (mega > lim) {
           const displayTime = formatDrawTimeToLocal(time).timeOnly || time
-          showAlert(`Cannot place bet. Bet amount of $${mega} for Megaball exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
+          showAlert(`Cannot place bet. Bet amount of $${mega.toFixed(2)} for Megaball exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
           return
         }
       }
@@ -643,80 +664,104 @@ export function PickLotteryPage() {
         const lim = getGameRemainingLimit('monsta', time, trimmedNum)
         if (monsta > lim) {
           const displayTime = formatDrawTimeToLocal(time).timeOnly || time
-          showAlert(`Cannot place bet. Bet amount of $${monsta} for Monstaball exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
+          showAlert(`Cannot place bet. Bet amount of $${monsta.toFixed(2)} for Monstaball exceeds the remaining limit of $${lim.toFixed(2)} for draw time ${displayTime}.`)
           return
         }
       }
     }
 
+    const batchId = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
     const newRows: BetRow[] = []
-    const slotsCount = selectedDrawTimes.length
 
-    if (straight > 0) {
-      newRows.push({
-        id: `${Date.now()}-1`,
-        pickType,
-        number: trimmedNum,
-        gameId: 1,
-        gameName: 'Straight',
-        drawTimes: [...selectedDrawTimes],
-        amount: straight,
-        total: straight * slotsCount,
-      })
-    }
-    if (box > 0) {
-      newRows.push({
-        id: `${Date.now()}-2`,
-        pickType,
-        number: trimmedNum,
-        gameId: 2,
-        gameName: 'Box',
-        drawTimes: [...selectedDrawTimes],
-        amount: box,
-        total: box * slotsCount,
-      })
-    }
-    if (mega > 0) {
-      newRows.push({
-        id: `${Date.now()}-3`,
-        pickType,
-        number: trimmedNum,
-        gameId: 3,
-        gameName: 'Megaball',
-        drawTimes: [...selectedDrawTimes],
-        amount: mega,
-        total: mega * slotsCount,
-      })
-    }
-    if (monsta > 0) {
-      newRows.push({
-        id: `${Date.now()}-4`,
-        pickType,
-        number: trimmedNum,
-        gameId: 4,
-        gameName: 'Monstaball',
-        drawTimes: [...selectedDrawTimes],
-        amount: monsta,
-        total: monsta * slotsCount,
-      })
+    for (const time of selectedDrawTimes) {
+      if (straight > 0) {
+        newRows.push({
+          id: `${Date.now()}-1-${time}`,
+          batchId,
+          pickType,
+          number: trimmedNum,
+          gameId: 1,
+          gameName: 'Straight',
+          drawTime: time,
+          amount: straight,
+        })
+      }
+      if (box > 0) {
+        newRows.push({
+          id: `${Date.now()}-2-${time}`,
+          batchId,
+          pickType,
+          number: trimmedNum,
+          gameId: 2,
+          gameName: 'Box',
+          drawTime: time,
+          amount: box,
+        })
+      }
+      if (mega > 0) {
+        newRows.push({
+          id: `${Date.now()}-3-${time}`,
+          batchId,
+          pickType,
+          number: trimmedNum,
+          gameId: 3,
+          gameName: 'Megaball',
+          drawTime: time,
+          amount: mega,
+        })
+      }
+      if (monsta > 0) {
+        newRows.push({
+          id: `${Date.now()}-4-${time}`,
+          batchId,
+          pickType,
+          number: trimmedNum,
+          gameId: 4,
+          gameName: 'Monstaball',
+          drawTime: time,
+          amount: monsta,
+        })
+      }
     }
 
     setCart((prev) => [...prev, ...newRows])
     handleClearData()
   }
 
-  // Remove item from cart
-  const handleRemoveBet = (id: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id))
+  // Remove batch / entry from cart
+  const handleRemoveBatch = (batchId: string) => {
+    setCart((prev) => prev.filter((item) => (item.batchId || `batch-${item.pickType}-${item.number}`) !== batchId))
+  }
+
+  // Remove single draw from entry
+  const handleRemoveDrawFromBatch = (batchId: string, drawTime: string) => {
+    setCart((prev) => prev.filter((item) => !((item.batchId || `batch-${item.pickType}-${item.number}`) === batchId && item.drawTime === drawTime)))
   }
 
   // Total cart amount
-  const grandTotal = cart.reduce((sum, item) => sum + item.total, 0)
+  const grandTotal = cart.reduce((sum, item) => sum + item.amount, 0)
+
+  // Grouped cart by Entry
+  const groupedCart = useMemo(() => {
+    const groups: { batchId: string; number: string; pickType: 3 | 4; draws: string[] }[] = []
+    cart.forEach((item) => {
+      const bId = item.batchId || `batch-${item.pickType}-${item.number}`
+      let existing = groups.find((g) => g.batchId === bId)
+      if (!existing) {
+        existing = { batchId: bId, number: item.number, pickType: item.pickType, draws: [] }
+        groups.push(existing)
+      }
+      if (!existing.draws.includes(item.drawTime)) {
+        existing.draws.push(item.drawTime)
+      }
+    })
+    return groups
+  }, [cart])
 
   // Submit Purchase to Admin 2
   const handlePurchase = async () => {
     if (!user || !accessToken) {
-      showAlert('Please login to place bets.', true)
+      showAlert('You need to log in first to place your bets.', true)
       return
     }
 
@@ -736,7 +781,7 @@ export function PickLotteryPage() {
     }
 
     const passedInCart = Array.from(
-      new Set(cart.flatMap((item) => item.drawTimes).filter((time) => isDrawTimePassed(time)))
+      new Set(cart.map((item) => item.drawTime).filter((time) => isDrawTimePassed(time)))
     )
     if (passedInCart.length > 0) {
       const displays = passedInCart.map((t) => formatDrawTimeToLocal(t).timeOnly).join(', ')
@@ -748,34 +793,34 @@ export function PickLotteryPage() {
     try {
       const manualPickUrl = getManualPickBaseUrl()
 
-      const groups: Record<string, {
+      const purchaseGroups: Record<string, {
         number: string
         pickType: number
         drawTimes: Set<string>
-        games: { gameId: number; amount: number }[]
+        games: Map<number, number>
       }> = {}
 
       cart.forEach((item) => {
         const key = `${item.pickType}-${item.number}`
-        if (!groups[key]) {
-          groups[key] = {
+        if (!purchaseGroups[key]) {
+          purchaseGroups[key] = {
             number: item.number,
             pickType: item.pickType,
             drawTimes: new Set(),
-            games: [],
+            games: new Map(),
           }
         }
-        item.drawTimes.forEach((t) => groups[key].drawTimes.add(t))
-        groups[key].games.push({ gameId: item.gameId, amount: item.amount })
+        purchaseGroups[key].drawTimes.add(item.drawTime)
+        purchaseGroups[key].games.set(item.gameId, item.amount)
       })
 
-      const resultPayload = Object.values(groups).map((grp) => ({
+      const resultPayload = Object.values(purchaseGroups).map((grp) => ({
         lottery_id: parseInt(lotteryId, 10),
         pick_type: grp.pickType,
         number: grp.number,
         draw_time: Array.from(grp.drawTimes),
-        game_id: grp.games.map((g) => g.gameId),
-        amount: grp.games.map((g) => g.amount),
+        game_id: Array.from(grp.games.keys()),
+        amount: Array.from(grp.games.values()),
       }))
 
       // Step 1: Submit Purchase
@@ -1030,7 +1075,7 @@ export function PickLotteryPage() {
   }
 
   return (
-    <div className="lottery-purchase-wrapper min-h-screen text-foreground">
+    <div className="min-h-0 py-1.5 sm:py-4 md:py-10">
       {/* Success Modal */}
       {payoutSuccess && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
@@ -1068,53 +1113,79 @@ export function PickLotteryPage() {
         </div>
       )}
 
-      {/* Alert / Login Redirect Modal */}
+      {/* Alert / Login Redirect Modal - Matches Admin 1 */}
       {alertModal.isOpen && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0c0c0c] border border-border/70 rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
-            <AlertCircle className="size-10 text-primary mx-auto" />
-            <p className="text-sm text-foreground">{alertModal.message}</p>
-            <Button
-              onClick={() => {
-                const redir = alertModal.isLoginRedirect
-                setAlertModal({ isOpen: false, message: '' })
-                if (redir) navigate('/login')
-              }}
-              className="w-full gold-gradient text-white font-bold py-2 rounded-xl"
-            >
-              {alertModal.isLoginRedirect ? 'Go to Login' : 'OK'}
-            </Button>
-          </div>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
+          <Card className="max-w-sm w-full bg-fortune-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl animate-fadeIn">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mx-auto text-primary shadow-[0_0_15px_rgba(224,172,44,0.15)]">
+                <Info className="size-6 text-primary" strokeWidth={2.5} />
+              </div>
+              <p className="text-foreground text-sm font-semibold leading-relaxed">
+                {alertModal.message}
+              </p>
+              {alertModal.isLoginRedirect ? (
+                <div className="flex gap-3 w-full">
+                  <Button
+                    type="button"
+                    onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                    variant="outline"
+                    className="flex-1 py-2.5 border-neutral-800 text-muted-foreground font-bold rounded-xl hover:bg-neutral-900"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })
+                      navigate('/login')
+                    }}
+                    className="flex-1 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                  >
+                    Login
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => setAlertModal({ isOpen: false, message: '', isLoginRedirect: false })}
+                  className="w-full py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all gold-glow"
+                >
+                  OK
+                </Button>
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6 space-y-1.5 sm:space-y-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         {/* Lottery Header styled identical to Cashpot & Pick 2 */}
-        <Card className="lottery-card-container overflow-hidden relative py-0 gap-0 min-h-0 h-14 sm:h-20 md:h-28 flex items-center shadow-lg">
-          <div className="absolute inset-0 w-full h-full flex justify-end">
+        <Card className="border border-border/60 mb-2 overflow-hidden relative py-0 gap-0 min-h-0 h-20 sm:h-24 md:h-28 flex items-center bg-[#0c0c0c]">
+          <div className="absolute inset-0 w-full h-full">
             <img
               src={lotteryImage}
               alt={lotteryName}
               onError={(e) => { e.currentTarget.src = '/pick3_pick4_logo.png' }}
-              className="h-full object-contain p-1 sm:p-2 opacity-90 z-0"
+              className="w-full h-full object-cover opacity-80"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
           </div>
 
-          <CardContent className="p-2 sm:p-4 md:p-5 flex flex-row items-center justify-between gap-2 sm:gap-4 w-full relative z-10">
-            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <CardContent className="p-3 sm:p-4 md:p-5 flex flex-row items-center justify-between gap-2 sm:gap-4 w-full relative z-10">
+            <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={() => navigate('/lotteries')}
-                className="size-7 sm:size-9 bg-background/80 backdrop-blur border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
+                className="size-8 sm:size-9 bg-background/80 backdrop-blur border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all shrink-0"
               >
-                <ArrowLeft className="size-3.5 sm:size-4" />
+                <ArrowLeft className="size-4" />
               </button>
 
               <div className="min-w-0">
-                <h1 className="text-xs sm:text-lg md:text-xl font-black text-white uppercase tracking-wide truncate leading-tight">
+                <h1 className="text-sm sm:text-lg md:text-xl font-black text-white uppercase tracking-wide truncate leading-tight">
                   {lotteryName}
                 </h1>
-                <p className="text-[9px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider truncate leading-none mt-0.5">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider truncate leading-none mt-0.5">
                   Type: <span className="text-primary">Pick 3 & Pick 4</span>
                 </p>
               </div>
@@ -1125,7 +1196,7 @@ export function PickLotteryPage() {
               <span className="text-[10px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest hidden sm:inline mr-1 lg:mr-3">
                 {isNotStarted ? 'Draw Starts In:' : isExpired ? 'Lottery Closed:' : 'Next Draw:'}
               </span>
-              <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-sm lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-1.5 py-0.5 sm:px-2.5 sm:py-1.5 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(224,172,44,0.15)]">
+              <div className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-sm lg:text-lg font-black tabular-nums bg-black/60 border border-primary/20 px-2 py-1 sm:px-2.5 sm:py-1.5 lg:px-4 lg:py-2 rounded-lg text-white shadow-[0_0_10px_rgba(var(--primary),0.1)]">
                 <span className="text-primary">{d}d</span>
                 <span className="text-muted-foreground/60">:</span>
                 <span>{h}h</span>
@@ -1139,7 +1210,7 @@ export function PickLotteryPage() {
         </Card>
 
         {/* Action Tabs */}
-        <div className="relative mb-1 sm:mb-2 group">
+        <div className="relative mb-2 group">
           <div className="flex gap-0 border-b border-border/50 overflow-x-auto scrollbar-hide">
             {[
               { id: 'buy', label: 'Buy Tickets' },
@@ -1151,7 +1222,7 @@ export function PickLotteryPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${
+                className={`px-4 py-1.5 text-xs font-bold border-2 transition-all whitespace-nowrap uppercase ${
                   activeTab === tab.id
                     ? 'lottery-tab-active-gold'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -1244,6 +1315,20 @@ export function PickLotteryPage() {
                           })
                         )}
                       </div>
+                    </div>
+
+                    {/* Heading: Pick your Bet Numbers & Quick Pick */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-extrabold text-sm sm:text-base text-white uppercase tracking-wide">
+                        Pick your bet numbers
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={handleQuickPick}
+                        className="px-3 py-1 bg-neutral-900 border border-neutral-800 text-foreground text-xs font-bold rounded-lg hover:border-primary/50 transition-colors"
+                      >
+                        Quick Pick
+                      </button>
                     </div>
 
                     {/* Pick 3 vs Pick 4 Segmented Toggle */}
@@ -1394,7 +1479,7 @@ export function PickLotteryPage() {
                     <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
                       <div>
                         <h3 className="font-black text-2xl text-white">Your Bet Slip</h3>
-                        <p className="text-xs text-muted-foreground">{cart.length} bet(s) queued</p>
+                        <p className="text-xs text-muted-foreground">{groupedCart.length} entry(s) queued</p>
                       </div>
                       {cart.length > 0 && (
                         <button
@@ -1406,37 +1491,72 @@ export function PickLotteryPage() {
                       )}
                     </div>
 
-                    {/* Queued List */}
-                    <div className="max-h-[350px] overflow-y-auto space-y-2 divide-y divide-white/5 pr-1">
-                      {cart.length === 0 ? (
+                    {/* Queued List: Grouped by Entry & Draw Time */}
+                    <div className="max-h-[380px] overflow-y-auto space-y-3 pr-1 scrollbar-thin scrollbar-thumb-neutral-800">
+                      {groupedCart.length === 0 ? (
                         <div className="py-12 text-center text-muted-foreground text-xs">
                           No bets in slip yet. Pick numbers & amounts to add.
                         </div>
                       ) : (
-                        cart.map((item) => (
-                          <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono font-black text-primary text-sm">{item.number}</span>
-                                <span className="bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">
-                                  P{item.pickType} &bull; {item.gameName}
-                                </span>
+                        groupedCart.map((group, idx) => {
+                          const groupItems = cart.filter((c) => c.batchId === group.batchId)
+                          const itemsByDraw = groupItems.reduce((acc, item) => {
+                            if (!acc[item.drawTime]) acc[item.drawTime] = []
+                            acc[item.drawTime].push(item)
+                            return acc
+                          }, {} as Record<string, typeof cart>)
+
+                          return (
+                            <div key={group.batchId} className="animate-fadeIn">
+                              <div className="flex items-center justify-between bg-primary/10 border border-primary/20 border-b-0 px-3 py-1.5 rounded-t-xl">
+                                <span className="text-xs font-bold text-primary px-1">Entry {idx + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveBatch(group.batchId)}
+                                  className="text-muted-foreground hover:text-red-400 p-1"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                {item.drawTimes.length} draw(s): {item.drawTimes.map((t) => formatDrawTimeToLocal(t).timeOnly).join(', ')}
-                              </p>
+                              <div className="bg-[#0d0d0d] border border-border/40 rounded-b-xl p-2.5 space-y-2">
+                                {Object.entries(itemsByDraw).map(([time, items], tIdx) => (
+                                  <div key={time} className={tIdx > 0 ? "border-t border-border/30 pt-2 relative" : "relative"}>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveDrawFromBatch(group.batchId, time)}
+                                      className="absolute right-1 top-0.5 z-10 text-muted-foreground/40 hover:text-red-400 transition-colors"
+                                      title="Remove this draw"
+                                    >
+                                      <X className="size-3.5" />
+                                    </button>
+                                    {items.map((item) => (
+                                      <div key={item.id} className="flex items-center justify-between text-xs py-1">
+                                        <div className="flex items-center gap-2 w-[45%]">
+                                          {item.gameName.toLowerCase().includes('mega') ? (
+                                            <span className="size-5 bg-[#d4af37] rounded-full shadow-sm shrink-0" />
+                                          ) : item.gameName.toLowerCase().includes('monsta') ? (
+                                            <span className="size-5 bg-[#ef4444] rounded-full shadow-sm shrink-0" />
+                                          ) : (
+                                            <span className="flex items-center justify-center min-w-[22px] px-1 h-5 bg-white text-black rounded-full font-black text-[10px] shadow-sm shrink-0">
+                                              {item.number}
+                                            </span>
+                                          )}
+                                          <span className="font-bold text-foreground truncate">{item.gameName}</span>
+                                        </div>
+                                        <span className="text-muted-foreground text-[11px] font-medium w-[25%] text-left">
+                                          {formatDrawTimeToLocal(time).timeOnly || time}
+                                        </span>
+                                        <span className="font-extrabold text-foreground w-[30%] text-right pr-4">
+                                          $ {item.amount.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-white text-xs">{formatUsd(item.total)}</span>
-                              <button
-                                onClick={() => handleRemoveBet(item.id)}
-                                className="text-red-400 hover:text-red-300 p-1"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
+                          )
+                        })
                       )}
                     </div>
 
@@ -1445,10 +1565,6 @@ export function PickLotteryPage() {
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground font-bold">Total Stake:</span>
                         <span className="text-lg font-black text-primary">{formatUsd(grandTotal)}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs text-muted-foreground">
-                        <span>Wallet Balance:</span>
-                        <span className="font-semibold text-white">{formatUsd(walletBalance)}</span>
                       </div>
 
                       <Button
@@ -1469,7 +1585,7 @@ export function PickLotteryPage() {
             </div>
 
             {/* Mobile Responsive Single Page View (Matches Admin 1 Mobile View, No Scroll) */}
-            <div className="lg:hidden space-y-1 pb-24">
+            <div className="lg:hidden space-y-1 pb-20">
               {/* Draws selection */}
               <Card className="bg-fortune-card border border-border/60 py-0">
                 <CardContent className="px-3 py-1">
@@ -1508,13 +1624,26 @@ export function PickLotteryPage() {
               {/* Pick Game & Bet Number */}
               <Card className="bg-fortune-card border border-border/60 py-0">
                 <CardContent className="px-3 py-1 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <h3 className="font-black text-[11px] text-foreground uppercase tracking-wider">
+                      Pick your Bet Numbers
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={handleQuickPick}
+                      className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-foreground text-[10px] font-bold rounded hover:border-primary/50 transition-colors"
+                    >
+                      Quick Pick
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
                     {/* Pick 3 vs Pick 4 */}
-                    <div className="flex p-0.5 bg-black/60 rounded-lg border border-neutral-800">
+                    <div className="flex p-0.5 bg-black/60 rounded-lg border border-neutral-800 shrink-0">
                       <button
                         type="button"
                         onClick={() => { setPickType(3); setBetNumber('') }}
-                        className={`px-3 py-0.5 rounded-md text-[11px] font-black uppercase transition-all ${
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase transition-all ${
                           pickType === 3 ? 'bg-primary text-black font-extrabold shadow-sm' : 'text-muted-foreground hover:text-white'
                         }`}
                       >
@@ -1523,7 +1652,7 @@ export function PickLotteryPage() {
                       <button
                         type="button"
                         onClick={() => { setPickType(4); setBetNumber('') }}
-                        className={`px-3 py-0.5 rounded-md text-[11px] font-black uppercase transition-all ${
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase transition-all ${
                           pickType === 4 ? 'bg-primary text-black font-extrabold shadow-sm' : 'text-muted-foreground hover:text-white'
                         }`}
                       >
@@ -1531,34 +1660,21 @@ export function PickLotteryPage() {
                       </button>
                     </div>
 
-                    {/* Quick Pick Random Number */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const max = pickType === 3 ? 999 : 9999
-                        const num = String(Math.floor(Math.random() * (max + 1))).padStart(pickType, '0')
-                        setBetNumber(num)
-                      }}
-                      className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-foreground text-[10px] font-bold rounded hover:border-primary/50"
-                    >
-                      Quick Pick
-                    </button>
-                  </div>
-
-                  {/* Compact Number Input */}
-                  <div className="flex items-center bg-black/60 border border-neutral-800 rounded-lg overflow-hidden focus-within:border-primary">
-                    <span className="text-[11px] font-bold text-primary px-2.5 py-1 shrink-0 bg-primary/10 border-r border-border/40 uppercase">
-                      Bet No.
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={pickType === 3 ? 3 : 4}
-                      value={betNumber}
-                      onChange={(e) => setBetNumber(e.target.value.replace(/\D/g, ''))}
-                      placeholder={`Enter ${pickType}-digit number`}
-                      className="w-full bg-transparent text-white px-2.5 py-1 text-xs focus:outline-none font-mono tracking-widest placeholder:text-muted-foreground/40"
-                    />
+                    {/* Compact Number Input */}
+                    <div className="flex flex-1 items-center bg-black/60 border border-neutral-800 rounded-lg overflow-hidden focus-within:border-primary">
+                      <span className="text-[11px] font-bold text-primary px-2.5 py-1 shrink-0 bg-primary/10 border-r border-border/40 uppercase">
+                        Bet No.
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={pickType === 3 ? 3 : 4}
+                        value={betNumber}
+                        onChange={(e) => setBetNumber(e.target.value.replace(/\D/g, ''))}
+                        placeholder={`Enter ${pickType}-digit number`}
+                        className="w-full bg-transparent text-white px-2 py-1 text-xs focus:outline-none font-mono tracking-widest placeholder:text-muted-foreground/40"
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1574,7 +1690,7 @@ export function PickLotteryPage() {
 
                       return (
                         <div key={game.key} className="flex flex-col space-y-1">
-                          <span className={`text-[9px] font-bold text-center truncate ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                          <span className={`text-[9px] font-bold text-left pl-0.5 truncate ${isDisabled ? 'text-muted-foreground/50' : 'text-foreground'}`}>
                             {game.name}
                           </span>
                           <div
@@ -1645,7 +1761,7 @@ export function PickLotteryPage() {
                   onClick={() => setShowBetsModal(true)}
                   className="total-bets-btn-black w-full"
                 >
-                  Total Bets View ({cart.length}) {grandTotal > 0 ? `• ${formatUsd(grandTotal)}` : ''}
+                  Total Bets View ({groupedCart.length}) {grandTotal > 0 ? `• ${formatUsd(grandTotal)}` : ''}
                 </Button>
               </div>
 
@@ -1762,7 +1878,7 @@ export function PickLotteryPage() {
                                     {k.replace(/pick3_box_|_/g, ' ')}
                                   </span>
                                   <span className="font-extrabold text-primary">
-                                    Bet Amount x {v as string}
+                                    Bet Amount x {formatPayoutMultiplier(v)}
                                   </span>
                                 </div>
                               ))
@@ -1770,7 +1886,7 @@ export function PickLotteryPage() {
                               <div className="flex justify-between items-center text-sm py-1">
                                 <span className="text-xs text-muted-foreground font-semibold">Standard Stake Multiplier</span>
                                 <span className="font-extrabold text-primary">
-                                  Bet Amount x {item.bet_amount || '1'}
+                                  Bet Amount x {formatPayoutMultiplier(item.bet_amount)}
                                 </span>
                               </div>
                             )}
@@ -1809,7 +1925,7 @@ export function PickLotteryPage() {
                                     {k.replace(/pick4_box_|_/g, ' ')}
                                   </span>
                                   <span className="font-extrabold text-primary">
-                                    Bet Amount x {v as string}
+                                    Bet Amount x {formatPayoutMultiplier(v)}
                                   </span>
                                 </div>
                               ))
@@ -1817,7 +1933,7 @@ export function PickLotteryPage() {
                               <div className="flex justify-between items-center text-sm py-1">
                                 <span className="text-xs text-muted-foreground font-semibold">Standard Stake Multiplier</span>
                                 <span className="font-extrabold text-primary">
-                                  Bet Amount x {item.bet_amount || '1'}
+                                  Bet Amount x {formatPayoutMultiplier(item.bet_amount)}
                                 </span>
                               </div>
                             )}
@@ -1911,7 +2027,7 @@ export function PickLotteryPage() {
                           <p className="text-[10px] text-muted-foreground">Remaining stake allowed</p>
                         </div>
                         <span className="px-3 py-1 font-bold rounded-lg text-xs border border-green-500/30 bg-green-500/10 text-green-400">
-                          ${currentDrawDetail?.p3_remaining_megaball_bet_limit || currentDrawDetail?.p4_remaining_megaball_bet_limit || '400.00'}
+                          ${parseFloat(String(currentDrawDetail?.p3_remaining_megaball_bet_limit || currentDrawDetail?.p4_remaining_megaball_bet_limit || '400')).toFixed(2)}
                         </span>
                       </div>
 
@@ -1922,7 +2038,7 @@ export function PickLotteryPage() {
                             <p className="text-[10px] text-muted-foreground">Remaining stake allowed</p>
                           </div>
                           <span className="px-3 py-1 font-bold rounded-lg text-xs border border-green-500/30 bg-green-500/10 text-green-400">
-                            ${currentDrawDetail?.p3_remaining_monstaball_bet_limit || currentDrawDetail?.p4_remaining_monstaball_bet_limit || '300.00'}
+                            ${parseFloat(String(currentDrawDetail?.p3_remaining_monstaball_bet_limit || currentDrawDetail?.p4_remaining_monstaball_bet_limit || '300')).toFixed(2)}
                           </span>
                         </div>
                       )}
@@ -2127,7 +2243,7 @@ export function PickLotteryPage() {
             {/* Header */}
             <div className="p-4 border-b border-border/40 flex justify-between items-center bg-[#0d0d0d] sm:rounded-t-2xl">
               <h3 className="font-black text-lg text-foreground tracking-wide flex items-center gap-2">
-                <Ticket className="size-5 text-primary" /> Total Bets ({cart.length})
+                <Ticket className="size-5 text-primary" /> Total Bets ({groupedCart.length})
               </h3>
               <button
                 onClick={() => setShowBetsModal(false)}
@@ -2137,65 +2253,97 @@ export function PickLotteryPage() {
               </button>
             </div>
 
-            {/* Bet list */}
-            <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-800 bg-[#0a0a0a] space-y-2.5 divide-y divide-white/5">
-              {cart.length === 0 ? (
+            {/* Bet list: Grouped by Entry & Draw Times matching Admin 1 */}
+            <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-800 bg-[#0a0a0a]">
+              {groupedCart.length === 0 ? (
                 <div className="text-center py-20 flex flex-col items-center justify-center">
                   <Ticket className="size-12 text-primary/60 mb-4" />
                   <p className="text-muted-foreground text-sm font-semibold">No bets added to cart yet.</p>
                   <p className="text-xs text-muted-foreground/50 mt-1">Configure options and click "Add Bet".</p>
                 </div>
               ) : (
-                cart.map((item) => (
-                  <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-primary text-sm">{item.number}</span>
-                        <span className="bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">
-                          Pick {item.pickType} &bull; {item.gameName}
-                        </span>
+                <div className="space-y-4 pr-1">
+                  {groupedCart.map((group, idx) => {
+                    const groupItems = cart.filter((c) => c.batchId === group.batchId)
+                    const itemsByDraw = groupItems.reduce((acc, item) => {
+                      if (!acc[item.drawTime]) acc[item.drawTime] = []
+                      acc[item.drawTime].push(item)
+                      return acc
+                    }, {} as Record<string, typeof cart>)
+
+                    return (
+                      <div key={group.batchId} className="animate-fadeIn">
+                        <div className="flex items-center justify-between bg-primary/10 border border-primary/20 border-b-0 px-3 py-2 rounded-t-xl">
+                          <span className="text-[11px] font-bold text-primary px-1">Entry {idx + 1}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBatch(group.batchId)}
+                            className="text-muted-foreground hover:text-red-400 p-1"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                        <div className="bg-[#0d0d0d] border border-border/40 rounded-b-xl p-2.5 space-y-2">
+                          {Object.entries(itemsByDraw).map(([time, items], tIdx) => (
+                            <div key={time} className={tIdx > 0 ? "border-t border-border/30 pt-2 relative" : "relative"}>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveDrawFromBatch(group.batchId, time)}
+                                className="absolute right-1 top-0.5 z-10 text-muted-foreground/40 hover:text-red-400 transition-colors"
+                                title="Remove this draw"
+                              >
+                                <X className="size-3.5" />
+                              </button>
+                              {items.map((item) => (
+                                <div key={item.id} className="flex items-center justify-between text-[11px] py-1.5 px-1">
+                                  <div className="flex items-center gap-2 w-[45%]">
+                                    {item.gameName.toLowerCase().includes('mega') ? (
+                                      <span className="size-[22px] bg-[#d4af37] rounded-full shadow-sm shrink-0" />
+                                    ) : item.gameName.toLowerCase().includes('monsta') ? (
+                                      <span className="size-[22px] bg-[#ef4444] rounded-full shadow-sm shrink-0" />
+                                    ) : (
+                                      <span className="flex items-center justify-center min-w-[24px] px-1 h-[22px] bg-white text-black rounded-full font-black text-[10px] shadow-sm shrink-0">
+                                        {item.number}
+                                      </span>
+                                    )}
+                                    <span className="font-bold text-foreground truncate">{item.gameName}</span>
+                                  </div>
+                                  <span className="text-muted-foreground w-[25%] text-left font-medium">
+                                    {formatDrawTimeToLocal(time).timeOnly || time}
+                                  </span>
+                                  <span className="font-extrabold text-foreground w-[30%] text-right pr-5">
+                                    $ {item.amount.toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-1">
-                        Slots: {item.drawTimes.map((t) => formatDrawTimeToLocal(t).timeOnly).join(', ')} ({item.drawTimes.length} draws)
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-white text-sm">{formatUsd(item.total)}</span>
-                      <button
-                        onClick={() => handleRemoveBet(item.id)}
-                        className="text-red-400 hover:text-red-300 p-1"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))
+                    )
+                  })}
+                </div>
               )}
             </div>
 
             {/* Footer / Checkout */}
-            <div className="p-4 border-t border-border/40 bg-[#0d0d0d] sm:rounded-b-2xl pb-8 sm:pb-4 space-y-3">
-              <div className="flex justify-between items-center text-sm font-bold">
-                <span className="text-muted-foreground">Grand Total:</span>
+            <div className="p-4 border-t border-border/40 bg-[#0d0d0d] sm:rounded-b-2xl pb-safe">
+              <div className="flex justify-between items-center mb-4 px-1">
+                <span className="text-muted-foreground text-sm font-bold">Grand Total:</span>
                 <span className="font-black text-2xl text-green-400">{formatUsd(grandTotal)}</span>
               </div>
-              <div className="flex justify-between items-center text-xs text-muted-foreground">
-                <span>Wallet Balance:</span>
-                <span className="font-semibold text-white">{formatUsd(walletBalance)}</span>
-              </div>
-
-              <div className="flex gap-3 pt-1">
+              <div className="flex gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowBetsModal(false)}
-                  className="flex-1 h-[50px] border-primary/40 bg-primary/5 text-primary text-sm font-extrabold rounded-xl hover:bg-primary/20 hover:text-primary transition-colors"
+                  className="flex-1 h-[54px] border-primary/40 bg-primary/5 text-primary text-sm font-extrabold rounded-xl hover:bg-primary/20 hover:text-primary transition-colors"
                 >
                   + Add More
                 </Button>
                 <Button
                   onClick={handlePurchase}
                   disabled={checkoutLoading || cart.length === 0}
-                  className={`flex-[1.2] h-[50px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${
+                  className={`flex-[1.2] h-[54px] font-extrabold text-[15px] uppercase tracking-wider rounded-lg transition-all ${
                     cart.length === 0 || checkoutLoading
                       ? 'bg-muted border border-border text-muted-foreground cursor-not-allowed'
                       : 'bet-add-btn-green'
